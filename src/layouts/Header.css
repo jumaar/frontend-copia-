@@ -1,0 +1,36 @@
+.header {
+  background-color: var(--color-card-bg);
+  border-bottom: 1px solid var(--color-border);
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 calc(var(--spacing-unit) * 4);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-unit);
+  font-weight: var(--font-weight-medium);
+}

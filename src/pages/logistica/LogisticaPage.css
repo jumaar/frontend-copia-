@@ -1,0 +1,60 @@
+.logistica-page {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+}
+
+.shipments-section {
+  padding: calc(var(--spacing-unit) * 3);
+}
+
+.shipments-section h2 {
+  margin-top: 0;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.shipments-list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.shipment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(var(--spacing-unit) * 2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-hover-bg);
+}
+
+.shipment-info h4 {
+  margin: 0 0 calc(var(--spacing-unit) * 0.5) 0;
+  font-size: 1.1rem;
+}
+
+.shipment-info p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.status-label {
+  padding: calc(var(--spacing-unit) * 0.75) calc(var(--spacing-unit) * 1.5);
+  border-radius: 999px; /* Pill shape */
+  font-weight: var(--font-weight-medium);
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.status-en-ruta {
+  background-color: #3b82f6; /* Blue */
+}
+
+.status-entregado {
+  background-color: var(--color-secondary); /* Emerald */
+}
+
+.status-pendiente {
+  background-color: #a855f7; /* Purple */
+}

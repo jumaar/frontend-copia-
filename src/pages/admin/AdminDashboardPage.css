@@ -1,0 +1,28 @@
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+}
+
+.dashboard-header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: calc(var(--spacing-unit) * 2);
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.dashboard-header p {
+  margin: 0;
+  margin-top: var(--spacing-unit);
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: calc(var(--spacing-unit) * 3);
+}

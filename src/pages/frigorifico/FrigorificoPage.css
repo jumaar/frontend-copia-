@@ -1,0 +1,55 @@
+.frigorifico-page {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+}
+
+.lots-section {
+  padding: calc(var(--spacing-unit) * 3);
+}
+
+.lots-section h2 {
+  margin-top: 0;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.lots-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lots-table th,
+.lots-table td {
+  padding: calc(var(--spacing-unit) * 1.5);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lots-table th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.lots-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-chip {
+  padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.status-en-stock {
+  background-color: var(--color-secondary);
+  color: #fff;
+}
+
+.status-despachado {
+  background-color: var(--color-hover-bg);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}

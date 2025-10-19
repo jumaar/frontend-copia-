@@ -1,0 +1,76 @@
+.management-page {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+}
+
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit) * 2);
+  padding-bottom: calc(var(--spacing-unit) * 2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.management-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  flex-basis: 100%; /* Full width on small screens */
+}
+
+.management-header p {
+    margin: 0;
+    flex-basis: 100%;
+}
+
+.management-table-container {
+  padding: 0; /* Remove padding to let table fit */
+  overflow-x: auto; /* For responsive tables */
+}
+
+.management-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.management-table th,
+.management-table td {
+  padding: calc(var(--spacing-unit) * 2);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.management-table th {
+  background-color: var(--color-hover-bg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.management-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.management-table tbody tr:hover {
+    background-color: var(--color-hover-bg);
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: var(--spacing-unit);
+  font-weight: var(--font-weight-medium);
+}
+
+.action-button:hover {
+  text-decoration: underline;
+}
+
+.action-button.delete {
+  color: #ef4444; /* Red */
+}

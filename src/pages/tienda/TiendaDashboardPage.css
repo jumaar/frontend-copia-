@@ -1,0 +1,57 @@
+.tienda-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+}
+
+.inventory-section {
+  padding: calc(var(--spacing-unit) * 3);
+}
+
+.inventory-section h2 {
+  margin-top: 0;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: calc(var(--spacing-unit) * 1.5);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inventory-table th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.inventory-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-badge {
+  padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-medium);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.status-en-stock {
+  background-color: var(--color-secondary); /* Emerald */
+}
+
+.status-bajo-stock {
+  background-color: #f59e0b; /* Amber */
+}
+
+.status-agotado {
+  background-color: #ef4444; /* Red */
+}

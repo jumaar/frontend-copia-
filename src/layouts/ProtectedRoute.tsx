@@ -1,32 +1,42 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useContext } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
 
-// Este componente actúa como un "guardia" para las rutas privadas.
-// Verifica el estado de autenticación antes de renderizar el contenido protegido.
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  // isLoading se asegura de que el estado de autenticación se haya cargado.
-  // Mientras se carga, no renderizamos nada para evitar un parpadeo.
-  if (isLoading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}>
-        <div>Cargando...</div>
-      </div>
-    );
-  }
-
-  // Si no está autenticado, lo redirigimos a la página de inicio de sesión.
-  if (!isAuthenticated) {
-    return <Navigate to="/sign-in" />;
-  }
-
-  // Si el usuario está autenticado, renderizamos el contenido protegido.
-  return <>{children}</>;
+interface ProtectedRouteProps {
+  children: JSX.Element;
+  allowedRoles: string[];
 }
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+  const auth = useContext(AuthContext);
+  const location = useLocation();
+
+  if (!auth) {
+    // This can happen if the context is not yet available.
+    // You might want to show a loading spinner here.
+    return <div>Loading...</div>;
+  }
+
+  const { isAuthenticated, userRole, isLoading } = auth;
+
+  if (isLoading) {
+    // Show a loading indicator while checking auth status
+    return <div>Verifying authentication...</div>;
+  }
+
+  if (!isAuthenticated) {
+    // Redirect them to the /sign-in page, but save the current location they were
+    // trying to go to. This allows us to send them along to that page after they log in.
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+  }
+
+  if (!allowedRoles.includes(userRole as string)) {
+    // If the user is authenticated but doesn't have the required role,
+    // redirect them to an unauthorized page.
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;

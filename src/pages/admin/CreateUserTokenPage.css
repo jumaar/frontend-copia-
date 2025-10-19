@@ -1,0 +1,99 @@
+.token-page {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 4);
+}
+
+.token-creation-form {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing-unit) * 3);
+    padding: calc(var(--spacing-unit) * 3);
+}
+
+.token-creation-form .input-group {
+    flex-grow: 1;
+}
+
+.token-creation-form label {
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-unit);
+}
+
+.token-creation-form select {
+    width: 100%;
+    padding: calc(var(--spacing-unit) * 1.25);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+.confirmation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirmation-modal {
+    width: 100%;
+    max-width: 500px;
+    padding: calc(var(--spacing-unit) * 4);
+}
+
+.confirmation-modal h3 {
+    margin-top: 0;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: calc(var(--spacing-unit) * 2);
+    margin-top: calc(var(--spacing-unit) * 4);
+}
+
+.new-token-display {
+    padding: calc(var(--spacing-unit) * 3);
+    background-color: #e0f2fe; /* Light blue for success */
+    border-color: #7dd3fc; /* Blue border */
+}
+
+.new-token-display h3 {
+    margin-top: 0;
+    color: #0c4a6e; /* Dark blue text */
+}
+
+.token-info p {
+    margin: var(--spacing-unit) 0;
+    font-size: 1rem;
+}
+
+.token-info code {
+    background-color: #fff;
+    padding: calc(var(--spacing-unit) * 0.5);
+    border-radius: var(--border-radius-sm);
+}
+
+.existing-tokens-section {
+    padding: calc(var(--spacing-unit) * 3);
+}
+
+.existing-tokens-section h2 {
+    margin-top: 0;
+}
+
+.error-message {
+    background-color: #fee2e2; /* Light red */
+    color: #991b1b; /* Dark red */
+    padding: calc(var(--spacing-unit) * 2);
+    border-radius: var(--border-radius-md);
+    text-align: center;
+    font-weight: var(--font-weight-medium);
+}
