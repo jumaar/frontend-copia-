@@ -51,7 +51,7 @@ const AppContent: React.FC = () => {
         <Route path="/store/inventory" element={<ProtectedRoute allowedRoles={['Tienda']}><TiendaDashboardPage /></ProtectedRoute>} />
 
         {/* Fallback Route */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/sign-in" replace />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </RootLayout>

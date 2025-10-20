@@ -1,9 +1,9 @@
 .amount-positive {
-  color: var(--color-secondary); /* Emerald */
-  font-weight: var(--font-weight-medium);
+  color: var(--color-success);
+  font-weight: var(--font-weight-bold);
 }
 
 .amount-negative {
-  color: #ef4444; /* Red */
-  font-weight: var(--font-weight-medium);
+  color: var(--color-error);
+  font-weight: var(--font-weight-bold);
 }

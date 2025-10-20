@@ -2,27 +2,36 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--spacing-unit) * 4);
+  padding: calc(var(--spacing-unit) * 4);
 }
 
 .dashboard-header {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: calc(var(--spacing-unit) * 2);
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit) * 4);
 }
 
 .dashboard-header h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  background: var(--color-background);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .dashboard-header p {
-  margin: 0;
-  margin-top: var(--spacing-unit);
-  font-size: 1rem;
+  margin: calc(var(--spacing-unit) * 2) 0 0 0;
+  font-size: 1.2rem;
   color: var(--color-text-secondary);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .dashboard-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: calc(var(--spacing-unit) * 3);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: calc(var(--spacing-unit) * 4);
+  margin-top: calc(var(--spacing-unit) * 2);
 }

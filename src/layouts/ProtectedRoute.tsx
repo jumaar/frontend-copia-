@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
-  children: JSX.Element;
+  children: React.ReactElement;
   allowedRoles: string[];
 }
 
@@ -17,7 +17,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <div>Loading...</div>;
   }
 
-  const { isAuthenticated, userRole, isLoading } = auth;
+  const { isAuthenticated, user, isLoading } = auth;
 
   if (isLoading) {
     // Show a loading indicator while checking auth status
@@ -30,7 +30,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  if (!allowedRoles.includes(userRole as string)) {
+  if (!user || !allowedRoles.includes(user.role)) {
     // If the user is authenticated but doesn't have the required role,
     // redirect them to an unauthorized page.
     return <Navigate to="/unauthorized" replace />;

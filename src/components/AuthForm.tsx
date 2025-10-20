@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Turnstile } from '@marsidev/react-turnstile';
 import './AuthForm.css';
 
 interface AuthFormProps {
@@ -13,6 +14,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
     password: '',
     confirmPassword: '',
     token: '',
+    turnstileToken: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +85,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
               </div>
             </>
           )}
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setFormData(prev => ({ ...prev, turnstileToken: token }))}
+            options={{ theme: 'light' }}
+          />
           <button type="submit" className="button button-primary auth-button">
             {isSignUp ? 'Registrarse' : 'Continuar'}
           </button>
