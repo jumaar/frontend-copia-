@@ -14,16 +14,13 @@
   margin: 0;
   font-size: 2.5rem;
   font-weight: var(--font-weight-bold);
-  background: var(--color-background);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-primary); /* O el color que corresponda */
 }
 
 .dashboard-header p {
   margin: calc(var(--spacing-unit) * 2) 0 0 0;
   font-size: 1.2rem;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary); /* Cambiado a color primario */
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;

@@ -3,24 +3,29 @@ import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 
 // A simple icon placeholder component
-const NavIcon = ({ name }: { name: string }) => (
+const NavIcon = ({ }: { name: string }) => (
   <span className="nav-icon">{/* In a real app, use an icon library */}</span>
 );
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose?: () => void;
+  onToggleSidebar: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) => {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <div className="sidebar-header">
-        <h1 className="logo">MineCloud</h1>
+        <h1 className="logo">VORAK</h1>
+        <button onClick={onToggleSidebar} className="sidebar-toggle-button">
+          <span className="icon-bar"></span>
+          <span className="icon-bar"></span>
+          <span className="icon-bar"></span>
+        </button>
       </div>
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" onClick={onClose}>
         <ul>
-          <li>
-            <NavLink to="/dashboard" className="nav-item" end>
-              <NavIcon name="dashboard" />
-              <span>Dashboard</span>
-            </NavLink>
-          </li>
           <li>
             <span className="nav-category">Administración</span>
           </li>
@@ -28,12 +33,6 @@ const Sidebar: React.FC = () => {
             <NavLink to="/admin/dashboard" className="nav-item">
               <NavIcon name="admin-dashboard" />
               <span>Dashboard Admin</span>
-            </NavLink>
-          </li>
-           <li>
-            <NavLink to="/admin/create-user-token" className="nav-item">
-              <NavIcon name="token" />
-              <span>Crear Token</span>
             </NavLink>
           </li>
           <li>

@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SummaryCard from '../../components/SummaryCard';
+import { getActiveFridgesCount } from '../../services/api';
 import './AdminDashboardPage.css';
 
 const AdminDashboardPage: React.FC = () => {
+  const [activeFridgesCount, setActiveFridgesCount] = useState<string>('...');
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const data = await getActiveFridgesCount();
+        setActiveFridgesCount(data.count.toString());
+      } catch (error) {
+        setActiveFridgesCount('Error');
+      }
+    };
+
+    fetchCount();
+  }, []);
+
   return (
     <div className="admin-dashboard">
       <header className="dashboard-header">
@@ -18,8 +34,8 @@ const AdminDashboardPage: React.FC = () => {
         />
         <SummaryCard
           title="Neveras Activas"
-          value="25"
-          description="Neveras actualmente en operación."
+          value={activeFridgesCount}
+          description="Total de neveras actualmente en funcionamiento."
         />
         <SummaryCard
           title="Paquetes en Tránsito"

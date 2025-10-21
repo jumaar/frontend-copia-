@@ -1,21 +1,23 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import api, { setAuthFailureHandler } from '../services/api';
 
 interface User {
   id: string;
   email: string;
   role: 'superadmin' | 'admin' | 'frigorifico' | 'logistica' | 'tienda';
-  name?: string;
+  name: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (email: string, password: string, turnstileToken?: string) => Promise<void>;
+  login: (email: string, password: string, turnstileToken?: string) => Promise<User>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
+  welcomeMessage: string | null;
+  dismissWelcomeMessage: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,100 +34,113 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const getRoleName = (roleId: number): User['role'] => {
+  switch (roleId) {
+    case 1: return 'superadmin';
+    case 2: return 'admin';
+    case 3: return 'frigorifico';
+    case 4: return 'logistica';
+    case 5: return 'tienda';
+    default: return 'tienda';
+  }
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
-    if (storedToken) {
-      try {
-        const decoded: any = jwtDecode(storedToken);
-        const currentTime = Date.now() / 1000;
-
-        if (decoded.exp > currentTime) {
-          setToken(storedToken);
-          setUser({
-            id: decoded.id,
-            email: decoded.email,
-            role: decoded.role,
-            name: decoded.name
-          });
-        } else {
-          localStorage.removeItem('authToken');
-        }
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        localStorage.removeItem('authToken');
-      }
-    }
-    setIsLoading(false);
+  const dismissWelcomeMessage = useCallback(() => {
+    setWelcomeMessage(null);
   }, []);
 
-  const login = async (email: string, password: string, turnstileToken?: string) => {
+  const logout = useCallback(async () => {
     try {
-      console.log('🔐 Intentando login con:', { email, password: '***', turnstileToken: turnstileToken ? 'presente' : 'ausente' });
-
-      // Comunicación real con backend en localhost:3000
-      const response = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, turnstileToken }),
-      });
-
-      console.log('📡 Respuesta del backend:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ Error del backend:', errorData);
-        throw new Error(errorData.message || 'Credenciales inválidas');
-      }
-
-      const data = await response.json();
-      console.log('✅ Login exitoso, datos recibidos:', data);
-
-      const { token: newToken } = data;
-
-      localStorage.setItem('authToken', newToken);
-      setToken(newToken);
-
-      const decoded: any = jwtDecode(newToken);
-      console.log('🔓 Token decodificado:', decoded);
-
-      setUser({
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role,
-        name: decoded.name
-      });
-
-      console.log('🎉 Usuario establecido:', { id: decoded.id, email: decoded.email, role: decoded.role });
+      await api.post('/auth/logout');
     } catch (error) {
-      console.error('💥 Error en login:', error);
-      throw error;
+      console.error('Error during backend logout:', error);
+    } finally {
+      localStorage.removeItem('authToken');
+      delete api.defaults.headers.common['Authorization'];
+      setUser(null);
+      setIsLoading(false); // Detener la carga al cerrar sesión
+      console.log('🧹 Session closed and local state cleaned.');
     }
-  };
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    setToken(null);
-    setUser(null);
+  useEffect(() => {
+    setAuthFailureHandler(logout);
+
+    let isMounted = true;
+
+    const restoreSession = async () => {
+      try {
+        console.log('🔄 Attempting to restore session...');
+        const { data } = await api.post('/auth/refresh');
+        const { accessToken } = data;
+
+        localStorage.setItem('authToken', accessToken);
+        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+        const decoded: any = jwtDecode(accessToken);
+        const restoredUser: User = {
+          id: String(decoded.sub),
+          email: decoded.email,
+          role: getRoleName(decoded.roleId),
+          name: `${decoded.nombre_usuario || ''} ${decoded.apellido_usuario || ''}`.trim(),
+        };
+        
+        if (isMounted) {
+          setUser(restoredUser);
+          console.log('✅ Session restored successfully.');
+        }
+      } catch (error) {
+        console.log('ℹ️ No session to restore or refresh token is invalid.');
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [logout]);
+
+  const login = async (email: string, password: string, turnstileToken?: string) => {
+    const response = await api.post('/auth/login', { email, password, turnstileToken });
+    const { accessToken, ...userDataResponse } = response.data;
+
+    localStorage.setItem('authToken', accessToken);
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+    const decoded: any = jwtDecode(accessToken);
+    const newUser: User = {
+      id: String(decoded.sub),
+      email: decoded.email,
+      role: getRoleName(decoded.roleId),
+      name: `${userDataResponse.nombre_usuario || ''} ${userDataResponse.apellido_usuario || ''}`.trim()
+    };
+
+    setUser(newUser);
+    setWelcomeMessage(`¡Bienvenido, ${newUser.name}!`);
+    return newUser;
   };
 
   const value: AuthContextType = {
     user,
-    token,
     login,
     logout,
     isAuthenticated: !!user,
     isLoading,
+    welcomeMessage,
+    dismissWelcomeMessage,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
