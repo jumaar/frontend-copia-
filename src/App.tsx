@@ -18,7 +18,7 @@ import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
-const getDashboardPath = (role: string): string => {
+export const getDashboardPath = (role: string): string => {
   switch (role) {
     case 'superadmin':
     case 'admin':
@@ -37,14 +37,6 @@ const getDashboardPath = (role: string): string => {
 const AppContent: React.FC = () => {
   const auth = useAuth();
 
-  if (auth.isLoading) {
-    return (
-      <div className="loading-overlay">
-        <div>Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <Routes>
       <Route path="/sign-in" element={<SignInPage />} />
@@ -55,7 +47,7 @@ const AppContent: React.FC = () => {
         path="/*"
         element={
           <ProtectedRoute allowedRoles={['superadmin', 'admin', 'frigorifico', 'logistica', 'tienda']}>
-            <RootLayout isLoading={false}>
+            <RootLayout>
               <Routes>
                 <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
                 <Route path="/admin/users" element={<UserManagementPage />} />
@@ -67,7 +59,7 @@ const AppContent: React.FC = () => {
                 <Route path="/admin/accounts" element={<GlobalAccountsPage />} />
                 <Route path="/frigorifico" element={<FrigorificoPage />} />
                 <Route path="/logistica" element={<LogisticaPage />} />
-                <Route path="/tienda" element={<TiendaDashboardPage />} />
+                <Route path="/tienda" element={<TiendaDashboardPage />} />                
               </Routes>
             </RootLayout>
           </ProtectedRoute>
@@ -77,7 +69,7 @@ const AppContent: React.FC = () => {
       <Route
         path="/"
         element={
-          auth?.isAuthenticated && auth.user ? (
+          auth.isAuthenticated && auth.user ? (
             <Navigate to={getDashboardPath(auth.user.role)} replace />
           ) : (
             <Navigate to="/sign-in" replace />
@@ -85,25 +77,29 @@ const AppContent: React.FC = () => {
         }
       />
       
-      <Route
-        path="*"
-        element={
-          auth?.isAuthenticated && auth.user ? (
-            <Navigate to={getDashboardPath(auth.user.role)} replace />
-          ) : (
-            <Navigate to="/sign-in" replace />
-          )
-        }
-      />
     </Routes>
   );
 };
+
+const AppRouter: React.FC = () => {
+  const auth = useAuth();
+
+  if (auth.isLoading) {
+    return (
+      <div className="loading-overlay">
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  return <AppContent />;
+}
 
 export default function App() {
   return (
     <AuthProvider>
       <Router>
-        <AppContent />
+        <AppRouter />
       </Router>
     </AuthProvider>
   );

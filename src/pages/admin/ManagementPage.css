@@ -48,6 +48,18 @@
   overflow: hidden;
 }
 
+/* Estilos responsivos para móvil */
+@media (max-width: 768px) {
+  .management-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .management-table {
+    min-width: 600px; /* Asegura que la tabla tenga ancho mínimo para scroll */
+  }
+}
+
 .management-table {
   width: 100%;
   border-collapse: collapse;
@@ -107,4 +119,62 @@
 
 .action-button.delete:hover {
   box-shadow: 0 4px 12px var(--color-error);
+}
+.action-button.danger {
+  background: var(--color-error);
+}
+
+.action-button.danger:hover {
+  box-shadow: 0 4px 12px var(--color-error);
+}
+
+.active-tokens-section {
+  margin-top: 2rem;
+}
+
+.active-tokens-section h2 {
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+}
+
+.tokens-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Media queries para móviles */
+@media (max-width: 768px) {
+  .management-page {
+    padding: 1rem;
+    gap: calc(var(--spacing-unit) * 2);
+  }
+
+  .management-header {
+    padding: calc(var(--spacing-unit) * 2);
+    text-align: center;
+  }
+
+  .management-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .management-header p {
+    font-size: 0.9rem;
+  }
+
+  .active-tokens-section {
+    margin-top: 1.5rem;
+  }
+
+  .active-tokens-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .management-table-container {
+    margin-top: 1.5rem;
+  }
+
+  .tokens-grid {
+    gap: 0.75rem;
+  }
 }

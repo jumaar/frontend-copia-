@@ -8,11 +8,9 @@ const SignInPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSignIn = async (formData: any) => {
-    console.log('Sign In submitted', formData);
     try {
       const user = await login(formData.email, formData.password, formData.turnstileToken);
-      console.log('Login successful, navigating to dashboard...');
-      
+
       if (user) {
         switch (user.role) {
           case 'superadmin':
@@ -26,18 +24,16 @@ const SignInPage: React.FC = () => {
             navigate('/logistica');
             break;
           case 'tienda':
-            navigate('/store/inventory');
+            navigate('/tienda');
             break;
           default:
             navigate('/admin/dashboard');
         }
-      } else {
-        // Fallback por si el usuario no se establece correctamente
-        navigate('/admin/dashboard');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
-      // Aquí podrías mostrar un mensaje de error al usuario
+      // Mostrar el mensaje de error específico al usuario
+      alert(error.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
     }
   };
 

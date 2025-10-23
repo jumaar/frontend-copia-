@@ -44,13 +44,15 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config;
 
-    // Si el error es 401 y la petición no tiene la bandera de reintento
-    // Si el error es 401, no es un reintento y NO es la propia petición de refresco la que ha fallado
+    // Solo intentar refresh para peticiones que NO sean de login o logout
+    // El login debe fallar directamente si las credenciales son inválidas
     if (
       error.response?.status === 401 &&
       originalRequest &&
       !originalRequest.headers['_retry'] &&
-      originalRequest.url !== '/auth/refresh'
+      originalRequest.url !== '/auth/refresh' &&
+      originalRequest.url !== '/auth/logout' &&
+      originalRequest.url !== '/auth/login' // ← Excluir login del refresh
     ) {
       originalRequest.headers['_retry'] = true; // Marcar como reintento
 
@@ -58,24 +60,14 @@ api.interceptors.response.use(
       if (!refreshPromise) {
         refreshPromise = new Promise(async (resolve, reject) => {
           try {
-            console.log('🔄 Iniciando refresco de token...');
-            const { data } = await axios.post(`${API_URL}/auth/refresh`, {}, { withCredentials: true });
+            const { data } = await api.post('/auth/refresh');
             const newAccessToken = data.accessToken;
-            
-            console.log('✅ Token refrescado exitosamente.');
+
             localStorage.setItem('authToken', newAccessToken);
             api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-            
+
             resolve(newAccessToken);
           } catch (e) {
-            console.error('❌ Falló el refresco de token.', e);
-            if (axios.isAxiosError(e)) {
-              console.error('Detalles del error de Axios durante el refresco:', {
-                message: e.message,
-                response: e.response?.data,
-                status: e.response?.status,
-              });
-            }
             // Si el refresco falla, limpiamos todo
             localStorage.removeItem('authToken');
             delete api.defaults.headers.common['Authorization'];
@@ -90,14 +82,11 @@ api.interceptors.response.use(
       try {
         // Esperamos a que la operación de refresco (nueva o en curso) termine
         const newAccessToken = await refreshPromise;
-        
+
         // Actualizamos la cabecera de la petición original y la reintentamos
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-        console.log('🔁 Reintentando petición original con nuevo token...');
         return api(originalRequest);
       } catch (e) {
-        // Si la promesa de refresco fue rechazada, redirigimos al login
-        // Si la promesa de refresco fue rechazada, redirigimos al login
         // Si la promesa de refresco fue rechazada, llamamos al manejador centralizado
         // para que el AuthContext se encargue de limpiar el estado y redirigir.
         onAuthFailure();
@@ -117,6 +106,134 @@ export const getActiveFridgesCount = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching active fridges count:', error);
+    throw error;
+  }
+};
+// --- Funciones de Gestión de Usuarios ---
+
+type UserRole = 'superadmin' | 'admin' | 'frigorifico' | 'logistica' | 'tienda';
+
+const roleToIdMap: Record<UserRole, number> = {
+  superadmin: 1,
+  admin: 2,
+  frigorifico: 3,
+  logistica: 4,
+  tienda: 5,
+};
+
+/**
+ * Crea un nuevo token de registro para un rol de usuario específico.
+ * @param role El rol para el que se creará el token.
+ * @returns La respuesta de la API con los datos del token.
+ */
+export const createRegistrationToken = async (role: UserRole) => {
+  try {
+    const id_rol_nuevo_usuario = roleToIdMap[role];
+    if (!id_rol_nuevo_usuario) {
+      throw new Error(`El rol "${role}" no es válido.`);
+    }
+
+    const response = await api.post('/registration-tokens', { id_rol_nuevo_usuario });
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear el token de registro:', error);
+    // Re-lanzamos el error para que el componente que llama pueda manejarlo (ej. mostrar un mensaje al usuario)
+    throw error;
+  }
+};
+/**
+ * Obtiene todos los tokens de registro que aún no han expirado.
+ * Obtiene los datos de gestión de usuarios, incluyendo usuarios y tokens activos.
+ * @returns Un objeto con la lista de usuarios y tokens.
+ */
+export const getManagementData = async () => {
+  try {
+    const response = await api.get('/gestion-usuarios');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los datos de gestión:', error);
+    throw error;
+  }
+};
+/**
+ * Cambia el estado (activo/inactivo) de un usuario.
+ * @param userId El ID del usuario a modificar.
+ * @returns El objeto del usuario actualizado.
+ */
+export const toggleUserStatus = async (userId: number) => {
+  try {
+    const response = await api.patch(`/gestion-usuarios/${userId}/toggle-status`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al cambiar el estado del usuario ${userId}:`, error);
+    throw error;
+  }
+};
+/**
+ * Obtiene los detalles completos de un usuario para edición.
+ * @param userId El ID del usuario a obtener.
+ * @returns El objeto completo del usuario.
+ */
+export const getUserDetails = async (userId: number) => {
+  try {
+    const response = await api.get(`/gestion-usuarios/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener los detalles del usuario ${userId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza los datos de un usuario.
+ * @param userId El ID del usuario a actualizar.
+ * @param userData Un objeto con los campos a modificar.
+ * @returns El objeto del usuario actualizado.
+ */
+export const updateUser = async (userId: number, userData: object) => {
+  try {
+    const response = await api.patch(`/gestion-usuarios/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar el usuario ${userId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Crea un nuevo usuario usando un token de registro.
+ * @param userData Los datos del nuevo usuario incluyendo email, password, turnstileToken, registrationToken y datos personales.
+ * @returns La respuesta de la API con los datos del usuario creado.
+ */
+export const createUserWithToken = async (userData: {
+  email: string;
+  password: string;
+  turnstileToken: string;
+  registrationToken: string;
+  nombre_usuario: string;
+  apellido_usuario: string;
+  identificacion_usuario: string;
+  celular: string;
+}) => {
+  try {
+    const response = await api.post('/auth/create-user', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear usuario con token:', error);
+    throw error;
+  }
+};
+/**
+ * Elimina (desactiva) un usuario. Solo disponible para Super Admin.
+ * @param userId El ID del usuario a eliminar.
+ * @returns Un mensaje de confirmación.
+ */
+export const deleteUser = async (userId: number) => {
+  try {
+    const response = await api.delete(`/gestion-usuarios/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al eliminar el usuario ${userId}:`, error);
     throw error;
   }
 };

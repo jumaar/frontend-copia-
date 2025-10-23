@@ -26,7 +26,8 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar, pageTitle }) => {
         <div className="header-right">
           {isAuthenticated ? (
             <div className="user-menu">
-              <button onClick={logout} className="button button-secondary">
+              <span className="user-name">{useAuth().user?.name?.split(' ')[0]}</span>
+              <button onClick={logout} className="button button-secondary logout-button">
                 Cerrar Sesión
               </button>
             </div>

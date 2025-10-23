@@ -24,10 +24,9 @@ const useIsMobile = () => {
 
 interface RootLayoutProps {
   children: ReactNode;
-  isLoading: boolean;
 }
 
-const RootLayout: React.FC<RootLayoutProps> = ({ children, isLoading }) => {
+const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   const auth = useContext(AuthContext);
   const { welcomeMessage, dismissWelcomeMessage } = useAuth();
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
@@ -54,13 +53,6 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children, isLoading }) => {
 
   const currentPageTitle = routeTitles[location.pathname] || '';
 
-  if (isLoading) {
-    return (
-      <div className="loading-overlay">
-        <div>Loading...</div>
-      </div>
-    );
-  }
 
   // Si no está autenticado, no mostrar sidebar ni header
   if (!auth || !(auth as any).isAuthenticated) {
