@@ -8,8 +8,7 @@ const SignUpPage: React.FC = () => {
 
   const handleSignUp = async (formData: any) => {
     try {
-      console.log('Sign Up submitted', formData);
-      const result = await createUserWithToken({
+      await createUserWithToken({
         email: formData.email,
         password: formData.password,
         turnstileToken: formData.turnstileToken,
@@ -19,12 +18,20 @@ const SignUpPage: React.FC = () => {
         identificacion_usuario: formData.identificacion_usuario,
         celular: formData.celular,
       });
-      console.log('User created successfully:', result);
-      // Aquí podrías mostrar un mensaje de éxito o redirigir automáticamente
       alert('Usuario creado exitosamente. Ahora puedes iniciar sesión.');
       navigate('/sign-in');
     } catch (error: any) {
       console.error('Error creating user:', error);
+
+      // Si hay cualquier error HTTP (400, 500, etc.), refrescar Turnstile
+      if (error.response?.status) {
+        // Forzar refresh del Turnstile emitiendo un evento personalizado
+        const turnstileEvent = new CustomEvent('turnstile-error', {
+          detail: { refresh: true }
+        });
+        window.dispatchEvent(turnstileEvent);
+      }
+
       alert(error.response?.data?.message || 'Error al crear el usuario. Verifica los datos e intenta nuevamente.');
     }
   };

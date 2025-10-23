@@ -1,12 +1,12 @@
 :root {
   /* Palette */
   --color-primary-start: #667eea;
-  --color-primary-end: #764ba2;
+  --color-primary-end: #0508ac;
   --color-background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
   --color-sidebar-bg: rgba(255, 255, 255, 0.95);
   --color-card-bg: rgba(255, 255, 255, 0.95);
   --color-text-primary: #1e293b; /* Slate 800 */
-  --color-text-secondary: #64748b; /* Slate 500 */
+  --color-text-secondary: #1e293b; /* Slate 500 */
   --color-border: rgba(255, 255, 255, 0.3);
   --color-hover-bg: rgba(102, 126, 234, 0.1);
   --color-primary-dark: #3730a3; /* Darker Indigo for hovers */

@@ -31,32 +31,142 @@ const UserManagementPage: React.FC = () => {
       try {
         const data = await getManagementData();
         console.log('Datos recibidos del backend:', data);
+        console.log('Jerarquía del backend:', data.jerarquia);
+        if (data.jerarquia && data.jerarquia.length > 0) {
+          console.log('Primer admin en jerarquía:', data.jerarquia[0]);
+          console.log('Usuarios creados por el primer admin:', data.jerarquia[0].usuarios_creados);
+          if (data.jerarquia[0].usuarios_creados && data.jerarquia[0].usuarios_creados.length > 0) {
+            const logisticaUser = data.jerarquia[0].usuarios_creados.find((u: any) => u.rol.toLowerCase().replace('_', '') === 'logistica');
+            if (logisticaUser) {
+              console.log('Usuario logistica encontrado:', logisticaUser);
+              console.log('Tiendas creadas por logistica:', logisticaUser.usuarios_creados);
+            }
+          }
+        }
 
         const transformedHierarchy: User[] = [];
 
         if (data.usuario_actual) {
-          const rootUser: User = {
-            id: data.usuario_actual.id,
-            nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
-            celular: data.usuario_actual.celular || 'N/A',
-            rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
-            activo: data.usuario_actual.activo,
-            hijos: (data.admins_creados || []).map((admin: any) => ({
-              id: admin.id,
-              nombre_completo: admin.nombre_completo || 'Admin sin nombre',
-              celular: admin.celular || 'N/A',
-              rol: admin.rol.toLowerCase().replace('_', ''),
-              activo: admin.activo,
-              hijos: (admin.usuarios_creados || []).map((child: any) => ({
-                id: child.id,
-                nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                celular: child.celular || 'N/A',
-                rol: child.rol.toLowerCase().replace('_', ''),
-                activo: child.activo,
-              })),
-            })),
-          };
-          transformedHierarchy.push(rootUser);
+          // Para Super Admin: mostrar jerarquía completa con 4 niveles
+          if (data.usuario_actual.rol.toLowerCase().replace('_', '') === 'superadmin') {
+            const rootUser: User = {
+              id: data.usuario_actual.id,
+              nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
+              celular: data.usuario_actual.celular || 'N/A',
+              rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
+              activo: data.usuario_actual.activo,
+              hijos: (data.jerarquia || []).map((admin: any) => {
+                // Cada admin tiene hijos que son frigos y logistica
+                const adminChildren = (admin.usuarios_creados || []).map((child: any) => {
+                  // Si es frigorifico, no tiene hijos
+                  if (child.rol.toLowerCase().replace('_', '') === 'frigorifico') {
+                    return {
+                      id: child.id,
+                      nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                      celular: child.celular || 'N/A',
+                      rol: child.rol.toLowerCase().replace('_', ''),
+                      activo: child.activo,
+                      hijos: [] // Frigoríficos no tienen hijos
+                    };
+                  }
+
+                  // Si es logistica, tiene hijos que son tiendas
+                  if (child.rol.toLowerCase().replace('_', '') === 'logistica') {
+                    return {
+                      id: child.id,
+                      nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                      celular: child.celular || 'N/A',
+                      rol: child.rol.toLowerCase().replace('_', ''),
+                      activo: child.activo,
+                      hijos: (child.usuarios_creados || [])
+                        .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
+                        .map((tiendaUser: any) => ({
+                          id: tiendaUser.id,
+                          nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
+                          celular: tiendaUser.celular || 'N/A',
+                          rol: tiendaUser.rol.toLowerCase().replace('_', ''),
+                          activo: tiendaUser.activo,
+                        }))
+                    };
+                  }
+
+                  // Otros roles (por si acaso)
+                  return {
+                    id: child.id,
+                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                    celular: child.celular || 'N/A',
+                    rol: child.rol.toLowerCase().replace('_', ''),
+                    activo: child.activo,
+                    hijos: []
+                  };
+                });
+
+                return {
+                  id: admin.id,
+                  nombre_completo: admin.nombre_completo || 'Admin sin nombre',
+                  celular: admin.celular || 'N/A',
+                  rol: admin.rol.toLowerCase().replace('_', ''),
+                  activo: admin.activo,
+                  hijos: adminChildren
+                };
+              }),
+            };
+            transformedHierarchy.push(rootUser);
+          } else {
+            // Para Admin normal: mostrar jerarquía desde su nivel
+            const rootUser: User = {
+              id: data.usuario_actual.id,
+              nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
+              celular: data.usuario_actual.celular || 'N/A',
+              rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
+              activo: data.usuario_actual.activo,
+              hijos: (data.usuario_actual.usuarios_creados || []).map((child: any) => {
+                // Filtrar usuarios por rol para la nueva jerarquía
+                const frigoUsers = (child.usuarios_creados || []).filter((u: any) =>
+                  u.rol.toLowerCase().replace('_', '') === 'frigorifico'
+                );
+                const logisticaUsers = (child.usuarios_creados || []).filter((u: any) =>
+                  u.rol.toLowerCase().replace('_', '') === 'logistica'
+                );
+
+                return {
+                  id: child.id,
+                  nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                  celular: child.celular || 'N/A',
+                  rol: child.rol.toLowerCase().replace('_', ''),
+                  activo: child.activo,
+                  hijos: [
+                    // Frigoríficos como hijos directos
+                    ...frigoUsers.map((u: any) => ({
+                      id: u.id,
+                      nombre_completo: u.nombre_completo || 'Usuario sin nombre',
+                      celular: u.celular || 'N/A',
+                      rol: u.rol.toLowerCase().replace('_', ''),
+                      activo: u.activo,
+                    })),
+                    // Logística como hijos con tiendas como nietos
+                    ...logisticaUsers.map((logUser: any) => ({
+                      id: logUser.id,
+                      nombre_completo: logUser.nombre_completo || 'Usuario sin nombre',
+                      celular: logUser.celular || 'N/A',
+                      rol: logUser.rol.toLowerCase().replace('_', ''),
+                      activo: logUser.activo,
+                      hijos: (logUser.usuarios_creados || [])
+                        .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
+                        .map((tiendaUser: any) => ({
+                          id: tiendaUser.id,
+                          nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
+                          celular: tiendaUser.celular || 'N/A',
+                          rol: tiendaUser.rol.toLowerCase().replace('_', ''),
+                          activo: tiendaUser.activo,
+                        }))
+                    }))
+                  ]
+                };
+              }),
+            };
+            transformedHierarchy.push(rootUser);
+          }
         }
         
         console.log('Jerarquía transformada:', transformedHierarchy);
@@ -122,9 +232,30 @@ const UserManagementPage: React.FC = () => {
           rol: updatedUser.rol,
           activo: updatedUser.activo
         };
-        setUsers(prevUsers =>
-          prevUsers.map(user => user.id === userId ? mappedUser : user)
-        );
+
+        // Actualizar el estado del usuario y sus hijos recursivamente
+        const updateUserInHierarchy = (users: User[]): User[] => {
+          return users.map(user => {
+            if (user.id === userId) {
+              // Actualizar nombre, celular y estado activo, pero mantener el rol original
+              return {
+                ...user,
+                nombre_completo: mappedUser.nombre_completo,
+                celular: mappedUser.celular,
+                activo: mappedUser.activo
+              };
+            }
+            if (user.hijos) {
+              return {
+                ...user,
+                hijos: updateUserInHierarchy(user.hijos)
+              };
+            }
+            return user;
+          });
+        };
+
+        setUsers(prevUsers => updateUserInHierarchy(prevUsers));
       } catch (error) {
         console.error(`Error al cambiar el estado del usuario ${userId}.`);
         alert('No se pudo cambiar el estado del usuario. Inténtalo de nuevo.');
@@ -133,18 +264,39 @@ const UserManagementPage: React.FC = () => {
   };
 
   const handleUserUpdated = (updatedUser: any) => {
-    setUsers(prevUsers =>
-      prevUsers.map(user => user.id === updatedUser.id_usuario ? {
-        ...user,
-        nombre_completo: `${updatedUser.nombre_usuario} ${updatedUser.apellido_usuario}`,
-        celular: updatedUser.celular
-      } : user)
-    );
+    // Función recursiva para actualizar usuario editado en la jerarquía
+    const updateUserInHierarchy = (users: User[]): User[] => {
+      return users.map(user => {
+        if (user.id === updatedUser.id_usuario) {
+          // Actualizar nombre y celular, pero mantener rol y estado activo originales
+          return {
+            ...user,
+            nombre_completo: `${updatedUser.nombre_usuario} ${updatedUser.apellido_usuario}`,
+            celular: updatedUser.celular
+          };
+        }
+        if (user.hijos) {
+          return {
+            ...user,
+            hijos: updateUserInHierarchy(user.hijos)
+          };
+        }
+        return user;
+      });
+    };
+
+    setUsers(prevUsers => updateUserInHierarchy(prevUsers));
   };
 
   const handleDeleteUser = async (userId: number, userName: string) => {
     if (userId.toString() === currentUser?.id) {
       alert('No puedes eliminar tu propio usuario.');
+      return;
+    }
+
+    // Verificar permisos: Super Admin y Admin pueden eliminar usuarios
+    if (!['superadmin', 'admin'].includes(currentUser?.role || '')) {
+      alert('No tienes permisos para eliminar usuarios.');
       return;
     }
 
@@ -155,7 +307,18 @@ const UserManagementPage: React.FC = () => {
     if (isConfirmed) {
       try {
         await deleteUser(userId);
-        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+
+        // Función recursiva para eliminar usuario de la jerarquía
+        const removeUserFromHierarchy = (users: User[]): User[] => {
+          return users
+            .filter(user => user.id !== userId) // Filtrar el usuario a eliminar
+            .map(user => ({
+              ...user,
+              hijos: user.hijos ? removeUserFromHierarchy(user.hijos) : undefined
+            }));
+        };
+
+        setUsers(prevUsers => removeUserFromHierarchy(prevUsers));
         alert('Usuario eliminado exitosamente.');
       } catch (error) {
         console.error(`Error al eliminar el usuario ${userId}.`);

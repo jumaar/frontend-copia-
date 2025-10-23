@@ -10,6 +10,7 @@
   border-radius: var(--border-radius-lg);
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .user-hierarchy-item.level-1 {
@@ -35,7 +36,7 @@
 .user-main-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
@@ -43,7 +44,7 @@
 .user-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   min-width: 0;
   flex: 1;
@@ -77,8 +78,12 @@
 .user-name {
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
-  min-width: 0;
   flex: 1;
+  font-size: 0.95rem;
+  white-space: normal;
+  line-height: 1.2;
+  width: 100%;
+  min-width: 10rem;
 }
 
 .user-phone {
@@ -135,10 +140,18 @@
 .action-button.danger:hover {
   box-shadow: 0 4px 12px var(--color-error);
 }
-.user-phone {
+.user-phone, .whatsapp-link {
   color: var(--color-text-secondary);
   font-size: 0.9rem;
   margin-left: 0.5rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+.whatsapp-link:hover {
+  color: #25d366; /* Color verde de WhatsApp */
+  text-decoration: underline;
 }
 
 .user-role-button {
@@ -157,6 +170,13 @@
   opacity: 0.9;
 }
 
+.user-hierarchy-item.level-1 {
+    margin-left: 0.3125rem; /* 5px */
+  }
+
+.user-hierarchy-item.level-2 {
+    margin-left: 0.625rem; /* 10px */
+  }
 /* Media queries para móviles */
 @media (max-width: 768px) {
   .user-hierarchy {
@@ -164,27 +184,26 @@
   }
 
   .user-hierarchy-item {
-    padding: 0.75rem;
+    padding: 0.25rem;
     font-size: 0.9rem;
   }
 
   .user-main-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .user-info {
     width: 100%;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
   }
 
-  .user-name {
-    font-size: 0.95rem;
-    word-break: break-word;
-  }
+
 
   .user-phone {
     font-size: 0.85rem;
@@ -205,11 +224,11 @@
   }
 
   .user-hierarchy-item.level-1 {
-    margin-left: 1rem;
+    margin-left: 0.3125rem; /* 5px */
   }
 
   .user-hierarchy-item.level-2 {
-    margin-left: 2rem;
+    margin-left: 0.625rem; /* 10px */
   }
 
   .expand-button {
@@ -221,3 +240,4 @@
     padding: 0.2rem 0.4rem;
   }
 }
+

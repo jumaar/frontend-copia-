@@ -121,12 +121,16 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ isOpen, onClose, userData
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxHeight: '80vh', overflowY: 'auto' }}
+      >
         <header className="modal-header">
           <h2>Editar Usuario: {userData.nombre_usuario} {userData.apellido_usuario}</h2>
           <button onClick={onClose} className="modal-close-button">&times;</button>
         </header>
-        <div className="modal-body">
+        <div className="modal-body" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
           <form className="edit-user-form" id="edit-user-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="nombre_usuario">Nombre</label>

@@ -26,7 +26,7 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose, on
       case 'superadmin':
         return ['admin'] as UserRole[];
       case 'admin':
-        return ['tienda', 'frigorifico', 'logistica'] as UserRole[];
+        return ['frigorifico', 'logistica'] as UserRole[];
       case 'logistica':
         return ['tienda'] as UserRole[];
       default:

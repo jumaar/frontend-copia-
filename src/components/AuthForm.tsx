@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Turnstile } from '@marsidev/react-turnstile';
 import './AuthForm.css';
@@ -20,6 +20,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
     identificacion_usuario: '',
     celular: '',
   });
+
+  const turnstileRef = useRef<any>(null);
 
   const sanitizeInput = (value: string, fieldName: string): string => {
     let sanitized = value;
@@ -71,6 +73,23 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
     const sanitizedValue = sanitizeInput(value, name);
     setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
+
+  // Escuchar eventos de error de Turnstile para refrescar el widget
+  useEffect(() => {
+    const handleTurnstileError = (event: CustomEvent) => {
+      if (event.detail?.refresh && turnstileRef.current) {
+        // Resetear el token y forzar refresh del widget
+        setFormData(prev => ({ ...prev, turnstileToken: '' }));
+        // El componente Turnstile se refresca automáticamente cuando el token se resetea
+      }
+    };
+
+    window.addEventListener('turnstile-error', handleTurnstileError as EventListener);
+
+    return () => {
+      window.removeEventListener('turnstile-error', handleTurnstileError as EventListener);
+    };
+  }, []);
 
   const validateForm = () => {
     const errors: string[] = [];
@@ -294,6 +313,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
             </>
           )}
           <Turnstile
+            ref={turnstileRef}
             siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             onSuccess={(token) => setFormData(prev => ({ ...prev, turnstileToken: token }))}
             options={{ theme: 'light' }}
