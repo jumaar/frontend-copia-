@@ -46,8 +46,8 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
     '/admin/productos': 'Gestión de Productos',
     '/admin/neveras': 'Gestión de Neveras',
     '/admin/accounts': 'Cuentas Globales',
-    '/frigorifico/dashboard': 'Dashboard Frigorífico',
-    '/logistica/dashboard': 'Dashboard Logística',
+    '/frigorifico': 'Dashboard Frigorífico',
+    '/logistica': 'Dashboard Logística',
     '/tienda': 'Inventario de Tienda',
   };
 
