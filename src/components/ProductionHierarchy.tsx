@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import type { ReactNode } from 'react';
 import './ProductionHierarchy.css';
 
 export interface ProductionItem {
@@ -14,12 +13,18 @@ interface ProductionHierarchyProps {
   items: ProductionItem[];
   onEditStation: (station: ProductionItem) => void;
   onCreateScale: (station: ProductionItem) => void;
+  onDeleteScale?: (scale: ProductionItem) => void;
+  onDeleteStation?: (station: ProductionItem) => void;
+  userRole?: string;
 }
 
 const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
   items,
   onEditStation,
   onCreateScale,
+  onDeleteScale,
+  onDeleteStation,
+  userRole,
 }) => {
   const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set(items.map(i => i.id)));
 
@@ -46,7 +51,7 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
                 {isExpanded ? '▼' : '▶'}
               </button>
             )}
-            <span className="item-role">{item.type === 'station' ? 'Estación' : 'Báscula'}</span>
+            <span className="item-role">{item.type === 'station' ? 'Frigorífico' : 'Estación'}</span>
             <span className="item-name">{item.name}</span>
             {item.type === 'scale' && (
               <span className="item-details">Clave: {item.details.key}</span>
@@ -56,8 +61,14 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
             {item.type === 'station' && (
               <>
                 <button className="action-button" onClick={() => onEditStation(item)}>Editar</button>
-                <button className="action-button" onClick={() => onCreateScale(item)}>Crear Báscula</button>
+                <button className="action-button" onClick={() => onCreateScale(item)}>Crear Estación</button>
+                {userRole === 'frigorifico' && onDeleteStation && (
+                  <button className="action-button delete-button" onClick={() => onDeleteStation(item)}>Eliminar</button>
+                )}
               </>
+            )}
+            {item.type === 'scale' && onDeleteScale && (
+              <button className="action-button delete-button" onClick={() => onDeleteScale(item)}>Eliminar</button>
             )}
           </div>
         </div>

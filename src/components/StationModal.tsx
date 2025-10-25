@@ -8,25 +8,31 @@ export interface StationData {
   city: string;
 }
 
+interface Ciudad {
+  id_ciudad: number;
+  nombre_ciudad: string;
+}
+
 interface StationModalProps {
   isOpen: boolean;
   onClose: () => void;
   stationData?: StationData | null;
+  availableCities?: Ciudad[];
   onSave: (station: StationData) => void;
 }
 
-const mockCities = ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena'];
 
 const StationModal: React.FC<StationModalProps> = ({
   isOpen,
   onClose,
   stationData,
+  availableCities = [],
   onSave,
 }) => {
   const [formData, setFormData] = useState<StationData>({
     name: '',
     address: '',
-    city: mockCities,
+    city: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +43,7 @@ const StationModal: React.FC<StationModalProps> = ({
     if (isOpen && stationData) {
       setFormData(stationData);
     } else if (isOpen) {
-      setFormData({ name: '', address: '', city: mockCities });
+      setFormData({ name: '', address: '', city: '' });
     }
   }, [isOpen, stationData]);
 
@@ -78,7 +84,7 @@ const StationModal: React.FC<StationModalProps> = ({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <header className="modal-header">
-          <h2>{isEditMode ? 'Editar' : 'Crear'} Estación de Producción</h2>
+          <h2>{isEditMode ? 'Editar' : 'Crear'} Frigorífico</h2>
           <button onClick={onClose} className="modal-close-button">&times;</button>
         </header>
         <form id="station-form" onSubmit={handleSubmit}>
@@ -115,9 +121,11 @@ const StationModal: React.FC<StationModalProps> = ({
                 value={formData.city}
                 onChange={handleChange}
                 disabled={isLoading}
+                required
               >
-                {mockCities.map(city => (
-                  <option key={city} value={city}>{city}</option>
+                <option value="">Selecciona una ciudad</option>
+                {availableCities.map(ciudad => (
+                  <option key={ciudad.id_ciudad} value={ciudad.nombre_ciudad}>{ciudad.nombre_ciudad}</option>
                 ))}
               </select>
             </div>
