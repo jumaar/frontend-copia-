@@ -1,0 +1,88 @@
+.production-hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hierarchy-item {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.hierarchy-item.level-1 {
+  margin-left: 2rem;
+  border-left: 4px solid var(--color-primary-start);
+}
+
+.hierarchy-item.level-2 {
+  margin-left: 4rem;
+  border-left: 4px solid var(--color-success);
+}
+
+.item-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.expand-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.item-role {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-start);
+  text-transform: capitalize;
+}
+
+.item-name {
+  font-weight: var(--font-weight-medium);
+}
+
+.item-details {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.item-children {
+  margin-top: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--color-border);
+}
+
+.action-button {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: var(--color-hover-bg);
+}

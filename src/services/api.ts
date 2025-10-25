@@ -237,3 +237,79 @@ export const deleteUser = async (userId: number) => {
     throw error;
   }
 };
+
+// --- Funciones de Gestión de Productos ---
+
+/**
+ * Obtiene todos los productos del frigorífico.
+ * @returns Lista de productos con sus detalles.
+ */
+export const getProductos = async () => {
+  try {
+    const response = await api.get('/frigorifico/productos');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los productos:', error);
+    throw error;
+  }
+};
+
+/**
+ * Crea un nuevo producto.
+ * @param productData Los datos del producto a crear.
+ * @returns El producto creado.
+ */
+export const createProducto = async (productData: {
+  nombre_producto: string;
+  descripcion_producto: string;
+  peso_nominal_g: number;
+  precio_venta: number;
+  dias_vencimiento: number;
+  precio_frigorifico: number;
+}) => {
+  try {
+    const response = await api.post('/frigorifico/productos', productData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear el producto:', error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza un producto existente.
+ * @param productId El ID del producto a actualizar.
+ * @param productData Los datos a actualizar.
+ * @returns El producto actualizado.
+ */
+export const updateProducto = async (productId: number, productData: Partial<{
+  nombre_producto: string;
+  descripcion_producto: string;
+  peso_nominal_g: number;
+  precio_venta: number;
+  dias_vencimiento: number;
+  precio_frigorifico: number;
+}>) => {
+  try {
+    const response = await api.patch(`/frigorifico/productos/${productId}`, productData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar el producto ${productId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Elimina un producto.
+ * @param productId El ID del producto a eliminar.
+ * @returns Confirmación de eliminación.
+ */
+export const deleteProducto = async (productId: number) => {
+  try {
+    const response = await api.delete(`/frigorifico/productos/${productId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al eliminar el producto ${productId}:`, error);
+    throw error;
+  }
+};

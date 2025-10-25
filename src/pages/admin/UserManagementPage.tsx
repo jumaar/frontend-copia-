@@ -31,7 +31,11 @@ const UserManagementPage: React.FC = () => {
       try {
         const data = await getManagementData();
         console.log('Datos recibidos del backend:', data);
+        console.log('Usuario actual:', data.usuario_actual);
+        console.log('Rol del usuario actual:', data.usuario_actual?.rol);
         console.log('Jerarquía del backend:', data.jerarquia);
+        console.log('Usuarios creados por usuario actual:', data.usuario_actual?.usuarios_creados);
+
         if (data.jerarquia && data.jerarquia.length > 0) {
           console.log('Primer admin en jerarquía:', data.jerarquia[0]);
           console.log('Usuarios creados por el primer admin:', data.jerarquia[0].usuarios_creados);
@@ -43,6 +47,7 @@ const UserManagementPage: React.FC = () => {
             }
           }
         }
+
 
         const transformedHierarchy: User[] = [];
 
@@ -113,63 +118,56 @@ const UserManagementPage: React.FC = () => {
             };
             transformedHierarchy.push(rootUser);
           } else {
-            // Para Admin normal: mostrar jerarquía desde su nivel
+            // Para Admin normal: la jerarquía del backend contiene los usuarios creados por este admin
             const rootUser: User = {
               id: data.usuario_actual.id,
               nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
               celular: data.usuario_actual.celular || 'N/A',
               rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
               activo: data.usuario_actual.activo,
-              hijos: (data.usuario_actual.usuarios_creados || []).map((child: any) => {
-                // Filtrar usuarios por rol para la nueva jerarquía
-                const frigoUsers = (child.usuarios_creados || []).filter((u: any) =>
-                  u.rol.toLowerCase().replace('_', '') === 'frigorifico'
-                );
-                const logisticaUsers = (child.usuarios_creados || []).filter((u: any) =>
-                  u.rol.toLowerCase().replace('_', '') === 'logistica'
-                );
-
-                return {
-                  id: child.id,
-                  nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                  celular: child.celular || 'N/A',
-                  rol: child.rol.toLowerCase().replace('_', ''),
-                  activo: child.activo,
-                  hijos: [
-                    // Frigoríficos como hijos directos
-                    ...frigoUsers.map((u: any) => ({
-                      id: u.id,
-                      nombre_completo: u.nombre_completo || 'Usuario sin nombre',
-                      celular: u.celular || 'N/A',
-                      rol: u.rol.toLowerCase().replace('_', ''),
-                      activo: u.activo,
-                    })),
-                    // Logística como hijos con tiendas como nietos
-                    ...logisticaUsers.map((logUser: any) => ({
-                      id: logUser.id,
-                      nombre_completo: logUser.nombre_completo || 'Usuario sin nombre',
-                      celular: logUser.celular || 'N/A',
-                      rol: logUser.rol.toLowerCase().replace('_', ''),
-                      activo: logUser.activo,
-                      hijos: (logUser.usuarios_creados || [])
-                        .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
-                        .map((tiendaUser: any) => ({
-                          id: tiendaUser.id,
-                          nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
-                          celular: tiendaUser.celular || 'N/A',
-                          rol: tiendaUser.rol.toLowerCase().replace('_', ''),
-                          activo: tiendaUser.activo,
-                        }))
-                    }))
-                  ]
-                };
+              hijos: (data.jerarquia || []).map((child: any) => {
+                if (child.rol.toLowerCase().replace('_', '') === 'frigorifico') {
+                  return {
+                    id: child.id,
+                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                    celular: child.celular || 'N/A',
+                    rol: child.rol.toLowerCase().replace('_', ''),
+                    activo: child.activo,
+                    hijos: [] // Frigoríficos no tienen hijos
+                  };
+                } else if (child.rol.toLowerCase().replace('_', '') === 'logistica') {
+                  return {
+                    id: child.id,
+                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                    celular: child.celular || 'N/A',
+                    rol: child.rol.toLowerCase().replace('_', ''),
+                    activo: child.activo,
+                    hijos: (child.usuarios_creados || [])
+                      .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
+                      .map((tiendaUser: any) => ({
+                        id: tiendaUser.id,
+                        nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
+                        celular: tiendaUser.celular || 'N/A',
+                        rol: tiendaUser.rol.toLowerCase().replace('_', ''),
+                        activo: tiendaUser.activo,
+                      }))
+                  };
+                } else {
+                  return {
+                    id: child.id,
+                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
+                    celular: child.celular || 'N/A',
+                    rol: child.rol.toLowerCase().replace('_', ''),
+                    activo: child.activo,
+                    hijos: []
+                  };
+                }
               }),
             };
             transformedHierarchy.push(rootUser);
           }
         }
         
-        console.log('Jerarquía transformada:', transformedHierarchy);
         setUsers(transformedHierarchy);
         setActiveTokens(data.tokens || []);
 

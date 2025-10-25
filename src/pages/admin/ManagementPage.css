@@ -98,7 +98,7 @@
 .action-button {
   background: var(--color-background);
   border: none;
-  color: white;
+  color: var(--color-text-inverse);
   cursor: pointer;
   padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
   border-radius: var(--border-radius-md);

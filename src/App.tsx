@@ -9,13 +9,14 @@ import UserManagementPage from './pages/admin/UserManagementPage';
 import StoreManagementPage from './pages/admin/StoreManagementPage';
 import FrigorificoManagementPage from './pages/admin/FrigorificoManagementPage';
 import LogisticaManagementPage from './pages/admin/LogisticaManagementPage';
-import ProductManagementPage from './pages/admin/ProductManagementPage';
 import FridgeManagementPage from './pages/admin/FridgeManagementPage';
 import GlobalAccountsPage from './pages/admin/GlobalAccountsPage';
 import FrigorificoPage from './pages/frigorifico/FrigorificoPage';
+import FrigorificoLogisticaPage from './pages/frigorifico/LogisticaPage';
+import FrigorificoProductosPage from './pages/frigorifico/ProductosPage';
+import FrigorificoCuentasPage from './pages/frigorifico/CuentasPage';
 import LogisticaPage from './pages/logistica/LogisticaPage';
 import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
-import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 export const getDashboardPath = (role: string): string => {
@@ -41,7 +42,6 @@ const AppContent: React.FC = () => {
     <Routes>
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/sign-up" element={<SignUpPage />} />
-      <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       <Route
         path="/*"
@@ -54,12 +54,15 @@ const AppContent: React.FC = () => {
                 <Route path="/admin/tiendas" element={<StoreManagementPage />} />
                 <Route path="/admin/frigorificos" element={<FrigorificoManagementPage />} />
                 <Route path="/admin/logistica" element={<LogisticaManagementPage />} />
-                <Route path="/admin/productos" element={<ProductManagementPage />} />
+                <Route path="/admin/productos" element={<FrigorificoProductosPage />} />
                 <Route path="/admin/neveras" element={<FridgeManagementPage />} />
                 <Route path="/admin/accounts" element={<GlobalAccountsPage />} />
                 <Route path="/frigorifico" element={<FrigorificoPage />} />
+                <Route path="/frigorifico/logistica" element={<FrigorificoLogisticaPage />} />
+                <Route path="/frigorifico/productos" element={<FrigorificoProductosPage />} />
+                <Route path="/frigorifico/cuentas" element={<FrigorificoCuentasPage />} />
                 <Route path="/logistica" element={<LogisticaPage />} />
-                <Route path="/tienda" element={<TiendaDashboardPage />} />                
+                <Route path="/tienda" element={<TiendaDashboardPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>
