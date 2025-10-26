@@ -77,7 +77,7 @@ const FrigorificoPage: React.FC = () => {
     const fetchData = async () => {
       if (user?.id) {
         try {
-          const data = await getFrigorificoData(user.id);
+          const data = await getFrigorificoData();
           setFrigorificoData(data);
           // Convertir datos reales a formato ProductionItem
           if (data?.frigorificos && data.frigorificos.length > 0) {
@@ -169,7 +169,7 @@ const FrigorificoPage: React.FC = () => {
 
       if (editingStation) {
         // Update existing station
-        await updateFrigorifico(user!.id, {
+        await updateFrigorifico({
           id_frigorifico: parseInt(editingStation.id.toString()),
           nombre_frigorifico: stationData.name,
           direccion: stationData.address,
@@ -179,7 +179,7 @@ const FrigorificoPage: React.FC = () => {
         setRefreshTrigger(prev => prev + 1);
       } else {
         // Create new station
-        await createFrigorifico(user!.id, {
+        await createFrigorifico({
           nombre_frigorifico: stationData.name,
           direccion: stationData.address,
           id_ciudad: selectedCity.id_ciudad
@@ -203,7 +203,7 @@ const FrigorificoPage: React.FC = () => {
   const handleCloseScaleModal = async (newScale?: { id: string; key: string }) => {
     if (newScale && stationForScale) {
       try {
-        await createEstacion(stationForScale.id.toString());
+        await createEstacion(Number(stationForScale.id));
         // Refresh data
         setRefreshTrigger(prev => prev + 1);
       } catch (error) {
@@ -217,7 +217,7 @@ const FrigorificoPage: React.FC = () => {
   const handleDeleteScale = async (scale: ProductionItem) => {
     if (window.confirm(`¿Estás seguro de que quieres eliminar la estación "${scale.name}"?`)) {
       try {
-        await deleteEstacion(parseInt(scale.id.toString()));
+        await deleteEstacion(Number(scale.id));
         // Refresh data
         setRefreshTrigger(prev => prev + 1);
       } catch (error) {
@@ -229,7 +229,7 @@ const FrigorificoPage: React.FC = () => {
   const handleDeleteStation = async (station: ProductionItem) => {
     if (window.confirm(`¿Estás seguro de que quieres eliminar el frigorífico "${station.name}"? Esta acción no se puede deshacer.`)) {
       try {
-        await deleteFrigorifico(user!.id, parseInt(station.id.toString()));
+        await deleteFrigorifico(Number(station.id));
         // Refresh data
         setRefreshTrigger(prev => prev + 1);
       } catch (error) {

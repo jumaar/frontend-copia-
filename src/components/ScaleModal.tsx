@@ -20,23 +20,13 @@ const ScaleModal: React.FC<ScaleModalProps> = ({ isOpen, onClose, stationName })
     <div className="modal-backdrop" onClick={() => onClose()}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <header className="modal-header">
-          <h2>Crear Nueva Estación para "{stationName}"</h2>
+          <h2>Nueva Estación para "{stationName}"</h2>
           <button onClick={() => onClose()} className="modal-close-button">&times;</button>
         </header>
         <div className="modal-body">
-          <p>Se ha generado una nueva estación. Utiliza la siguiente clave para vincularla:</p>
-          <div className="token-display">
-            <div className="token-info">
-              <strong>ID de Estación:</strong>
-              <span>{scaleId}</span>
-            </div>
-            <div className="token-info">
-              <strong>Clave de Vinculación:</strong>
-              <span>{linkingKey}</span>
-            </div>
+          <p>Se creara una clave de vinculacion para la estacion. Utiliza la  clave para vincular el dispositivo:</p>
+          
           </div>
-          <p className="modal-note">Esta clave es de un solo uso y expirará si no se utiliza.</p>
-        </div>
         <footer className="modal-footer">
           <button type="button" className="button button-secondary" onClick={() => onClose()}>
             Cerrar

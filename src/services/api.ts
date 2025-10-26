@@ -319,9 +319,9 @@ export const deleteProducto = async (productId: number) => {
  * @param userId El ID del usuario.
  * @returns Los datos del frigorífico incluyendo lotes y transacciones.
  */
-export const getFrigorificoData = async (userId: string) => {
+export const getFrigorificoData = async () => {
   try {
-    const response = await api.get(`/frigorifico/${userId}`);
+    const response = await api.get('/frigorifico');
     return response.data;
   } catch (error) {
     console.error('Error al obtener los datos del frigorífico:', error);
@@ -334,13 +334,13 @@ export const getFrigorificoData = async (userId: string) => {
  * @param frigorificoData Los datos del frigorífico a crear.
  * @returns El frigorífico creado.
  */
-export const createFrigorifico = async (userId: string, frigorificoData: {
+export const createFrigorifico = async (frigorificoData: {
   nombre_frigorifico: string;
   direccion: string;
   id_ciudad: number;
 }) => {
   try {
-    const response = await api.post(`/frigorifico/${userId}`, frigorificoData);
+    const response = await api.post('/frigorifico', frigorificoData);
     return response.data;
   } catch (error) {
     console.error('Error al crear el frigorífico:', error);
@@ -354,17 +354,17 @@ export const createFrigorifico = async (userId: string, frigorificoData: {
  * @param frigorificoData Los datos a actualizar incluyendo id_frigorifico.
  * @returns El frigorífico actualizado.
  */
-export const updateFrigorifico = async (userId: string, frigorificoData: {
+export const updateFrigorifico = async (updateData: {
   id_frigorifico: number;
   nombre_frigorifico?: string;
   direccion?: string;
   id_ciudad?: number;
 }) => {
   try {
-    const response = await api.patch(`/frigorifico/${userId}`, frigorificoData);
+    const response = await api.patch('/frigorifico', updateData);
     return response.data;
   } catch (error) {
-    console.error(`Error al actualizar el frigorífico ${frigorificoData.id_frigorifico}:`, error);
+    console.error(`Error al actualizar el frigorífico ${updateData.id_frigorifico}:`, error);
     throw error;
   }
 };
@@ -374,7 +374,7 @@ export const updateFrigorifico = async (userId: string, frigorificoData: {
  * @param frigorificoId El ID del frigorífico.
  * @returns La estación creada.
  */
-export const createEstacion = async (frigorificoId: string) => {
+export const createEstacion = async (frigorificoId: number) => {
   try {
     const response = await api.post(`/frigorifico/estacion/${frigorificoId}`);
     return response.data;
@@ -405,14 +405,14 @@ export const deleteEstacion = async (estacionId: number) => {
  * @param frigorificoId El ID del frigorífico a eliminar.
  * @returns Confirmación de eliminación.
  */
-export const deleteFrigorifico = async (userId: string, frigorificoId: number) => {
+export const deleteFrigorifico = async (idFrigorifico: number) => {
   try {
-    const response = await api.delete(`/frigorifico/${userId}`, {
-      data: { id_frigorifico: frigorificoId }
+    const response = await api.delete('/frigorifico', {
+      data: { id_frigorifico: idFrigorifico }
     });
     return response.data;
   } catch (error) {
-    console.error(`Error al eliminar el frigorífico ${frigorificoId}:`, error);
+    console.error(`Error al eliminar el frigorífico ${idFrigorifico}:`, error);
     throw error;
   }
 };
