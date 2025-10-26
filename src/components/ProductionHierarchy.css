@@ -15,11 +15,13 @@
 
 .hierarchy-item.level-1 {
   margin-left: 2rem;
+  width: calc(100% - 2rem);
   border-left: 4px solid var(--color-primary-start);
 }
 
 .hierarchy-item.level-2 {
   margin-left: 4rem;
+  width: calc(100% - 4rem);
   border-left: 4px solid var(--color-success);
 }
 
@@ -59,6 +61,9 @@
 .item-details {
   font-size: 0.9rem;
   color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .item-actions {
@@ -68,7 +73,6 @@
 
 .item-children {
   margin-top: 1rem;
-  padding-left: 1rem;
   border-left: 2px solid var(--color-border);
 }
 
@@ -85,4 +89,31 @@
 
 .action-button:hover {
   background-color: var(--color-hover-bg);
+}
+
+.action-button.delete-button {
+  background: var(--color-error) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.action-button.delete-button:hover {
+  background: var(--color-error) !important;
+  opacity: 0.9;
+}
+
+.button.button-secondary {
+  background-color: var(--color-success);
+  color: var(--color-text-inverse);
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  transition: background-color 0.2s;
+}
+
+.button.button-secondary:hover {
+  background-color: var(--color-success);
+  opacity: 0.9;
 }

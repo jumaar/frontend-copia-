@@ -248,12 +248,12 @@ const FrigorificoPage: React.FC = () => {
 
         <section className="dashboard-summary">
           <SummaryCard
-            title="Lotes en Stock"
+            title="Empaques en Stock"
             value={loading ? "Cargando..." : frigorificoData?.lotes_en_stock.cantidad.toString() || "0"}
             description={`Peso total: ${loading ? "Cargando..." : ((frigorificoData?.lotes_en_stock.peso_total_g || 0) / 1000).toFixed(2)} kg`}
           />
           <SummaryCard
-            title="Lotes Despachados Hoy"
+            title="Empaques Despachados Hoy"
             value={loading ? "Cargando..." : frigorificoData?.lotes_despachados.cantidad.toString() || "0"}
             description={`Peso total: ${loading ? "Cargando..." : ((frigorificoData?.lotes_despachados.peso_total_g || 0) / 1000).toFixed(2)} kg`}
           />

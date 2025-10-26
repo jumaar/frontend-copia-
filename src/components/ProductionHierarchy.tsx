@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import './ProductionHierarchy.css';
 
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+  }
+};
+
 export interface ProductionItem {
   id: string | number;
   type: 'station' | 'scale';
@@ -54,7 +62,16 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
             <span className="item-role">{item.type === 'station' ? 'Frigorífico' : 'Estación'}</span>
             <span className="item-name">{item.name}</span>
             {item.type === 'scale' && (
-              <span className="item-details">Clave: {item.details.key}</span>
+              <div className="item-details">
+                <span>Clave: {item.details.key}</span>
+                <button
+                  className="button button-secondary"
+                  onClick={() => copyToClipboard(item.details.key)}
+                  title="Copiar clave"
+                >
+                  Copiar
+                </button>
+              </div>
             )}
           </div>
           <div className="item-actions">
