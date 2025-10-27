@@ -4,8 +4,10 @@ import './ProductionHierarchy.css';
 const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text);
+    alert('¡Clave copiada al portapapeles!');
   } catch (err) {
     console.error('Failed to copy text: ', err);
+    alert('Error al copiar la clave');
   }
 };
 
@@ -59,8 +61,8 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
                 {isExpanded ? '▼' : '▶'}
               </button>
             )}
-            <span className="item-role">{item.type === 'station' ? 'Frigorífico' : 'Estación'}</span>
-            <span className="item-name">{item.name}</span>
+            <span className="item-role">{item.type === 'station' ? `Frigorífico ${item.id}` : 'Estación'}</span>
+            <span className="item-name">{item.type === 'scale' ? item.id : item.name}</span>
             {item.type === 'scale' && (
               <div className="item-details">
                 <span>Clave: {item.details.key}</span>

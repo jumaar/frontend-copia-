@@ -5,7 +5,8 @@ import type { ProductionItem } from '../../components/ProductionHierarchy';
 import StationModal from '../../components/StationModal';
 import type { StationData } from '../../components/StationModal';
 import ScaleModal from '../../components/ScaleModal';
-import { getFrigorificoData, createFrigorifico, updateFrigorifico, createEstacion, deleteEstacion, deleteFrigorifico } from '../../services/api';
+import EditUserModal from '../../components/EditUserModal';
+import { getFrigorificoData, createFrigorifico, updateFrigorifico, createEstacion, deleteEstacion, deleteFrigorifico, getUserDetails } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import './FrigorificoPage.css';
 
@@ -28,6 +29,13 @@ interface Frigorifico {
 }
 
 interface FrigorificoData {
+  usuario_actual: {
+    id: number;
+    nombre_completo: string;
+    celular: string;
+    rol: string;
+    activo: boolean;
+  };
   frigorificos: Frigorifico[];
   ciudades_disponibles: Array<{
     id_ciudad: number;
@@ -72,6 +80,8 @@ const FrigorificoPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -206,8 +216,13 @@ const FrigorificoPage: React.FC = () => {
         await createEstacion(Number(stationForScale.id));
         // Refresh data
         setRefreshTrigger(prev => prev + 1);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error creating scale:', error);
+        if (error.response?.status === 403) {
+          alert('Tienes una estación inactiva sin usar. Por favor, usa esa estación antes de crear una nueva.');
+        } else {
+          alert('Error al crear la estación. Inténtalo de nuevo.');
+        }
       }
     }
     setScaleModalOpen(false);
@@ -232,10 +247,37 @@ const FrigorificoPage: React.FC = () => {
         await deleteFrigorifico(Number(station.id));
         // Refresh data
         setRefreshTrigger(prev => prev + 1);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting station:', error);
+        if (error.response?.status === 403) {
+          alert('No puedes eliminar el frigorífico porque tiene estaciones a cargo.');
+        } else {
+          alert('Error al eliminar el frigorífico. Inténtalo de nuevo.');
+        }
       }
     }
+  };
+
+  const handleOpenEditUserModal = async () => {
+    if (frigorificoData?.usuario_actual?.id) {
+      try {
+        const userData = await getUserDetails(frigorificoData.usuario_actual.id);
+        setSelectedUser(userData);
+        setEditUserModalOpen(true);
+      } catch (error) {
+        console.error("Error fetching user details for editing.");
+      }
+    }
+  };
+
+  const handleCloseEditUserModal = () => {
+    setEditUserModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleUserUpdated = () => {
+    // Refresh data to update user info
+    setRefreshTrigger(prev => prev + 1);
   };
 
   return (
@@ -263,6 +305,19 @@ const FrigorificoPage: React.FC = () => {
             description="Saldo a favor del frigorífico"
           />
         </section>
+
+        {frigorificoData?.usuario_actual && (
+          <div className="user-main-row">
+            <div className="user-info">
+              <span className="user-role">{frigorificoData.usuario_actual.rol}</span>
+              <span className="user-name">{frigorificoData.usuario_actual.nombre_completo} (Mi Perfil)</span>
+              <span className="user-phone">{frigorificoData.usuario_actual.celular}</span>
+            </div>
+            <div className="user-actions">
+              <button className="action-button" onClick={handleOpenEditUserModal}>Editar</button>
+            </div>
+          </div>
+        )}
 
         <section className="production-section card">
           <div className="card-header">
@@ -343,6 +398,12 @@ const FrigorificoPage: React.FC = () => {
         isOpen={isScaleModalOpen}
         onClose={handleCloseScaleModal}
         stationName={stationForScale ? stationForScale.name : ''}
+      />
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        onClose={handleCloseEditUserModal}
+        userData={selectedUser}
+        onUserUpdated={handleUserUpdated}
       />
     </>
   );
