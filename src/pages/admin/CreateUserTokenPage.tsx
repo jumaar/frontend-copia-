@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { createRegistrationToken } from '../../services/api';
 import './CreateUserTokenPage.css';
 
 interface Token {
@@ -19,15 +18,19 @@ const CreateUserTokenPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const auth = useContext(AuthContext);
-
   useEffect(() => {
     const fetchTokens = async () => {
       try {
-        const response = await axios.get('/api/registration-tokens', {
-          headers: { Authorization: `Bearer ${auth?.token}` },
+        // Usar la función de la API que ya maneja la autenticación con cookies
+        const response = await fetch('/api/registration-tokens', {
+          credentials: 'include'
         });
-        setExistingTokens(response.data);
+        if (response.ok) {
+          const data = await response.json();
+          setExistingTokens(data);
+        } else {
+          throw new Error('Error al cargar tokens');
+        }
       } catch (err) {
         setError('Error al cargar los tokens existentes.');
         console.error(err);
@@ -36,10 +39,8 @@ const CreateUserTokenPage: React.FC = () => {
       }
     };
 
-    if (auth?.token) {
-      fetchTokens();
-    }
-  }, [auth?.token]);
+    fetchTokens();
+  }, []);
 
   const handleGenerateClick = () => {
     setShowConfirmation(true);
@@ -51,13 +52,18 @@ const CreateUserTokenPage: React.FC = () => {
     setNewToken(null);
 
     try {
-      const response = await axios.post('/api/registration-tokens',
-        { roleName: role },
-        { headers: { Authorization: `Bearer ${auth?.token}` } }
-      );
-      setNewToken(response.data);
+      // Usar la función de la API que ya maneja la autenticación con cookies
+      const roleMap: { [key: string]: 'superadmin' | 'admin' | 'frigorifico' | 'logistica' | 'tienda' } = {
+        'Admin': 'admin',
+        'Frigorifico': 'frigorifico',
+        'Logistica': 'logistica',
+        'Tienda': 'tienda'
+      };
+
+      const tokenData = await createRegistrationToken(roleMap[role] || 'tienda');
+      setNewToken(tokenData);
       // Refresh the list of existing tokens
-      setExistingTokens(prev => [...prev, response.data]);
+      setExistingTokens(prev => [...prev, tokenData]);
     } catch (err) {
       setError('Error al generar el token. Inténtelo de nuevo.');
       console.error(err);

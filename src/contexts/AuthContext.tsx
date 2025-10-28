@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import api, { setAuthFailureHandler } from '../services/api';
+import api, { getCurrentUser } from '../services/api';
 
 interface User {
   id: string;
@@ -35,16 +34,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const getRoleName = (roleId: number): User['role'] => {
-  switch (roleId) {
-    case 1: return 'superadmin';
-    case 2: return 'admin';
-    case 3: return 'frigorifico';
-    case 4: return 'logistica';
-    case 5: return 'tienda';
-    default: return 'tienda';
-  }
-};
+// Eliminado: getRoleName ya no se usa con cookies HttpOnly
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -60,32 +50,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const logout = useCallback(async () => {
-    // Evitar múltiples llamadas simultáneas al logout
-    if (isRestoring.current) {
-      return;
-    }
-    isRestoring.current = true;
-
     try {
-      // Intentar logout en el backend, pero sin depender de él
       await api.post('/auth/logout');
+      // Las cookies se eliminan automáticamente por el backend
     } catch (error) {
-      // Ignorar errores del logout del backend, ya que es opcional
-      console.log('Backend logout failed, but continuing with local cleanup');
-    } finally {
-      // Limpiar estado local siempre
-      localStorage.removeItem('authToken');
-      delete api.defaults.headers.common['Authorization'];
-      setUser(null);
-      setIsLoading(false);
-      hasRestoredSession.current = false;
-      isRestoring.current = false;
+      console.error('Error en logout:', error);
     }
+    // Limpiar estado local
+    setUser(null);
+    setIsLoading(false);
+    hasRestoredSession.current = false;
   }, []);
 
   useEffect(() => {
-    setAuthFailureHandler(logout);
-
     const restoreSession = async () => {
       // Si ya se está restaurando, esperar
       if (isRestoring.current) {
@@ -100,36 +77,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       isRestoring.current = true;
 
       try {
-        const token = localStorage.getItem('authToken');
+        // Intentar obtener información del usuario actual usando endpoint dedicado
+        const userData = await getCurrentUser();
 
-        // Si no hay token, terminar inmediatamente
-        if (!token) {
-          setIsLoading(false);
-          return;
-        }
-
-        const response = await api.post('/auth/refresh');
-
-        const { accessToken } = response.data;
-        if (!accessToken) {
-          throw new Error('No accessToken received from refresh');
-        }
-
-        localStorage.setItem('authToken', accessToken);
-        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-
-        const decoded: any = jwtDecode(accessToken);
+        // Mapear el ID de rol numérico al nombre del rol
+        const getRoleName = (roleId: number): User['role'] => {
+          switch (roleId) {
+            case 1: return 'superadmin';
+            case 2: return 'admin';
+            case 3: return 'frigorifico';
+            case 4: return 'logistica';
+            case 5: return 'tienda';
+            default: return 'tienda';
+          }
+        };
 
         const restoredUser: User = {
-          id: String(decoded.sub),
-          email: decoded.email,
-          role: getRoleName(decoded.roleId),
-          name: `${decoded.nombre_usuario || ''} ${decoded.apellido_usuario || ''}`.trim(),
+          id: String(userData.id_usuario || userData.id || userData.sub || 'unknown'),
+          email: userData.email || '',
+          role: getRoleName(userData.id_rol || userData.role || 5),
+          name: `${userData.nombre_usuario || ''} ${userData.apellido_usuario || ''}`.trim() || 'Usuario'
         };
+
+        // Usuario restaurado exitosamente
 
         setUser(restoredUser);
 
       } catch (error) {
+        // Si falla, no hay sesión válida
+        console.log('Sesión no válida o expirada:', error);
         setAuthError('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
         setUser(null);
       } finally {
@@ -160,22 +136,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
 
       const response = await api.post('/auth/login', loginPayload);
-      const { accessToken, ...userDataResponse } = response.data;
+      // Los tokens están ahora en cookies HttpOnly, no necesitamos guardarlos
 
-      if (!accessToken) {
-        throw new Error('No se recibió token de acceso del servidor');
-      }
+      // El backend debe devolver la información completa del usuario incluyendo el rol
+      const userData = response.data;
 
-      localStorage.setItem('authToken', accessToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-
-      const decoded: any = jwtDecode(accessToken);
+      // Mapear el ID de rol numérico al nombre del rol
+      const getRoleName = (roleId: number): User['role'] => {
+        switch (roleId) {
+          case 1: return 'superadmin';
+          case 2: return 'admin';
+          case 3: return 'frigorifico';
+          case 4: return 'logistica';
+          case 5: return 'tienda';
+          default: return 'tienda';
+        }
+      };
 
       const newUser: User = {
-        id: String(decoded.sub),
-        email: decoded.email,
-        role: getRoleName(decoded.roleId),
-        name: `${userDataResponse.nombre_usuario || ''} ${userDataResponse.apellido_usuario || ''}`.trim()
+        id: String(userData.id_usuario || userData.id || userData.sub || 'unknown'),
+        email: userData.email || loginPayload.email,
+        role: getRoleName(userData.id_rol || userData.role || 5),
+        name: `${userData.nombre_usuario || ''} ${userData.apellido_usuario || ''}`.trim() || 'Usuario'
       };
 
       setUser(newUser);
@@ -184,8 +166,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error: any) {
       // Limpiar el estado de usuario en caso de error
       setUser(null);
-      localStorage.removeItem('authToken');
-      delete api.defaults.headers.common['Authorization'];
 
       // Manejar errores específicos del login
       if (error.response?.status === 400) {

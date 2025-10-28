@@ -7,90 +7,37 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Interceptor para añadir el token a las peticiones
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Eliminado: Interceptor para añadir Authorization header
+// Las cookies se envían automáticamente con withCredentials: true
 
-// Variable para mantener la promesa de la operación de refresco en curso
-let refreshPromise: Promise<string> | null = null;
+// Eliminado: Lógica compleja de refresh con localStorage
+// Ahora el refresh es simple y las cookies se manejan automáticamente
 
-// --- INICIO: Inyección de dependencia para Logout ---
-// Creamos un contenedor para la función de logout que será proporcionada por el AuthContext.
-let onAuthFailure: () => void = () => {
-  console.error("Auth failure handler not set.");
-};
-
-/**
- * Permite que el AuthContext configure una función de callback para ser ejecutada
- * cuando el refresco de token falle, manejando el logout de forma centralizada.
- * @param handler La función a ejecutar en caso de fallo de autenticación.
- */
-export const setAuthFailureHandler = (handler: () => void) => {
-  onAuthFailure = handler;
-};
-// --- FIN: Inyección de dependencia para Logout ---
-
-// Interceptor de respuesta para manejar la lógica de refresco de token
+// Interceptor de respuesta simplificado para auto-refresh
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config;
 
-    // Solo intentar refresh para peticiones que NO sean de login o logout
-    // El login debe fallar directamente si las credenciales son inválidas
+    // Si obtenemos 401, intentar refresh automático
     if (
       error.response?.status === 401 &&
       originalRequest &&
       !originalRequest.headers['_retry'] &&
       originalRequest.url !== '/auth/refresh' &&
       originalRequest.url !== '/auth/logout' &&
-      originalRequest.url !== '/auth/login' // ← Excluir login del refresh
+      originalRequest.url !== '/auth/login'
     ) {
-      originalRequest.headers['_retry'] = true; // Marcar como reintento
-
-      // Si no hay una operación de refresco en curso, la iniciamos
-      if (!refreshPromise) {
-        refreshPromise = new Promise(async (resolve, reject) => {
-          try {
-            const { data } = await api.post('/auth/refresh');
-            const newAccessToken = data.accessToken;
-
-            localStorage.setItem('authToken', newAccessToken);
-            api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-
-            resolve(newAccessToken);
-          } catch (e) {
-            // Si el refresco falla, limpiamos todo
-            localStorage.removeItem('authToken');
-            delete api.defaults.headers.common['Authorization'];
-            reject(e);
-          } finally {
-            // Reseteamos la promesa para futuras operaciones
-            refreshPromise = null;
-          }
-        });
-      }
+      originalRequest.headers['_retry'] = true;
 
       try {
-        // Esperamos a que la operación de refresco (nueva o en curso) termine
-        const newAccessToken = await refreshPromise;
-
-        // Actualizamos la cabecera de la petición original y la reintentamos
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        // Intentar refresh - las cookies se envían automáticamente
+        await api.post('/auth/refresh');
+        // Si refresh funciona, reintentar la petición original
         return api(originalRequest);
-      } catch (e) {
-        // Si la promesa de refresco fue rechazada, llamamos al manejador centralizado
-        // para que el AuthContext se encargue de limpiar el estado y redirigir.
-        onAuthFailure();
-        return Promise.reject(e);
+      } catch (refreshError) {
+        // Si refresh falla, devolver el error original
+        return Promise.reject(error);
       }
     }
 
@@ -413,6 +360,20 @@ export const deleteFrigorifico = async (idFrigorifico: number) => {
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar el frigorífico ${idFrigorifico}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene la información del usuario actualmente autenticado.
+ * @returns Información del usuario actual.
+ */
+export const getCurrentUser = async () => {
+  try {
+    const response = await api.get('/auth/me');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener información del usuario actual:', error);
     throw error;
   }
 };
