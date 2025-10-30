@@ -1,0 +1,6 @@
+# Archivos de entorno - ¡Contienen secretos!
+.env
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
