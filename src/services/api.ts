@@ -13,31 +13,31 @@ const api = axios.create({
 // Eliminado: Lógica compleja de refresh con localStorage
 // Ahora el refresh es simple y las cookies se manejan automáticamente
 
-// Interceptor de respuesta simplificado para auto-refresh
+// Interceptor de respuesta para auto-refresh
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config;
 
-    // Si obtenemos 401, intentar refresh automático
     if (
       error.response?.status === 401 &&
       originalRequest &&
-      !originalRequest.headers['_retry'] &&
+      !(originalRequest as any)._retry &&
       originalRequest.url !== '/auth/refresh' &&
       originalRequest.url !== '/auth/logout' &&
       originalRequest.url !== '/auth/login'
     ) {
-      originalRequest.headers['_retry'] = true;
+      (originalRequest as any)._retry = true;
 
       try {
         // Intentar refresh - las cookies se envían automáticamente
-        await api.post('/auth/refresh');
+        await api.post('/auth/refresh', {}, { withCredentials: true });
         // Si refresh funciona, reintentar la petición original
         return api(originalRequest);
       } catch (refreshError) {
-        // Si refresh falla, devolver el error original
-        return Promise.reject(error);
+        // Si refresh falla, redirigir al login
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
       }
     }
 
@@ -360,20 +360,6 @@ export const deleteFrigorifico = async (idFrigorifico: number) => {
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar el frigorífico ${idFrigorifico}:`, error);
-    throw error;
-  }
-};
-
-/**
- * Obtiene la información del usuario actualmente autenticado.
- * @returns Información del usuario actual.
- */
-export const getCurrentUser = async () => {
-  try {
-    const response = await api.get('/auth/me');
-    return response.data;
-  } catch (error) {
-    console.error('Error al obtener información del usuario actual:', error);
     throw error;
   }
 };

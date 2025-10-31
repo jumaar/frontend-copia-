@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
-import api, { getCurrentUser } from '../services/api';
+import api from '../services/api';
 
 interface User {
   id: string;
@@ -77,8 +77,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       isRestoring.current = true;
 
       try {
-        // Intentar obtener información del usuario actual usando endpoint dedicado
-        const userData = await getCurrentUser();
+        // Verificar si hay una sesión activa haciendo una solicitud al backend
+        const response = await api.post('/auth/refresh', {}, { withCredentials: true });
+        const userData = response.data;
 
         // Mapear el ID de rol numérico al nombre del rol
         const getRoleName = (roleId: number): User['role'] => {
@@ -99,10 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           name: `${userData.nombre_usuario || ''} ${userData.apellido_usuario || ''}`.trim() || 'Usuario'
         };
 
-        // Usuario restaurado exitosamente
-
         setUser(restoredUser);
-
       } catch (error) {
         // Si falla, no hay sesión válida
         console.log('Sesión no válida o expirada:', error);
@@ -116,7 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     restoreSession();
-  }, [logout]);
+  }, []);
 
   const login = async (email: string, password: string, turnstileToken?: string) => {
     // Limpiar cualquier error anterior antes de intentar login

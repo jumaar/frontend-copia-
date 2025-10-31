@@ -17,14 +17,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 
   const { isAuthenticated, user, isLoading } = auth;
 
-  if (isLoading) {
+  // Si está cargando la verificación de sesión, mostrar un indicador de carga
+ if (isLoading) {
     return <div>Verifying authentication...</div>;
   }
 
-  if (!isAuthenticated) {
+  // Si no está autenticado después de completar la verificación, redirigir al login
+ if (!isAuthenticated) {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
+  // Si está autenticado pero no tiene un rol válido, redirigir al acceso no autorizado
   if (!user || !allowedRoles.map(role => role.toLowerCase()).includes(user.role.toLowerCase())) {
     return <Navigate to="/unauthorized" replace />;
   }

@@ -359,7 +359,6 @@ const FrigorificoPage: React.FC = () => {
                   <th onClick={() => handleSort('ultima_fecha')} style={{ cursor: 'pointer' }}>
                     Fecha {sortConfig?.key === 'ultima_fecha' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -369,11 +368,9 @@ const FrigorificoPage: React.FC = () => {
                     <td>{item.nombre_producto}</td>
                     <td>{item.id_producto}</td>
                     <td>{item.cantidad}</td>
-                    <td>{new Date(item.ultima_fecha).toLocaleDateString('es-CO')}</td>
                     <td>
-                      <span className="status-chip status-en-stock">
-                        En Stock
-                      </span>
+                      <div>{new Date(item.ultima_fecha).toLocaleDateString('es-CO')}</div>
+                      <div>{new Date(item.ultima_fecha).toLocaleTimeString('es-CO')}</div>
                     </td>
                   </tr>
                 ))}

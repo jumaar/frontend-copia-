@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import RootLayout from './layouts/RootLayout';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
+import UnauthorizedPage from './pages/UnauthorizedPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import StoreManagementPage from './pages/admin/StoreManagementPage';
@@ -42,28 +43,65 @@ const AppContent: React.FC = () => {
     <Routes>
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/sign-up" element={<SignUpPage />} />
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
+      {/* Rutas de Admin - Solo superadmin y admin */}
       <Route
-        path="/*"
+        path="/admin/*"
         element={
-          <ProtectedRoute allowedRoles={['superadmin', 'admin', 'frigorifico', 'logistica', 'tienda']}>
+          <ProtectedRoute allowedRoles={['superadmin', 'admin']}>
             <RootLayout>
               <Routes>
-                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                <Route path="/admin/users" element={<UserManagementPage />} />
-                <Route path="/admin/tiendas" element={<StoreManagementPage />} />
-                <Route path="/admin/frigorificos" element={<FrigorificoManagementPage />} />
-                <Route path="/admin/logistica" element={<LogisticaManagementPage />} />
-                <Route path="/admin/productos" element={<FrigorificoProductosPage />} />
-                <Route path="/admin/neveras" element={<FridgeManagementPage />} />
-                <Route path="/admin/accounts" element={<GlobalAccountsPage />} />
-                <Route path="/frigorifico" element={<FrigorificoPage />} />
-                <Route path="/frigorifico/logistica" element={<FrigorificoLogisticaPage />} />
-                <Route path="/frigorifico/productos" element={<FrigorificoProductosPage />} />
-                <Route path="/frigorifico/cuentas" element={<FrigorificoCuentasPage />} />
-                <Route path="/logistica" element={<LogisticaPage />} />
-                <Route path="/tienda" element={<TiendaDashboardPage />} />
+                <Route path="dashboard" element={<AdminDashboardPage />} />
+                <Route path="users" element={<UserManagementPage />} />
+                <Route path="tiendas" element={<StoreManagementPage />} />
+                <Route path="frigorificos" element={<FrigorificoManagementPage />} />
+                <Route path="logistica" element={<LogisticaManagementPage />} />
+                <Route path="productos" element={<FrigorificoProductosPage />} />
+                <Route path="neveras" element={<FridgeManagementPage />} />
+                <Route path="accounts" element={<GlobalAccountsPage />} />
               </Routes>
+            </RootLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Rutas de Frigorífico - Solo frigorifico */}
+      <Route
+        path="/frigorifico/*"
+        element={
+          <ProtectedRoute allowedRoles={['frigorifico']}>
+            <RootLayout>
+              <Routes>
+                <Route index element={<FrigorificoPage />} />
+                <Route path="logistica" element={<FrigorificoLogisticaPage />} />
+                <Route path="productos" element={<FrigorificoProductosPage />} />
+                <Route path="cuentas" element={<FrigorificoCuentasPage />} />
+              </Routes>
+            </RootLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Rutas de Logística - Solo logistica */}
+      <Route
+        path="/logistica"
+        element={
+          <ProtectedRoute allowedRoles={['logistica']}>
+            <RootLayout>
+              <LogisticaPage />
+            </RootLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Rutas de Tienda - Solo tienda */}
+      <Route
+        path="/tienda"
+        element={
+          <ProtectedRoute allowedRoles={['tienda']}>
+            <RootLayout>
+              <TiendaDashboardPage />
             </RootLayout>
           </ProtectedRoute>
         }
@@ -71,6 +109,18 @@ const AppContent: React.FC = () => {
 
       <Route
         path="/"
+        element={
+          auth.isAuthenticated && auth.user ? (
+            <Navigate to={getDashboardPath(auth.user.role)} replace />
+          ) : (
+            <Navigate to="/sign-in" replace />
+          )
+        }
+      />
+
+      {/* Ruta catch-all para 404 - redirige al dashboard o login */}
+      <Route
+        path="*"
         element={
           auth.isAuthenticated && auth.user ? (
             <Navigate to={getDashboardPath(auth.user.role)} replace />

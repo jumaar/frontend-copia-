@@ -1,11 +1,11 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Alert from '../components/Alert';
 import './RootLayout.css';
-import { AuthContext, useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 // Hook simple para detectar el tamaño de la pantalla
 const useIsMobile = () => {
@@ -27,8 +27,7 @@ interface RootLayoutProps {
 }
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
-  const auth = useContext(AuthContext);
-  const { welcomeMessage, dismissWelcomeMessage } = useAuth();
+  const { isAuthenticated, isLoading, welcomeMessage, dismissWelcomeMessage } = useAuth();
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -54,8 +53,8 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   const currentPageTitle = routeTitles[location.pathname] || '';
 
 
-  // Si no está autenticado, no mostrar sidebar ni header
-  if (!auth || !(auth as any).isAuthenticated) {
+  // Si no está autenticado y no está cargando, no mostrar sidebar ni header
+  if (!isAuthenticated && !isLoading) {
     return <main className="page-content">{children}</main>;
   }
 

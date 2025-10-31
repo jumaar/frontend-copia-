@@ -15,7 +15,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const renderAdminMenu = () => (
     <>
@@ -105,24 +105,62 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
     </>
   );
 
-  return (
-    <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-header">
-        <h1 className="logo">VORAK</h1>
-        <button onClick={onToggleSidebar} className="sidebar-toggle-button">
-          <span className="icon-bar"></span>
-          <span className="icon-bar"></span>
-          <span className="icon-bar"></span>
-        </button>
-      </div>
-      <nav className="sidebar-nav" onClick={onClose}>
-        <ul>
-          {(user?.role === 'admin' || user?.role === 'superadmin') && renderAdminMenu()}
-          {user?.role === 'frigorifico' && renderFrigorificoMenu()}
-        </ul>
-      </nav>
-    </aside>
+  const renderLogisticaMenu = () => (
+    <>
+      <li>
+        <span className="nav-category">Logística</span>
+      </li>
+      <li>
+        <NavLink to="/logistica" className="nav-item" end>
+          <NavIcon />
+          <span>Dashboard Logística</span>
+        </NavLink>
+      </li>
+    </>
   );
+
+  const renderTiendaMenu = () => (
+    <>
+      <li>
+        <span className="nav-category">Tienda</span>
+      </li>
+      <li>
+        <NavLink to="/tienda" className="nav-item" end>
+          <NavIcon />
+          <span>Inventario de Tienda</span>
+        </NavLink>
+      </li>
+    </>
+  );
+
+   return (
+     <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+       <div className="sidebar-header">
+         <h1 className="logo">VORAK</h1>
+         <button onClick={onToggleSidebar} className="sidebar-toggle-button">
+           <span className="icon-bar"></span>
+           <span className="icon-bar"></span>
+           <span className="icon-bar"></span>
+         </button>
+       </div>
+       <nav className="sidebar-nav" onClick={onClose}>
+         <ul>
+           {isLoading ? (
+             <li><span className="nav-item">Cargando...</span></li>
+           ) : user ? (
+             <>
+               {(user.role === 'admin' || user.role === 'superadmin') && renderAdminMenu()}
+               {user.role === 'frigorifico' && renderFrigorificoMenu()}
+               {user.role === 'logistica' && renderLogisticaMenu()}
+               {user.role === 'tienda' && renderTiendaMenu()}
+             </>
+           ) : (
+             <li><span className="nav-item">No autenticado</span></li>
+           )}
+         </ul>
+       </nav>
+     </aside>
+   );
 };
 
 export default Sidebar;
