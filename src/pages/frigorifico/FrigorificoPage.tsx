@@ -347,11 +347,11 @@ const FrigorificoPage: React.FC = () => {
                   <th onClick={() => handleSort('epc_id_ultimo')} style={{ cursor: 'pointer' }}>
                     ID Lote {sortConfig?.key === 'epc_id_ultimo' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
+                  <th onClick={() => handleSort('id_producto')} style={{ cursor: 'pointer' }}>
+                    ID {sortConfig?.key === 'id_producto' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
                   <th onClick={() => handleSort('nombre_producto')} style={{ cursor: 'pointer' }}>
                     Nombre Producto {sortConfig?.key === 'nombre_producto' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th onClick={() => handleSort('id_producto')} style={{ cursor: 'pointer' }}>
-                    ID Producto {sortConfig?.key === 'id_producto' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th onClick={() => handleSort('cantidad')} style={{ cursor: 'pointer' }}>
                     Cantidad {sortConfig?.key === 'cantidad' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
@@ -365,8 +365,8 @@ const FrigorificoPage: React.FC = () => {
                 {sortedInventory.map((item) => (
                   <tr key={item.epc_id_ultimo}>
                     <td>{item.epc_id_ultimo}</td>
-                    <td>{item.nombre_producto}</td>
                     <td>{item.id_producto}</td>
+                    <td>{item.nombre_producto}</td>
                     <td>{item.cantidad}</td>
                     <td>
                       <div>{new Date(item.ultima_fecha).toLocaleDateString('es-CO')}</div>

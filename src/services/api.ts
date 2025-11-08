@@ -363,3 +363,35 @@ export const deleteFrigorifico = async (idFrigorifico: number) => {
     throw error;
   }
 };
+
+/**
+ * Obtiene los datos de gestión logística para el frigorífico, opcionalmente filtrado por estación.
+ * @param estacionId El ID de la estación (opcional).
+ * @returns Los datos de productos y empaques.
+ */
+export const getGestionLogistica = async (estacionId?: number) => {
+  try {
+    const url = estacionId ? `/frigorifico/gestion?estacionId=${estacionId}` : '/frigorifico/gestion';
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los datos de gestión logística:', error);
+    throw error;
+  }
+};
+
+/**
+ * Elimina un empaque específico.
+ * @param estacionId El ID de la estación.
+ * @param epc El código EPC del empaque a eliminar.
+ * @returns Confirmación de eliminación.
+ */
+export const deleteEmpaque = async (estacionId: string, epc: string) => {
+  try {
+    const response = await api.delete(`/frigorifico/estacion/${estacionId}/empaque/${epc}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al eliminar el empaque ${epc} de la estación ${estacionId}:`, error);
+    throw error;
+  }
+};
