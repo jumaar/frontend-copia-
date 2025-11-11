@@ -395,3 +395,114 @@ export const deleteEmpaque = async (estacionId: string, epc: string) => {
     throw error;
   }
 };
+
+/**
+ * Obtiene la lista de usuarios hermanos para gestión de logística.
+ * @returns Datos del usuario solicitante y lista de usuarios hermanos.
+ */
+export const getHermanos = async () => {
+  try {
+    const response = await api.get('/frigorifico/hermanos');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los hermanos:', error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza los datos del usuario logístico.
+ * @param userId El ID del usuario.
+ * @param logisticaData Los datos de logística a actualizar.
+ * @returns Los datos actualizados del usuario.
+ */
+export const updateUserLogistica = async (userId: number, logisticaData: {
+  nombre_empresa?: string;
+  placa_vehiculo?: string;
+}) => {
+  try {
+    const response = await api.patch(`/gestion-usuarios/${userId}/logistica`, logisticaData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar los datos de logística del usuario ${userId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza completamente los datos del usuario logístico incluyendo usuario y logística.
+ * @param userId El ID del usuario.
+ * @param userData Los datos completos del usuario y logística.
+ * @returns Los datos actualizados del usuario.
+ */
+export const updateUserLogisticaComplete = async (userId: number, userData: {
+  nombre_usuario?: string;
+  apellido_usuario?: string;
+  celular?: string;
+  nombre_empresa?: string;
+  placa_vehiculo?: string;
+}) => {
+  try {
+    const response = await api.patch(`/gestion-usuarios/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar completamente los datos del usuario logístico ${userId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene los datos de gestión logística para un usuario específico.
+ * @param idUsuario El ID del usuario para obtener sus datos de gestión logística.
+ * @returns Los datos de productos y empaques del usuario específico.
+ */
+export const getGestionLogisticaByUser = async (idUsuario: number) => {
+  try {
+    const response = await api.get(`/frigorifico/gestion?id_usuario=${idUsuario}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener los datos de gestión logística del usuario ${idUsuario}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene los datos específicos del usuario logístico actual.
+ * @returns Los datos del usuario logístico incluyendo empresa y vehículo.
+ */
+export const getLogistica = async () => {
+  try {
+    const response = await api.get('/logistica');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los datos de logística:', error);
+    throw error;
+  }
+};
+
+/**
+ * Cambia el estado de los empaques de un producto en una estación específica.
+ * @param idEstacion El ID de la estación.
+ * @param idProducto El ID del producto.
+ * @param idLogistica El ID de logística del usuario actual.
+ * @returns Respuesta con la cantidad de empaques actualizados y la fecha de cambio.
+ */
+export const cambiarEstadoEmpaques = async (idEstacion: string, idProducto: number, idLogistica?: number) => {
+  try {
+    const requestBody: any = {
+      id_estacion: idEstacion,
+      id_producto: idProducto
+    };
+    
+    // Agregar id_logistica si está disponible
+    if (idLogistica) {
+      requestBody.id_logistica = idLogistica;
+    }
+    
+    const response = await api.post('/frigorifico/empaques/cambiar-estado', requestBody);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al cambiar estado de empaques para el producto ${idProducto} en la estación ${idEstacion}:`, error);
+    throw error;
+  }
+};

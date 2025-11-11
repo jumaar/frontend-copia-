@@ -58,3 +58,147 @@
 .status-pendiente {
   background-color: #a855f7; /* Purple */
 }
+
+/* Responsive Styles para LogisticaGestionPage */
+@media (max-width: 768px) {
+  .products-table {
+    min-width: 600px !important; /* Reducir ancho mínimo en móvil */
+    font-size: 0.85rem;
+  }
+  
+  .products-table th,
+  .products-table td {
+    padding: 0.5rem 0.25rem !important;
+    font-size: 0.85rem;
+  }
+  
+  .products-table th {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  /* Scroll horizontal para las tablas */
+  .products-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
+  }
+  
+  .products-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .products-container::-webkit-scrollbar-track {
+    background: var(--color-border);
+    border-radius: 4px;
+  }
+  
+  .products-container::-webkit-scrollbar-thumb {
+    background: var(--color-text-secondary);
+    border-radius: 4px;
+  }
+  
+  /* Ajustar headers de productos para móvil */
+  .product-header-row {
+    min-width: 600px;
+  }
+  
+  .product-header-row td {
+    padding: 0.75rem 0.5rem !important;
+  }
+  
+  /* Botones más pequeños en móvil */
+  .action-button {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* Cards más compactas en móvil */
+  .card {
+    margin: 0.5rem 0 !important;
+    padding: 1rem !important;
+  }
+  
+  .card-header {
+    padding: 0.75rem 1rem !important;
+  }
+  
+  .card-header h2 {
+    font-size: 1.2rem !important;
+  }
+  
+  /* Estadísticas responsivas */
+  .dashboard-summary {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .summary-card {
+    padding: 1rem !important;
+  }
+  
+  .summary-value {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Ajustar búsqueda para móvil */
+  .busqueda-empaque-container input {
+    font-size: 0.9rem !important;
+  }
+  
+  /* Lista de usuarios hermanos más compacta */
+  .card > div > div {
+    padding: 0.75rem !important;
+  }
+  
+  .card h4 {
+    font-size: 1rem !important;
+  }
+  
+  .card p {
+    font-size: 0.85rem !important;
+  }
+  
+  /* Título del frigorífico más pequeño */
+  .frigorifico-page > div:first-child h1 {
+    font-size: 1.8rem !important;
+  }
+  
+  /* Espaciado general reducido */
+  .management-page,
+  .frigorifico-page {
+    padding: 1rem !important;
+    gap: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-table {
+    min-width: 500px !important; /* Aún más pequeño para pantallas muy pequeñas */
+    font-size: 0.8rem;
+  }
+  
+  .products-table th,
+  .products-table td {
+    padding: 0.4rem 0.2rem !important;
+    font-size: 0.8rem;
+  }
+  
+  .product-header-row td {
+    padding: 0.6rem 0.3rem !important;
+  }
+  
+  /* Botones muy pequeños */
+  .action-button {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Texto más pequeño */
+  .card-header h2 {
+    font-size: 1.1rem !important;
+  }
+  
+  .summary-value {
+    font-size: 1.3rem !important;
+  }
+}

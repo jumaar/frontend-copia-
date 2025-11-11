@@ -17,6 +17,7 @@ import FrigorificoLogisticaPage from './pages/frigorifico/LogisticaPage';
 import FrigorificoProductosPage from './pages/frigorifico/ProductosPage';
 import FrigorificoCuentasPage from './pages/frigorifico/CuentasPage';
 import LogisticaPage from './pages/logistica/LogisticaPage';
+import LogisticaGestionPage from './pages/logistica/LogisticaGestionPage';
 import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
@@ -85,11 +86,14 @@ const AppContent: React.FC = () => {
 
       {/* Rutas de Logística - Solo logistica */}
       <Route
-        path="/logistica"
+        path="/logistica/*"
         element={
           <ProtectedRoute allowedRoles={['logistica']}>
             <RootLayout>
-              <LogisticaPage />
+              <Routes>
+                <Route index element={<LogisticaPage />} />
+                <Route path="gestion" element={<LogisticaGestionPage />} />
+              </Routes>
             </RootLayout>
           </ProtectedRoute>
         }

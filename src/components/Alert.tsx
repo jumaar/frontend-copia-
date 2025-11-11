@@ -11,7 +11,7 @@ const Alert: React.FC<AlertProps> = ({ message, onDismiss, type = 'default' }) =
   useEffect(() => {
     const timer = setTimeout(() => {
       onDismiss();
-    }, 5000); // La alerta se oculta después de 5 segundos
+    }, 2500); // La alerta se oculta después de 2.5 segundos
 
     return () => clearTimeout(timer);
   }, [onDismiss]);

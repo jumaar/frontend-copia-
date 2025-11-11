@@ -40,25 +40,27 @@ const CreateTokenModal: React.FC<CreateTokenModalProps> = ({ isOpen, onClose, on
   };
 
   const handleSubmit = async () => {
-    if (!selectedRole) return;
+    if (!selectedRole || isLoading) return;
 
     const isConfirmed = window.confirm(
       `¿Estás seguro de que quieres crear un token de registro para el rol "${selectedRole}"?`
     );
 
-    if (isConfirmed) {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await createRegistrationToken(selectedRole);
-        onTokenCreated(data);
-        handleClose();
-      } catch (err: any) {
-        // Mostramos un mensaje de error amigable
-        setError(err.response?.data?.message || 'Ocurrió un error al crear el token. Por favor, inténtalo de nuevo.');
-      } finally {
-        setIsLoading(false);
-      }
+    if (!isConfirmed) {
+      return; // Si cancela, no hacer nada más
+    }
+
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const data = await createRegistrationToken(selectedRole);
+      onTokenCreated(data);
+      handleClose();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Ocurrió un error al crear el token. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
     }
   };
 

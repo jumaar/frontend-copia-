@@ -1,48 +1,322 @@
-import React from 'react';
-import SummaryCard from '../../components/SummaryCard';
+import React, { useState, useEffect } from 'react';
 import './LogisticaPage.css';
+import CreateTokenModal from '../../components/CreateTokenModal';
+import TokenDisplay, { type TokenData } from '../../components/TokenDisplay';
+import EditLogisticaModal from '../../components/EditLogisticaModal';
+import UserHierarchy from '../../components/UserHierarchy';
+import Alert from '../../components/Alert';
+import { getManagementData, toggleUserStatus, getUserDetails, deleteUser } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
-// Mock data for demonstration
-const mockShipments = [
-  { id: 'XYZ123', destination: 'Tienda El Tesoro', status: 'En Ruta', items: 5 },
-  { id: 'ABC456', destination: 'Tienda Las Delicias', status: 'Entregado', items: 8 },
-  { id: 'DEF789', destination: 'El Bolivar', status: 'Pendiente', items: 12 },
-  { id: 'GHI012', destination: 'Tienda El Tesoro', status: 'En Ruta', items: 3 },
-];
+interface User {
+  id: number;
+  nombre_completo: string;
+  celular: string;
+  rol: string;
+  activo: boolean;
+  hijos?: User[];
+}
 
 const LogisticaPage: React.FC = () => {
+  const { user: currentUser } = useAuth();
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [activeTokens, setActiveTokens] = useState<TokenData[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showProfileAlert, setShowProfileAlert] = useState(false);
+  const [userProfileData, setUserProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getManagementData();
+        console.log('Datos recibidos del backend:', data);
+        console.log('Usuario actual:', data.usuario_actual);
+        console.log('Rol del usuario actual:', data.usuario_actual?.rol);
+        console.log('Jerarquía del backend:', data.jerarquia);
+        console.log('Usuarios creados por usuario actual:', data.usuario_actual?.usuarios_creados);
+
+        const transformedHierarchy: User[] = [];
+
+        if (data.usuario_actual) {
+          // Filtrar y construir jerarquía enfocada en usuarios de logística
+          const rootUser: User = {
+            id: data.usuario_actual.id,
+            nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
+            celular: data.usuario_actual.celular || 'N/A',
+            rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
+            activo: data.usuario_actual.activo,
+            hijos: [] // Inicializar hijos como array vacío
+          };
+
+          // Procesar jerarquía del backend para mostrar solo usuarios de logística
+          (data.jerarquia || []).forEach((admin: any) => {
+            // Para cada admin, buscar sus usuarios creados que sean de logística
+            const adminChildren = (admin.usuarios_creados || [])
+              .filter((child: any) => child.rol.toLowerCase().replace('_', '') === 'logistica')
+              .map((logisticaUser: any) => {
+                // Cada usuario de logística puede tener tiendas como hijos
+                return {
+                  id: logisticaUser.id,
+                  nombre_completo: logisticaUser.nombre_completo || 'Usuario sin nombre',
+                  celular: logisticaUser.celular || 'N/A',
+                  rol: logisticaUser.rol.toLowerCase().replace('_', ''),
+                  activo: logisticaUser.activo,
+                  hijos: (logisticaUser.usuarios_creados || [])
+                    .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
+                    .map((tiendaUser: any) => ({
+                      id: tiendaUser.id,
+                      nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
+                      celular: tiendaUser.celular || 'N/A',
+                      rol: tiendaUser.rol.toLowerCase().replace('_', ''),
+                      activo: tiendaUser.activo,
+                    }))
+                };
+              });
+
+            // Solo agregar si hay usuarios de logística para este admin
+            if (adminChildren.length > 0) {
+              rootUser.hijos!.push({
+                id: admin.id,
+                nombre_completo: admin.nombre_completo || 'Admin sin nombre',
+                celular: admin.celular || 'N/A',
+                rol: admin.rol.toLowerCase().replace('_', ''),
+                activo: admin.activo,
+                hijos: adminChildren
+              });
+            }
+          });
+
+          transformedHierarchy.push(rootUser);
+        }
+        
+        setUsers(transformedHierarchy);
+        setActiveTokens(data.tokens || []);
+
+        // Verificar si el usuario actual de logística necesita completar perfil
+        if (data.usuario_actual?.rol === 'Logistica' &&
+            (!data.usuario_actual.logistica || data.usuario_actual.logistica.length === 0)) {
+          setUserProfileData(data.usuario_actual);
+          setShowProfileAlert(true);
+        }
+
+      } catch (error) {
+        console.error("No se pudieron cargar los datos de gestión:", error);
+        setUsers([]); // En caso de error, la lista queda vacía
+        setActiveTokens([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Solo llamar a fetchData si tenemos un usuario autenticado
+    if (currentUser) {
+      fetchData();
+    } else {
+      setIsLoading(false); // Si no hay usuario, no hay nada que cargar
+    }
+  }, [currentUser]);
+
+  const handleOpenCreateModal = () => setCreateModalOpen(true);
+  const handleCloseCreateModal = () => setCreateModalOpen(false);
+
+  const handleOpenEditModal = async (userId: number) => {
+    try {
+      const userData = await getUserDetails(userId);
+      setSelectedUser(userData);
+      setEditModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching user details for editing.");
+    }
+  };
+  
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleAlertAccept = () => {
+    setShowProfileAlert(false);
+    if (userProfileData) {
+      handleOpenEditModal(userProfileData.id);
+    }
+  };
+
+  const handleTokenCreated = (newToken: TokenData) => {
+    setActiveTokens(prevTokens => [...prevTokens, newToken]);
+  };
+
+  const handleTokenExpired = (expiredToken: string) => {
+    setActiveTokens(prevTokens => prevTokens.filter(t => t.token !== expiredToken));
+  };
+
+  const handleToggleStatus = async (userId: number, userName: string, currentStatus: boolean) => {
+    const action = currentStatus ? 'desactivar' : 'activar';
+    const isConfirmed = window.confirm(
+      `¿Estás seguro de que quieres ${action} al usuario "${userName}"?`
+    );
+
+    if (isConfirmed) {
+      try {
+        const updatedUser = await toggleUserStatus(userId);
+        // Mapear la respuesta del backend al formato esperado por el frontend
+        const mappedUser: User = {
+          id: updatedUser.id_usuario || updatedUser.id,
+          nombre_completo: updatedUser.nombre_completo || `${updatedUser.nombre_usuario || ''} ${updatedUser.apellido_usuario || ''}`.trim(),
+          celular: updatedUser.celular,
+          rol: updatedUser.rol,
+          activo: updatedUser.activo
+        };
+
+        // Actualizar el estado del usuario y sus hijos recursivamente
+        const updateUserInHierarchy = (users: User[]): User[] => {
+          return users.map(user => {
+            if (user.id === userId) {
+              // Actualizar nombre, celular y estado activo, pero mantener el rol original
+              return {
+                ...user,
+                nombre_completo: mappedUser.nombre_completo,
+                celular: mappedUser.celular,
+                activo: mappedUser.activo
+              };
+            }
+            if (user.hijos) {
+              return {
+                ...user,
+                hijos: updateUserInHierarchy(user.hijos)
+              };
+            }
+            return user;
+          });
+        };
+
+        setUsers(prevUsers => updateUserInHierarchy(prevUsers));
+      } catch (error) {
+        console.error(`Error al cambiar el estado del usuario ${userId}.`);
+        alert('No se pudo cambiar el estado del usuario. Inténtalo de nuevo.');
+      }
+    }
+  };
+
+  const handleUserUpdated = (updatedUser: any) => {
+    // Función recursiva para actualizar usuario editado en la jerarquía
+    const updateUserInHierarchy = (users: User[]): User[] => {
+      return users.map(user => {
+        if (user.id === updatedUser.id_usuario) {
+          // Actualizar nombre y celular, pero mantener rol y estado activo originales
+          return {
+            ...user,
+            nombre_completo: `${updatedUser.nombre_usuario} ${updatedUser.apellido_usuario}`,
+            celular: updatedUser.celular
+          };
+        }
+        if (user.hijos) {
+          return {
+            ...user,
+            hijos: updateUserInHierarchy(user.hijos)
+          };
+        }
+        return user;
+      });
+    };
+
+    setUsers(prevUsers => updateUserInHierarchy(prevUsers));
+  };
+
+  const handleDeleteUser = async (userId: number, userName: string) => {
+    if (userId.toString() === currentUser?.id) {
+      alert('No puedes eliminar tu propio usuario.');
+      return;
+    }
+
+    // Verificar permisos: Super Admin y Admin pueden eliminar usuarios
+    if (!['superadmin', 'admin'].includes(currentUser?.role || '')) {
+      alert('No tienes permisos para eliminar usuarios.');
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      `¿Estás seguro de que quieres eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`
+    );
+
+    if (isConfirmed) {
+      try {
+        await deleteUser(userId);
+
+        // Función recursiva para eliminar usuario de la jerarquía
+        const removeUserFromHierarchy = (users: User[]): User[] => {
+          return users
+            .filter(user => user.id !== userId) // Filtrar el usuario a eliminar
+            .map(user => ({
+              ...user,
+              hijos: user.hijos ? removeUserFromHierarchy(user.hijos) : undefined
+            }));
+        };
+
+        setUsers(prevUsers => removeUserFromHierarchy(prevUsers));
+        alert('Usuario eliminado exitosamente.');
+      } catch (error) {
+        console.error(`Error al eliminar el usuario ${userId}.`);
+        alert('No se pudo eliminar el usuario. Inténtalo de nuevo.');
+      }
+    }
+  };
+
   return (
-    <div className="logistica-page">
-      <header className="dashboard-header">
-        <h1>Portal de Logística</h1>
-        <p>Gestión y seguimiento de entregas.</p>
-      </header>
+    <>
+      <div className="management-page">
+        <header className="management-header">
+          <h1>Gestión de Logística</h1>
+          <p>Administrar usuarios de logística y sus tiendas asignadas.</p>
+          <button className="button button-primary" onClick={handleOpenCreateModal}>
+            Crear Token de Registro
+          </button>
+        </header>
 
-      <section className="dashboard-summary">
-        <SummaryCard title="Entregas en Ruta" value="2" description="Paquetes actualmente en tránsito" />
-        <SummaryCard title="Entregas Pendientes" value="1" description="Listas para ser despachadas" />
-        <SummaryCard title="Total Items Hoy" value="28" description="Suma de productos en todos los envíos" />
-      </section>
-
-      <section className="shipments-section card">
-        <h2>Envíos de Hoy</h2>
-        <div className="shipments-list">
-          {mockShipments.map((shipment) => (
-            <div key={shipment.id} className="shipment-item">
-              <div className="shipment-info">
-                <h4>Destino: {shipment.destination}</h4>
-                <p>ID de Envío: {shipment.id} | Items: {shipment.items}</p>
-              </div>
-              <div className="shipment-status">
-                <span className={`status-label status-${shipment.status.toLowerCase()}`}>
-                  {shipment.status}
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className="active-tokens-section">
+          <h2>Tokens Activos</h2>
+          <div className="tokens-grid">
+            {activeTokens.length > 0 ? (
+              activeTokens.map(tokenData => (
+                <TokenDisplay key={tokenData.token} tokenData={tokenData} onExpire={handleTokenExpired} />
+              ))
+            ) : (
+              <p>No hay tokens de registro activos en este momento.</p>
+            )}
+          </div>
         </div>
-      </section>
-    </div>
+
+        <div className="management-table-container card">
+          {isLoading ? (
+            <p>Cargando datos...</p>
+          ) : users.length > 0 ? (
+            <UserHierarchy 
+              users={users} 
+              currentUserRole={currentUser?.role} 
+              currentUserId={currentUser?.id} 
+              onEditUser={handleOpenEditModal} 
+              onToggleStatus={handleToggleStatus} 
+              onDeleteUser={handleDeleteUser} 
+            />
+          ) : (
+            <p>No hay usuarios de logística para mostrar.</p>
+          )}
+        </div>
+      </div>
+      <CreateTokenModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onTokenCreated={handleTokenCreated} />
+      <EditLogisticaModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} userData={selectedUser} onUserUpdated={handleUserUpdated} />
+      
+      {showProfileAlert && (
+        <Alert
+          message="Debe completar los datos de su perfil de logística para continuar."
+          onDismiss={handleAlertAccept}
+          type="welcome"
+        />
+      )}
+    </>
   );
 };
 
