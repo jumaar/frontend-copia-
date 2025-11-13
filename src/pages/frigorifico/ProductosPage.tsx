@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getProductos, createProducto, updateProducto, deleteProducto } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import './FrigorificoPage.css';
 
 // Componente modal para crear producto
 const CreateProductModal: React.FC<{
@@ -517,7 +518,7 @@ const ProductosPage: React.FC = () => {
 
   return (
     <div className="management-page">
-      <header className="management-header">
+      <div className="cuentas-header">
         <h1>Gestión de Productos</h1>
         <p>Administrar el catálogo de productos del frigorífico.</p>
         {canEdit && (
@@ -525,9 +526,9 @@ const ProductosPage: React.FC = () => {
             Añadir Producto
           </button>
         )}
-      </header>
+      </div>
 
-      <div className="management-table-container card">
+      <div className="management-table-container card" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
         {isLoading ? (
           <p>Cargando productos...</p>
         ) : productos.length > 0 ? (

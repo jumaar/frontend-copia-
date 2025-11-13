@@ -5,6 +5,27 @@
   padding: calc(var(--spacing-unit) * 4);
 }
 
+/* Header principal */
+.cuentas-header {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.cuentas-header h1 {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+  margin: 0 0 calc(var(--spacing-unit) * 1) 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.cuentas-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 calc(var(--spacing-unit) * 2) 0;
+}
+
 .management-header {
   display: flex;
   justify-content: space-between;

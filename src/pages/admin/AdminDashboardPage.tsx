@@ -21,12 +21,12 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="admin-dashboard">
-      <header className="dashboard-header">
+      <div className="cuentas-header">
         <h1>Dashboard de Administración</h1>
         <p>Bienvenido al panel de administración del sistema.</p>
-      </header>
+      </div>
 
-      <section className="dashboard-summary">
+      <section className="dashboard-summary" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
         <SummaryCard
           title="Tiendas Registradas"
           value="12"

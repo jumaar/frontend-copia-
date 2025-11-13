@@ -122,6 +122,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Gestión de Logística</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/logistica/inventario" className="nav-item">
+          <NavIcon />
+          <span>Gestión de Inventario</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/frigorifico/cuentas" className="nav-item">
+          <NavIcon />
+          <span>Cuentas Frigoríficos</span>
+        </NavLink>
+      </li>
     </>
   );
 

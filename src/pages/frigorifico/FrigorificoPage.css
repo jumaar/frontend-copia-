@@ -4,6 +4,26 @@
   gap: calc(var(--spacing-unit) * 4);
 }
 
+/* Header principal */
+.cuentas-header {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.cuentas-header h1 {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+  margin: 0;
+}
+
+.cuentas-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
 .lots-section {
   padding: calc(var(--spacing-unit) * 3);
 }

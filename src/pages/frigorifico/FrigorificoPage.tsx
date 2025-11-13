@@ -235,8 +235,13 @@ const FrigorificoPage: React.FC = () => {
         await deleteEstacion(Number(scale.id));
         // Refresh data
         setRefreshTrigger(prev => prev + 1);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting scale:', error);
+        if (error.response?.status === 403) {
+          alert(error.response.data.message || 'No se puede eliminar la estación.');
+        } else {
+          alert('Error al eliminar la estación. Inténtalo de nuevo.');
+        }
       }
     }
   };
@@ -283,12 +288,12 @@ const FrigorificoPage: React.FC = () => {
   return (
     <>
       <div className="frigorifico-page">
-        <header className="dashboard-header">
+        <div className="cuentas-header">
           <h1>Portal del Frigorífico</h1>
           <p>Registro y gestión de lotes de producción.</p>
-        </header>
+        </div>
 
-        <section className="dashboard-summary">
+        <section className="dashboard-summary" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
           <SummaryCard
             title="Empaques en Stock"
             value={loading ? "Cargando..." : frigorificoData?.lotes_en_stock.cantidad.toString() || "0"}

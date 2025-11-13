@@ -204,11 +204,13 @@ const LogisticaPage: React.FC = () => {
 
   return (
     <div className="frigorifico-page">
-   
-
+      <div className="cuentas-header">
+        <h1>Productos en Stock</h1>
+        <p>Lista de productos pendientes de entrega a logística</p>
+      </div>
 
       {/* Estadísticas */}
-      <section className="dashboard-summary">
+      <section className="dashboard-summary" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
         <div className="summary-card" style={{
           backgroundColor: 'var(--color-card-bg)',
           border: '1px solid var(--color-border)',

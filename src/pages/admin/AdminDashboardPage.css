@@ -5,25 +5,25 @@
   padding: calc(var(--spacing-unit) * 4);
 }
 
-.dashboard-header {
+/* Header principal */
+.cuentas-header {
   text-align: center;
-  margin-bottom: calc(var(--spacing-unit) * 4);
+  margin-bottom: 0;
 }
 
-.dashboard-header h1 {
-  margin: 0;
+.cuentas-header h1 {
   font-size: 2.5rem;
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary); /* O el color que corresponda */
+  color: var(--color-text-inverse);
+  margin: 0 0 calc(var(--spacing-unit) * 1) 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.dashboard-header p {
-  margin: calc(var(--spacing-unit) * 2) 0 0 0;
-  font-size: 1.2rem;
-  color: var(--color-text-primary); /* Cambiado a color primario */
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+.cuentas-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 calc(var(--spacing-unit) * 2) 0;
 }
 
 .dashboard-summary {

@@ -1,11 +1,88 @@
+/* Management Page Styles - Consistent across all logistics pages */
+.management-page {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+  padding: calc(var(--spacing-unit) * 3);
+  min-height: calc(100vh - 200px);
+}
+
+/* Header principal */
+.cuentas-header {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.cuentas-header h1 {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+  margin: 0 0 calc(var(--spacing-unit) * 1) 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.cuentas-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 calc(var(--spacing-unit) * 2) 0;
+}
+
+.management-header {
+  background-color: var(--color-card-bg);
+  padding: calc(var(--spacing-unit) * 4);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  margin-bottom: calc(var(--spacing-unit) * 4);
+  box-shadow: var(--shadow-card);
+}
+
+.management-header h1 {
+  margin: 0 0 calc(var(--spacing-unit) * 2) 0;
+  color: var(--color-text-primary);
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.management-header p {
+  margin: 0 0 calc(var(--spacing-unit) * 3) 0;
+  color: var(--color-text-secondary);
+  font-size: 1.1rem;
+}
+
+.management-header .button {
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 3);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  transition: all 0.2s ease;
+}
+
+/* Active Tokens Section */
+.active-tokens-section {
+  background-color: var(--color-card-bg);
+  padding: calc(var(--spacing-unit) * 3);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  margin-bottom: calc(var(--spacing-unit) * 4);
+}
+
+.active-tokens-section h2 {
+  margin: 0 0 calc(var(--spacing-unit) * 3) 0;
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.tokens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: calc(var(--spacing-unit) * 2);
+}
+
 .logistica-page {
   display: flex;
   flex-direction: column;
   gap: calc(var(--spacing-unit) * 4);
-}
-
-.shipments-section {
-  padding: calc(var(--spacing-unit) * 3);
 }
 
 .shipments-section h2 {

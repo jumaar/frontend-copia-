@@ -329,16 +329,18 @@ const UserManagementPage: React.FC = () => {
   return (
     <>
       <div className="management-page">
-        <header className="management-header">
+        <div className="cuentas-header">
           <h1>Gestión de Usuarios</h1>
           <p>Administrar todos los usuarios del sistema.</p>
-          <button className="button button-primary" onClick={handleOpenCreateModal}>
-            Crear Token de Registro
-          </button>
-        </header>
+        </div>
 
-        <div className="active-tokens-section">
-          <h2>Tokens Activos</h2>
+        <div className="active-tokens-section" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
+            <h2>Tokens Activos</h2>
+            <button className="button button-primary" onClick={handleOpenCreateModal}>
+              Crear Token de Registro
+            </button>
+          </div>
           <div className="tokens-grid">
             {activeTokens.length > 0 ? (
               activeTokens.map(tokenData => (

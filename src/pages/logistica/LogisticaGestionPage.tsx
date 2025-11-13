@@ -354,7 +354,7 @@ const refreshUserData = async () => {
   };
 
   if (loading && hermanos.length === 0) {
-    return <div className="frigorifico-page">Cargando...</div>;
+    return <div className="management-page">Cargando...</div>;
   }
 
   // Calcular estadísticas para el usuario seleccionado
@@ -366,13 +366,15 @@ const refreshUserData = async () => {
   ) / 1000;
 
   return (
-    <div className="frigorifico-page">
+    <div className="management-page">
+      <div className="cuentas-header">
+        <h1>Inventarios en Frigoríficos</h1>
+        <p>Empaques por estación pendientes de recogida</p>
+      </div>
 
       {/* Lista de usuarios hermanos */}
-      <section className="card" style={{ marginBottom: '2rem' }}>
-        <div className="card-header">
-          <h2>Frigoríficos</h2>
-        </div>
+      <section className="card" style={{ marginBottom: '2rem', marginTop: 'calc(var(--spacing-unit) * -4)' }}>
+
         <div style={{ padding: '1rem' }}>
           {hermanos.length === 0 ? (
             <p>No hay usuarios Frigorificos disponibles.</p>
@@ -387,7 +389,7 @@ const refreshUserData = async () => {
                     alignItems: 'center',
                     padding: '1rem',
                     border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--border-radius)',
+                    borderRadius: 'var(--border-radius-md)',
                     backgroundColor: 'var(--color-card-bg)'
                   }}
                 >
@@ -408,10 +410,10 @@ const refreshUserData = async () => {
                     disabled={consultingUser === hermano.id_usuario || !logisticaData || logisticaData.length === 0}
                     style={{
                       padding: '0.5rem 1rem',
-                      backgroundColor: (!logisticaData || logisticaData.length === 0) ? 'var(--color-text-secondary)' : 'var(--color-primary)',
+                      backgroundColor: (!logisticaData || logisticaData.length === 0) ? '#64748b' : '#667eea',
                       color: 'white',
                       border: 'none',
-                      borderRadius: 'var(--border-radius)',
+                      borderRadius: '6px',
                       cursor: (consultingUser === hermano.id_usuario || !logisticaData || logisticaData.length === 0) ? 'not-allowed' : 'pointer',
                       minWidth: '120px',
                       opacity: (!logisticaData || logisticaData.length === 0) ? 0.6 : 1
@@ -514,9 +516,16 @@ const refreshUserData = async () => {
                 style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}
               />
               <button
-                className="action-button"
                 onClick={handleSearch}
                 disabled={consultingUser !== null}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--border-radius-md)',
+                  cursor: 'pointer'
+                }}
               >
                 Buscar
               </button>
@@ -615,7 +624,7 @@ const refreshUserData = async () => {
                                         : 'var(--color-success)',
                                       color: 'white',
                                       border: 'none',
-                                      borderRadius: 'var(--border-radius)',
+                                      borderRadius: 'var(--border-radius-md)',
                                       cursor: confirmedProducts.has(`${estacion.id_estacion}-${producto.id_producto}`)
                                         ? 'not-allowed'
                                         : 'pointer',

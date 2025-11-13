@@ -8,7 +8,6 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import StoreManagementPage from './pages/admin/StoreManagementPage';
-import FrigorificoManagementPage from './pages/admin/FrigorificoManagementPage';
 import LogisticaManagementPage from './pages/admin/LogisticaManagementPage';
 import FridgeManagementPage from './pages/admin/FridgeManagementPage';
 import GlobalAccountsPage from './pages/admin/GlobalAccountsPage';
@@ -18,6 +17,7 @@ import FrigorificoProductosPage from './pages/frigorifico/ProductosPage';
 import FrigorificoCuentasPage from './pages/frigorifico/CuentasPage';
 import LogisticaPage from './pages/logistica/LogisticaPage';
 import LogisticaGestionPage from './pages/logistica/LogisticaGestionPage';
+import LogisticaInventarioPage from './pages/logistica/LogisticaInventarioPage';
 import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
@@ -56,7 +56,7 @@ const AppContent: React.FC = () => {
                 <Route path="dashboard" element={<AdminDashboardPage />} />
                 <Route path="users" element={<UserManagementPage />} />
                 <Route path="tiendas" element={<StoreManagementPage />} />
-                <Route path="frigorificos" element={<FrigorificoManagementPage />} />
+                <Route path="frigorificos" element={<FrigorificoCuentasPage />} />
                 <Route path="logistica" element={<LogisticaManagementPage />} />
                 <Route path="productos" element={<FrigorificoProductosPage />} />
                 <Route path="neveras" element={<FridgeManagementPage />} />
@@ -71,7 +71,7 @@ const AppContent: React.FC = () => {
       <Route
         path="/frigorifico/*"
         element={
-          <ProtectedRoute allowedRoles={['frigorifico']}>
+          <ProtectedRoute allowedRoles={['frigorifico', 'logistica']}>
             <RootLayout>
               <Routes>
                 <Route index element={<FrigorificoPage />} />
@@ -93,6 +93,7 @@ const AppContent: React.FC = () => {
               <Routes>
                 <Route index element={<LogisticaPage />} />
                 <Route path="gestion" element={<LogisticaGestionPage />} />
+                <Route path="inventario" element={<LogisticaInventarioPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>

@@ -506,3 +506,42 @@ export const cambiarEstadoEmpaques = async (idEstacion: string, idProducto: numb
     throw error;
   }
 };
+
+/**
+ * Obtiene los productos por logística con sus empaques.
+ * @param idLogistica El ID de logística para filtrar los productos.
+ * @returns Lista de productos con sus empaques asociados.
+ */
+export const getInventarioLogistica = async (idLogistica: number) => {
+  try {
+    const response = await api.get(`/logistica?id_logistica=${idLogistica}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener inventario de logística ${idLogistica}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene las transacciones de cuentas globales para un usuario específico
+ * @param id_usuario El ID del usuario para obtener sus transacciones
+ * @param mes Mes específico a consultar (opcional)
+ * @param año Año específico a consultar (opcional)
+ * @returns Las transacciones con información del usuario y período
+ */
+export const getTransaccionesCuentas = async (id_usuario: number, mes?: number, año?: number) => {
+  try {
+    let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
+    
+    // Agregar parámetros opcionales mes/año
+    if (mes && año) {
+      url += `&mes=${mes}&año=${año}`;
+    }
+    
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener transacciones de cuentas para usuario ${id_usuario}:`, error);
+    throw error;
+  }
+};
