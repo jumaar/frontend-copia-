@@ -532,16 +532,36 @@ export const getInventarioLogistica = async (idLogistica: number) => {
 export const getTransaccionesCuentas = async (id_usuario: number, mes?: number, año?: number) => {
   try {
     let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
-    
+
     // Agregar parámetros opcionales mes/año
     if (mes && año) {
       url += `&mes=${mes}&año=${año}`;
     }
-    
+
     const response = await api.get(url);
     return response.data;
   } catch (error) {
     console.error(`Error al obtener transacciones de cuentas para usuario ${id_usuario}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Procesa un pago o abono para las cuentas de un usuario frigorífico
+ * @param id_usuario El ID del usuario frigorífico
+ * @param monto El monto del pago
+ * @param nota_opcional Nota opcional para el pago
+ * @returns Respuesta de la API
+ */
+export const procesarPago = async (id_usuario: number, monto: number, nota_opcional?: string) => {
+  try {
+    const response = await api.post(`/logistica/cuentas?id_usuario=${id_usuario}`, {
+      monto,
+      nota_opcional
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error al procesar pago para usuario ${id_usuario}:`, error);
     throw error;
   }
 };

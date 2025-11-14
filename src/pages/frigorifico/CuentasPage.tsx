@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTransaccionesCuentas, getHermanos } from '../../services/api';
+import { getTransaccionesCuentas, getHermanos, procesarPago } from '../../services/api';
 import TablaTransacciones from '../../components/TablaTransacciones';
 import './CuentasPage.css';
 
@@ -39,9 +39,15 @@ const CuentasPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [mesesHistoricos, setMesesHistoricos] = useState<Array<{mes: number, año: number, fecha: string}>>([]);
   const [mesSeleccionado, setMesSeleccionado] = useState<{mes: number, año: number} | null>(null);
   const [showMesesMenu, setShowMesesMenu] = useState(false);
+  const [tipoPago, setTipoPago] = useState<'pago' | 'abono' | ''>('');
+  const [montoPago, setMontoPago] = useState<number>(0);
+  const [notaPago, setNotaPago] = useState<string>('');
+  const [procesandoPago, setProcesandoPago] = useState(false);
+  const [showTipoMenu, setShowTipoMenu] = useState(false);
 
   // Determinar el tipo de usuario
   const esFrigorifico = user?.role === 'frigorifico';
@@ -94,6 +100,16 @@ const CuentasPage: React.FC = () => {
     }
   }, [esFrigorifico, esLogistica, transacciones?.fecha_creacion_usuario]);
 
+  // Actualizar monto de pago cuando cambie el tipo o las transacciones
+  useEffect(() => {
+    if (transacciones && tipoPago === 'pago') {
+      const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
+      setMontoPago(saldoTotalPendientes);
+    } else if (tipoPago === 'abono') {
+      setMontoPago(0);
+    }
+  }, [tipoPago, transacciones]);
+
   // Cargar usuarios hermanos (solo para roles administrativos)
   const cargarUsuariosHermanos = async () => {
     try {
@@ -127,6 +143,7 @@ const CuentasPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccessMessage(null);
       setTransacciones(null);
       
       const data = await getTransaccionesCuentas(idUsuario, mes, año);
@@ -153,10 +170,110 @@ const CuentasPage: React.FC = () => {
     }
   };
 
+  // Manejar el procesamiento del pago
+  const manejarPago = async () => {
+    if (!usuarioSeleccionado || !transacciones) return;
 
-  // Obtener nombre completo del usuario
+    const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
+
+    let montoFinal = 0;
+    let notaFinal = notaPago;
+
+    if (tipoPago === 'pago') {
+      montoFinal = saldoTotalPendientes;
+      if (!notaPago) {
+        notaFinal = `pago por el usuario ${user?.name || ''} (ID: ${user?.id || ''})`;
+      }
+    } else {
+      montoFinal = montoPago;
+      if (isNaN(montoFinal) || montoFinal <= 0) {
+        alert('Por favor ingrese un monto válido para el abono.');
+        return;
+      }
+      if (!notaPago) {
+        notaFinal = `abono de ${formatMoneda(montoFinal)} hecho por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
+      }
+    }
+
+    const confirmMessage = tipoPago === 'pago'
+      ? `¿Confirmar pago total de ${formatMoneda(montoFinal)}?`
+      : `¿Confirmar abono de ${formatMoneda(montoFinal)}?`;
+
+    // Usar setTimeout para manejar el confirm de manera segura
+    setTimeout(() => {
+      if (!window.confirm(confirmMessage)) return;
+
+      procesarPagoSeguro();
+    }, 100);
+
+    const procesarPagoSeguro = async () => {
+      try {
+        setProcesandoPago(true);
+        // Redondear el monto antes de enviar
+        const montoRedondeado = Math.round(montoFinal);
+        const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, notaFinal);
+        // Actualizar transacciones localmente para mostrar inmediatamente
+        if (transacciones) {
+          const nuevasTransacciones = [...transacciones.transacciones];
+          // Agregar la nueva transacción consolidada
+          nuevasTransacciones.push({
+            ...respuesta,
+            nombre_tipo_transaccion: 'ticket_consolidado',
+            nombre_estado_transaccion: 'CONSOLIDADO'
+          });
+          // Cambiar estado de pendientes a PAGADO y agregar id_transaccion_rel
+          nuevasTransacciones.forEach(t => {
+            if (t.nombre_estado_transaccion === 'PENDIENTE') {
+              t.nombre_estado_transaccion = 'PAGADO';
+              t.id_transaccion_rel = respuesta.id_transaccion;
+            }
+          });
+          setTransacciones({ ...transacciones, transacciones: nuevasTransacciones });
+        }
+        // Resetear estados
+        setTipoPago('');
+        setMontoPago(0);
+        setNotaPago('');
+        // Mostrar mensaje de éxito detallado
+        const mensajeDetallado = `
+✅ ${respuesta.message}
+
+📋 RESUMEN DE LA CONSOLIDACIÓN:
+👤 Usuario Consolidado: ID ${respuesta.resumen.usuario_consolidado}
+💰 Usuario Acreedor: ID ${respuesta.resumen.usuario_acreedor}
+💵 Monto Consolidado: $${respuesta.resumen.monto_consolidado.toLocaleString()}
+💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
+        `.trim();
+        
+        alert(mensajeDetallado);
+        setSuccessMessage('Pago procesado exitosamente.');
+        
+        // Recargar datos inmediatamente después del pago (solo mes actual)
+        try {
+          const data = await getTransaccionesCuentas(usuarioSeleccionado);
+          setTransacciones(data);
+        } catch (err: any) {
+          console.error('Error en recarga inmediata:', err);
+          // No mostrar error en recarga silenciosa
+        }
+        
+        // Auto-ocultar mensaje después de 3 segundos
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } catch (err: any) {
+        console.error('Error al procesar pago:', err);
+        setError('Error al procesar el pago: ' + (err.response?.data?.message || err.message));
+        // Auto-ocultar error después de 5 segundos
+        setTimeout(() => setError(null), 5000);
+      } finally {
+        setProcesandoPago(false);
+      }
+    };
+  };
+
+
+  // Obtener nombre completo del usuario con ID
   const getNombreCompleto = (usuario: UsuarioHermano) => {
-    return `${usuario.nombre_usuario} ${usuario.apellido_usuario}`;
+    return `${usuario.nombre_usuario} ${usuario.apellido_usuario} (ID: ${usuario.id_usuario})`;
   };
 
   
@@ -284,10 +401,10 @@ const CuentasPage: React.FC = () => {
                   return usuario ? (
                     <div>
                       <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
-                        {getNombreCompleto(usuario)}
+                        {usuario.nombre_usuario} {usuario.apellido_usuario}
                       </h4>
                       <p style={{ margin: '0', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
-                        Email: {usuario.email} | Celular: {usuario.celular}
+                        ID: {usuario.id_usuario} | Email: {usuario.email} | Celular: {usuario.celular}
                       </p>
                     </div>
                   ) : null;
@@ -299,10 +416,12 @@ const CuentasPage: React.FC = () => {
       )}
         {/* Resumen financiero - Para frigorífico, logística y admin */}
         {transacciones && (() => {
-          const pendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').length;
-          const consolidados = transacciones.transacciones.filter(t => t.nombre_tipo_transaccion === 'CONSOLIDADO').length;
-          const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
-          const montoTotalMes = transacciones.transacciones.reduce((sum, t) => sum + t.monto, 0);
+           const pendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').length;
+           const consolidados = transacciones.transacciones.filter(t => t.nombre_tipo_transaccion === 'ticket_consolidado').length;
+           const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
+           const montoTotalMes = transacciones.transacciones.filter(t =>
+             t.nombre_estado_transaccion === 'PENDIENTE' || t.nombre_estado_transaccion === 'PAGADO'
+           ).filter(t => t.id_empaque !== null).reduce((sum, t) => sum + t.monto, 0);
           
           return (
             <div className="resumen-financiero">
@@ -335,20 +454,38 @@ const CuentasPage: React.FC = () => {
         })()}
       </div>
 
+      {/* Mensaje de éxito */}
+      {successMessage && (
+        <div className="success-message" style={{ backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success)', color: 'var(--color-success)' }}>
+          <div className="success-content">
+            <span className="success-icon">✅</span>
+            <p>{successMessage}</p>
+            <button
+              className="success-close-btn"
+              onClick={() => setSuccessMessage(null)}
+              style={{ background: 'none', border: 'none', color: 'var(--color-success)', cursor: 'pointer', marginTop: '0.5rem' }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mensaje de error */}
       {error && (
         <div className="error-message">
           <div className="error-content">
             <span className="error-icon">⚠️</span>
             <p>{error}</p>
-            <button 
+            <button
               className="error-retry-btn"
               onClick={() => {
                 setError(null);
                 if (usuarioSeleccionado) {
                   cargarTransacciones(usuarioSeleccionado);
                 } else {
-                  window.location.reload();
+                  // Evitar recarga de página completa
+                  console.log('No hay usuario seleccionado para recargar datos');
                 }
               }}
             >
@@ -394,6 +531,151 @@ const CuentasPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Sección de Pago/Abono - Solo para usuarios logística y admin con frigorífico seleccionado y saldo pendiente */}
+      {(esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && usuarioSeleccionado && transacciones && (() => {
+        const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
+        return saldoTotalPendientes > 0 ? (
+          <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>💰 Gestión de Pagos</h3>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>Saldo Total Pendiente:</strong> <span style={{ fontSize: '1.2em', color: 'var(--color-error)' }}>{formatMoneda(saldoTotalPendientes)}</span>
+            </div>
+
+            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <label style={{ color: 'var(--color-text-primary)' }}>
+                Tipo de Transacción:
+              </label>
+              <div className="meses-dropdown">
+                <button
+                  className="dropdown-toggle"
+                  onClick={() => setShowTipoMenu(!showTipoMenu)}
+                  style={{
+                    opacity: 1,
+                    cursor: 'pointer',
+                    minWidth: '200px'
+                  }}
+                >
+                  <span>
+                    {tipoPago === 'pago' ? 'Pago Total' : 'Abono'}
+                  </span>
+                  <span className="dropdown-arrow">▼</span>
+                </button>
+
+                {showTipoMenu && (
+                  <div className="dropdown-menu">
+                    <div className="dropdown-item">
+                      <span className="mes-fecha">Pago Total</span>
+                      <button
+                        className={`btn-consultar ${tipoPago === 'pago' ? 'activo' : ''}`}
+                        onClick={() => {
+                          setTipoPago('pago');
+                          setShowTipoMenu(false);
+                        }}
+                      >
+                        Seleccionar
+                      </button>
+                    </div>
+                    <div className="dropdown-item">
+                      <span className="mes-fecha">Abono</span>
+                      <button
+                        className={`btn-consultar ${tipoPago === 'abono' ? 'activo' : ''}`}
+                        onClick={() => {
+                          setTipoPago('abono');
+                          setShowTipoMenu(false);
+                        }}
+                      >
+                        Seleccionar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Los campos de monto y nota solo aparecen después de seleccionar el tipo */}
+            {tipoPago && (
+              tipoPago === 'pago' ? (
+                <div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <strong>Monto a Pagar:</strong>
+                    <div style={{ fontSize: '2em', color: 'var(--color-success)', marginTop: '0.5rem' }}>
+                      {formatMoneda(montoPago)}
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>
+                      Nota:
+                    </label>
+                    <input
+                      type="text"
+                      value={notaPago}
+                      onChange={(e) => setNotaPago(e.target.value)}
+                      placeholder={`pago total de deuda hecha por el usuario logistica ${user?.name || ''}`}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '2px solid var(--color-border)', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>
+                      Monto del Abono:
+                    </label>
+                    <input
+                      type="number"
+                      value={montoPago || ''}
+                      onChange={(e) => setMontoPago(parseFloat(e.target.value) || 0)}
+                      min="0"
+                      step="0.01"
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '2px solid var(--color-border)', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-primary)' }}>
+                      Nota:
+                    </label>
+                    <input
+                      type="text"
+                      value={notaPago}
+                      onChange={(e) => setNotaPago(e.target.value)}
+                      placeholder="Nota opcional para el abono"
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '2px solid var(--color-border)', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
+                    />
+                  </div>
+                </div>
+              )
+            )}
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                manejarPago();
+                return false;
+              }}
+              disabled={procesandoPago}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: 'var(--color-success)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: procesandoPago ? 'not-allowed' : 'pointer',
+                opacity: procesandoPago ? 0.7 : 1,
+                width: 'auto',
+                display: 'inline-block',
+                pointerEvents: procesandoPago ? 'none' : 'auto',
+                outline: 'none'
+              }}
+            >
+              {procesandoPago ? 'Procesando...' : 'Pagar'}
+            </button>
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 };

@@ -6,10 +6,15 @@ interface Transaccion {
   id_empaque: number | null;
   id_transaccion_rel: number | null;
   monto: number;
-  hora_transaccion: string;
+  hora_transaccion?: string;
   nombre_tipo_transaccion: string;
-  nombre_estado_transaccion: string;
+  nombre_estado_transaccion?: string;
   nota_opcional: string;
+  info_pago?: {
+    id_usuario_pago: number;
+    nombre_usuario_pago: string;
+    nota_opcional_pago: string;
+  };
 }
 
 interface TransaccionesData {
@@ -114,13 +119,13 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
 
       if (transaccion.nombre_estado_transaccion === 'PENDIENTE') {
         pendientes.push(transaccion);
-      } else if (transaccion.nombre_tipo_transaccion === 'CONSOLIDADO') {
+      } else if (transaccion.nombre_tipo_transaccion === 'ticket_consolidado') {
         // Ticket consolidado (nueva transacción que agrupa productos)
         consolidados.set(transaccion.id_transaccion, {
           ticket: transaccion,
           productos: []
         });
-      } else if (transaccion.nombre_estado_transaccion === 'PAGADA' && transaccion.id_transaccion_rel) {
+      } else if (transaccion.nombre_estado_transaccion === 'PAGADO' && transaccion.id_transaccion_rel) {
         // Producto pagado que pertenece a un consolidado
         const consolidado = consolidados.get(transaccion.id_transaccion_rel);
         if (consolidado) {
@@ -250,9 +255,13 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                 {pendientes.map(transaccion => (
                   <tr key={transaccion.id_transaccion} className="fila-pendiente">
                     <td className="id-cell">{transaccion.id_transaccion}</td>
-                    <td>{transaccion.id_empaque || '-'}</td>
+                    <td>
+                      {transaccion.id_empaque ? transaccion.id_empaque : (
+                        <span className="badge estado-pendiente">Saldo</span>
+                      )}
+                    </td>
                     <td className="monto-cell">{formatMoneda(transaccion.monto)}</td>
-                    <td>{formatFecha(transaccion.hora_transaccion)}</td>
+                    <td>{transaccion.hora_transaccion ? formatFecha(transaccion.hora_transaccion) : '-'}</td>
                     <td>
                       <span className="badge tipo-venta">{transaccion.nombre_tipo_transaccion}</span>
                     </td>
@@ -301,7 +310,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                       <div className="consolidado-datos">
                         <h4>Ticket #{ticket.id_transaccion}</h4>
                         <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
-                        <p className="consolidado-fecha">{formatFecha(ticket.hora_transaccion)}</p>
+                        <p className="consolidado-fecha">{ticket.hora_transaccion ? formatFecha(ticket.hora_transaccion) : '-'}</p>
                         <p className="consolidado-productos">
                           {productos.length} producto{productos.length !== 1 ? 's' : ''} agrupado{productos.length !== 1 ? 's' : ''}
                         </p>
@@ -314,6 +323,19 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                   
                   {isExpanded && (
                     <div className="consolidado-detalle">
+                      {ticket.info_pago && (
+                        <div className="info-pago-section" style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
+                          <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>Información del Pago</h6>
+                          <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
+                            <strong>Pagado por:</strong> {ticket.info_pago.nombre_usuario_pago}
+                          </p>
+                          {ticket.info_pago.nota_opcional_pago && (
+                            <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-secondary)' }}>
+                              <strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}
+                            </p>
+                          )}
+                        </div>
+                      )}
                       <h5>Productos incluidos en este ticket:</h5>
                       <div className="tabla-container">
                         <table className="productos-table">
@@ -332,7 +354,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                                 <td className="id-cell">{producto.id_transaccion}</td>
                                 <td>{producto.id_empaque || '-'}</td>
                                 <td className="monto-cell">{formatMoneda(producto.monto)}</td>
-                                <td>{formatFecha(producto.hora_transaccion)}</td>
+                                <td>{producto.hora_transaccion ? formatFecha(producto.hora_transaccion) : '-'}</td>
                                 <td className={`nota-cell ${expandedNotas.has(producto.id_transaccion) ? 'nota-expanded' : ''}`}>
                                   <span className="nota-text">{producto.nota_opcional}</span>
                                   {producto.nota_opcional && (
