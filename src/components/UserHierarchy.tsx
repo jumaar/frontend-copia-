@@ -17,6 +17,7 @@ interface UserHierarchyProps {
   onEditUser: (userId: number) => void;
   onToggleStatus: (userId: number, userName: string, currentStatus: boolean) => void;
   onDeleteUser: (userId: number, userName: string) => void;
+  onSurtir?: (neveraId: number) => void;
 }
 
 
@@ -25,7 +26,8 @@ const UserHierarchy: React.FC<UserHierarchyProps> = ({
   currentUserId,
   onEditUser,
   onToggleStatus,
-  onDeleteUser
+  onDeleteUser,
+  onSurtir
 }) => {
   const [expandedUsers, setExpandedUsers] = useState<Set<number>>(new Set([currentUserId ? parseInt(currentUserId) : -1]));
 
@@ -57,13 +59,21 @@ const UserHierarchy: React.FC<UserHierarchyProps> = ({
             )}
             {['frigorifico', 'tienda', 'logistica'].includes(user.rol) ? (
               <button className="user-role-button">{user.rol}</button>
+            ) : user.rol === 'tienda-fisica' ? (
+              <span className="user-role">Tienda</span>
+            ) : user.rol === 'nevera' ? (
+              <span className="user-role">Nevera</span>
             ) : (
               <span className="user-role">{user.rol}</span>
             )}
             <span className="user-name">
               {isCurrentUser ? `${user.nombre_completo} (Mi Perfil)` : user.nombre_completo}
             </span>
-            {isCurrentUser ? (
+            {user.rol === 'tienda-fisica' ? (
+              <span className="user-address">📍 {user.celular}</span>
+            ) : user.rol === 'nevera' ? (
+              <span className="user-status">{user.activo ? '🟢 Activa' : '🔴 Inactiva'}</span>
+            ) : isCurrentUser ? (
               <span className="user-phone">
                 <svg
                   width="12"
@@ -99,7 +109,9 @@ const UserHierarchy: React.FC<UserHierarchyProps> = ({
             )}
           </div>
           <div className="user-actions">
-            {isCurrentUser ? (
+            {user.rol === 'tienda-fisica' ? null : user.rol === 'nevera' ? (
+              onSurtir && <button className="action-button" onClick={() => onSurtir(Math.abs(user.id))}>Surtir</button>
+            ) : isCurrentUser ? (
               <button className="action-button" onClick={() => onEditUser(user.id)}>Editar</button>
             ) : (
               <>

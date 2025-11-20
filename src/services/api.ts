@@ -7,13 +7,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Eliminado: Interceptor para añadir Authorization header
-// Las cookies se envían automáticamente con withCredentials: true
-
-// Eliminado: Lógica compleja de refresh con localStorage
-// Ahora el refresh es simple y las cookies se manejan automáticamente
-
-// Interceptor de respuesta para auto-refresh
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -45,7 +38,6 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
 // Función para obtener el número de neveras activas
 export const getActiveFridgesCount = async () => {
   try {
@@ -565,3 +557,161 @@ export const procesarPago = async (id_usuario: number, monto: number, nota_opcio
     throw error;
   }
 };
+
+/**
+ * Obtiene los datos de la tienda para el usuario logueado.
+ * @param userId El ID del usuario.
+ * @returns Los datos de la tienda incluyendo lotes y transacciones.
+ */
+export const getTiendaData = async (userId: number) => {
+  try {
+    const response = await api.get(`/gestion-usuarios/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los datos de la tienda:', error);
+    throw error;
+  }
+};
+
+/**
+ * Crea una nueva tienda.
+ * @param tiendaData Los datos de la tienda a crear.
+ * @returns La tienda creada.
+ */
+export const createTienda = async (tiendaData: {
+  nombre_tienda: string;
+  direccion: string;
+  id_ciudad: number;
+}) => {
+  try {
+    const response = await api.post('/tiendas', tiendaData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear la tienda:', error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza una tienda existente.
+ * @param idTienda El ID de la tienda a actualizar.
+ * @param updateData Los datos a actualizar.
+ * @returns La tienda actualizada.
+ */
+export const updateTienda = async (idTienda: number, updateData: {
+  nombre_tienda?: string;
+  direccion?: string;
+  id_ciudad?: number;
+}) => {
+  try {
+    const response = await api.patch(`/tiendas/${idTienda}`, updateData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar la tienda ${idTienda}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Elimina una tienda.
+ * @param idTienda El ID de la tienda a eliminar.
+ * @returns Confirmación de eliminación.
+ */
+export const deleteTienda = async (idTienda: number) => {
+  try {
+    const response = await api.delete(`/tiendas/${idTienda}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al eliminar la tienda ${idTienda}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene las tiendas asociadas a un usuario.
+ * @param userId El ID del usuario.
+ * @returns Lista de tiendas del usuario.
+ */
+export const getTiendas = async (userId: number) => {
+  try {
+    const response = await api.get(`/tiendas/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener las tiendas del usuario ${userId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene el inventario completo de una tienda incluyendo neveras y productos.
+ * @param idTienda El ID de la tienda.
+ * @returns Los datos de la tienda con jerarquía de neveras y productos.
+ */
+export const getTiendaInventario = async (idTienda: number) => {
+  try {
+    const response = await api.get(`/tienda/inventario/${idTienda}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener el inventario de la tienda ${idTienda}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza el stock mínimo y máximo de un producto en una nevera específica.
+ * @param idProducto El ID del producto.
+ * @param idNevera El ID de la nevera.
+ * @param stockData Los datos de stock a actualizar (stock_minimo y/o stock_maximo).
+ * @returns Los datos actualizados del producto.
+ */
+export const updateProductoStock = async (
+  idProducto: number,
+  idNevera: number,
+  stockData: { stock_minimo?: number; stock_maximo?: number }
+) => {
+  try {
+    const response = await api.patch(`/tiendas/producto-stock`, {
+      id_producto: idProducto,
+      id_nevera: idNevera,
+      ...stockData
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar stock del producto ${idProducto} en nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Crea una nueva nevera para una tienda.
+ * @param neveraData Los datos de la nevera a crear.
+ * @returns La nevera creada.
+ */
+export const createNevera = async (neveraData: {
+  id_tienda: number;
+}) => {
+  try {
+    const response = await api.post('/tiendas/neveras', neveraData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al crear la nevera:', error);
+    throw error;
+  }
+};
+
+/**
+ * Elimina una nevera.
+ * @param idNevera El ID de la nevera a eliminar.
+ * @returns Confirmación de eliminación.
+ */
+export const deleteNevera = async (idNevera: number) => {
+  try {
+    const response = await api.delete(`/tiendas/neveras/${idNevera}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al eliminar la nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
+export default api;

@@ -13,6 +13,7 @@ interface Empaque {
 interface Producto {
   id_producto: number;
   nombre_producto: string;
+  peso_nominal: number; // El peso nominal viene directamente de la API
   empaques: Empaque[];
 }
 
@@ -146,7 +147,7 @@ const LogisticaInventarioPage: React.FC = () => {
                         Peso Total: {(pesoTotal / 1000).toFixed(2)} kg
                       </h3>
                       <p style={{ margin: '0.25rem 0 0 0', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
-                        {(pesoTotal).toFixed(2)} g total
+                        {inventarioData.total_empaques} empaques total
                       </p>
                     </div>
                   </div>
@@ -180,7 +181,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                   fontWeight: 'bold',
                                   color: 'var(--color-text-primary)'
                                 }}>
-                                  {producto.id_producto} - {producto.nombre_producto}
+                                  {producto.id_producto} - {producto.nombre_producto} {producto.peso_nominal}g
                                 </span>
                                 <button
                                   onClick={() => toggleProductExpansion(producto.id_producto)}

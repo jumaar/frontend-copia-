@@ -19,6 +19,7 @@ interface StationModalProps {
   stationData?: StationData | null;
   availableCities?: Ciudad[];
   onSave: (station: StationData) => void;
+  title?: string;
 }
 
 
@@ -28,6 +29,7 @@ const StationModal: React.FC<StationModalProps> = ({
   stationData,
   availableCities = [],
   onSave,
+  title = "Frigorífico",
 }) => {
   const [formData, setFormData] = useState<StationData>({
     name: '',
@@ -84,13 +86,13 @@ const StationModal: React.FC<StationModalProps> = ({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <header className="modal-header">
-          <h2>{isEditMode ? 'Editar' : 'Crear'} Frigorífico</h2>
+          <h2>{isEditMode ? 'Editar' : 'Crear'} {title}</h2>
           <button onClick={onClose} className="modal-close-button">&times;</button>
         </header>
         <form id="station-form" onSubmit={handleSubmit}>
           <div className="modal-body">
             <div className="form-group">
-              <label htmlFor="name">Nombre de la Estación</label>
+              <label htmlFor="name">Nombre</label>
               <input
                 type="text"
                 id="name"

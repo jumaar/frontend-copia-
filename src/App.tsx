@@ -19,6 +19,7 @@ import LogisticaPage from './pages/logistica/LogisticaPage';
 import LogisticaGestionPage from './pages/logistica/LogisticaGestionPage';
 import LogisticaInventarioPage from './pages/logistica/LogisticaInventarioPage';
 import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
+import TiendaInventarioPage from './pages/tienda/TiendaInventarioPage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 export const getDashboardPath = (role: string): string => {
@@ -102,11 +103,14 @@ const AppContent: React.FC = () => {
 
       {/* Rutas de Tienda - Solo tienda */}
       <Route
-        path="/tienda"
+        path="/tienda/*"
         element={
           <ProtectedRoute allowedRoles={['tienda']}>
             <RootLayout>
-              <TiendaDashboardPage />
+              <Routes>
+                <Route index element={<TiendaDashboardPage />} />
+                <Route path="/:id" element={<TiendaInventarioPage />} />
+              </Routes>
             </RootLayout>
           </ProtectedRoute>
         }

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LogisticaPage.css';
 import CreateTokenModal from '../../components/CreateTokenModal';
 import TokenDisplay, { type TokenData } from '../../components/TokenDisplay';
 import EditLogisticaModal from '../../components/EditLogisticaModal';
+import EditUserModal from '../../components/EditUserModal';
 import UserHierarchy from '../../components/UserHierarchy';
 import Alert from '../../components/Alert';
 import { getManagementData, toggleUserStatus, getUserDetails, deleteUser } from '../../services/api';
@@ -19,11 +21,14 @@ interface User {
 
 const LogisticaPage: React.FC = () => {
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isEditLogisticaModalOpen, setEditLogisticaModalOpen] = useState(false);
+  const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeTokens, setActiveTokens] = useState<TokenData[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [tiendasData, setTiendasData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
   const [userProfileData, setUserProfileData] = useState<any>(null);
@@ -34,89 +39,34 @@ const LogisticaPage: React.FC = () => {
       try {
         const data = await getManagementData();
         console.log('Datos recibidos del backend:', data);
-        console.log('Usuario actual:', data.usuario_actual);
-        console.log('Rol del usuario actual:', data.usuario_actual?.rol);
-        console.log('Jerarquía del backend:', data.jerarquia);
-        console.log('Usuarios creados por usuario actual:', data.usuario_actual?.usuarios_creados);
 
-        const transformedHierarchy: User[] = [];
+        // Set user data for the profile section
+        setUsers(data.usuario_actual ? [data.usuario_actual] : []);
 
-        if (data.usuario_actual) {
-          // Filtrar y construir jerarquía enfocada en usuarios de logística
-          const rootUser: User = {
-            id: data.usuario_actual.id,
-            nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
-            celular: data.usuario_actual.celular || 'N/A',
-            rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
-            activo: data.usuario_actual.activo,
-            hijos: [] // Inicializar hijos como array vacío
-          };
-
-          // Procesar jerarquía del backend para mostrar solo usuarios de logística
-          (data.jerarquia || []).forEach((admin: any) => {
-            // Para cada admin, buscar sus usuarios creados que sean de logística
-            const adminChildren = (admin.usuarios_creados || [])
-              .filter((child: any) => child.rol.toLowerCase().replace('_', '') === 'logistica')
-              .map((logisticaUser: any) => {
-                // Cada usuario de logística puede tener tiendas como hijos
-                return {
-                  id: logisticaUser.id,
-                  nombre_completo: logisticaUser.nombre_completo || 'Usuario sin nombre',
-                  celular: logisticaUser.celular || 'N/A',
-                  rol: logisticaUser.rol.toLowerCase().replace('_', ''),
-                  activo: logisticaUser.activo,
-                  hijos: (logisticaUser.usuarios_creados || [])
-                    .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
-                    .map((tiendaUser: any) => ({
-                      id: tiendaUser.id,
-                      nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
-                      celular: tiendaUser.celular || 'N/A',
-                      rol: tiendaUser.rol.toLowerCase().replace('_', ''),
-                      activo: tiendaUser.activo,
-                    }))
-                };
-              });
-
-            // Solo agregar si hay usuarios de logística para este admin
-            if (adminChildren.length > 0) {
-              rootUser.hijos!.push({
-                id: admin.id,
-                nombre_completo: admin.nombre_completo || 'Admin sin nombre',
-                celular: admin.celular || 'N/A',
-                rol: admin.rol.toLowerCase().replace('_', ''),
-                activo: admin.activo,
-                hijos: adminChildren
-              });
-            }
-          });
-
-          transformedHierarchy.push(rootUser);
-        }
-        
-        setUsers(transformedHierarchy);
+        // Set tiendas data for individual components
+        setTiendasData(data.tiendas_creadas || []);
         setActiveTokens(data.tokens || []);
 
         // Verificar si el usuario actual de logística necesita completar perfil
         if (data.usuario_actual?.rol === 'Logistica' &&
-            (!data.usuario_actual.logistica || data.usuario_actual.logistica.length === 0)) {
+            !data.usuario_actual.logistica) {
           setUserProfileData(data.usuario_actual);
           setShowProfileAlert(true);
         }
 
       } catch (error) {
         console.error("No se pudieron cargar los datos de gestión:", error);
-        setUsers([]); // En caso de error, la lista queda vacía
+        setUsers([]);
         setActiveTokens([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Solo llamar a fetchData si tenemos un usuario autenticado
     if (currentUser) {
       fetchData();
     } else {
-      setIsLoading(false); // Si no hay usuario, no hay nada que cargar
+      setIsLoading(false);
     }
   }, [currentUser]);
 
@@ -127,14 +77,26 @@ const LogisticaPage: React.FC = () => {
     try {
       const userData = await getUserDetails(userId);
       setSelectedUser(userData);
-      setEditModalOpen(true);
+      
+      // Verificar si es el usuario de logística (padre) o una tienda (hijo)
+      // El usuario de logística tiene ID igual al usuario actual, las tiendas tienen IDs diferentes
+      if (userId === parseInt(currentUser?.id || '0')) {
+        setEditLogisticaModalOpen(true);
+      } else {
+        setEditUserModalOpen(true);
+      }
     } catch (error) {
       console.error("Error fetching user details for editing.");
     }
   };
   
-  const handleCloseEditModal = () => {
-    setEditModalOpen(false);
+  const handleCloseEditLogisticaModal = () => {
+    setEditLogisticaModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleCloseEditUserModal = () => {
+    setEditUserModalOpen(false);
     setSelectedUser(null);
   };
 
@@ -227,24 +189,13 @@ const LogisticaPage: React.FC = () => {
   };
 
   const handleDeleteUser = async (userId: number, userName: string) => {
-    if (userId.toString() === currentUser?.id) {
-      alert('No puedes eliminar tu propio usuario.');
-      return;
-    }
-
-    // Verificar permisos: Super Admin y Admin pueden eliminar usuarios
-    if (!['superadmin', 'admin'].includes(currentUser?.role || '')) {
-      alert('No tienes permisos para eliminar usuarios.');
-      return;
-    }
-
     const isConfirmed = window.confirm(
       `¿Estás seguro de que quieres eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`
     );
 
     if (isConfirmed) {
       try {
-        await deleteUser(userId);
+        const response = await deleteUser(userId);
 
         // Función recursiva para eliminar usuario de la jerarquía
         const removeUserFromHierarchy = (users: User[]): User[] => {
@@ -257,10 +208,34 @@ const LogisticaPage: React.FC = () => {
         };
 
         setUsers(prevUsers => removeUserFromHierarchy(prevUsers));
-        alert('Usuario eliminado exitosamente.');
-      } catch (error) {
-        console.error(`Error al eliminar el usuario ${userId}.`);
-        alert('No se pudo eliminar el usuario. Inténtalo de nuevo.');
+        
+        // Mostrar mensaje de éxito
+        alert(response.message || 'Usuario eliminado exitosamente.');
+      } catch (error: any) {
+        console.error(`Error al eliminar el usuario ${userId}.`, error);
+        
+        // Manejar diferentes tipos de errores según la respuesta del backend
+        if (error.response) {
+          const { status, data } = error.response;
+          
+          switch (status) {
+            case 401:
+              alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+              // Opcional: redirigir al login
+              // window.location.href = '/login';
+              break;
+            case 403:
+              alert(data.message || 'No tienes permiso para eliminar a este usuario.');
+              break;
+            case 404:
+              alert(data.message || `Usuario con ID ${userId} no encontrado.`);
+              break;
+            default:
+              alert(data.message || 'No se pudo eliminar el usuario. Inténtalo de nuevo.');
+          }
+        } else {
+          alert('No se pudo eliminar el usuario. Inténtalo de nuevo.');
+        }
       }
     }
   };
@@ -273,7 +248,7 @@ const LogisticaPage: React.FC = () => {
           <p>Administrar usuarios de logística y sus tiendas asignadas.</p>
         </div>
 
-        <div className="active-tokens-section" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
+        <div className="active-tokens-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
             <h2>Tokens Activos</h2>
             <button className="button button-primary" onClick={handleOpenCreateModal}>
@@ -291,25 +266,79 @@ const LogisticaPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="management-table-container card">
+        {users.length > 0 && (
+          <div className="user-main-row">
+            <div className="user-info">
+              <span className="user-role">{users[0].rol}</span>
+              <span className="user-name">{users[0].nombre_completo} (Mi Perfil)</span>
+              <span className="user-phone">{users[0].celular}</span>
+            </div>
+            <div className="user-actions">
+              <button className="action-button" onClick={() => handleOpenEditModal(users[0].id)}>Editar</button>
+            </div>
+          </div>
+        )}
+
+        <div className="tiendas-section">
           {isLoading ? (
             <p>Cargando datos...</p>
-          ) : users.length > 0 ? (
-            <UserHierarchy 
-              users={users} 
-              currentUserRole={currentUser?.role} 
-              currentUserId={currentUser?.id} 
-              onEditUser={handleOpenEditModal} 
-              onToggleStatus={handleToggleStatus} 
-              onDeleteUser={handleDeleteUser} 
-            />
+          ) : tiendasData.length > 0 ? (
+            tiendasData.map((tiendaUser: any) => {
+              const tiendaHierarchy: User[] = [{
+                id: tiendaUser.id_usuario,
+                nombre_completo: tiendaUser.nombre_completo,
+                celular: tiendaUser.celular,
+                rol: 'tienda',
+                activo: tiendaUser.activo,
+                hijos: tiendaUser.tiendas_creadas.map((store: any) => ({
+                  id: store.id_tienda * -1,
+                  nombre_completo: store.nombre_tienda,
+                  celular: store.direccion,
+                  rol: 'tienda-fisica',
+                  activo: true,
+                  hijos: store.neveras.map((nevera: any) => ({
+                    id: nevera.id_nevera * -1,
+                    nombre_completo: `Nevera ${nevera.id_nevera}`,
+                    celular: '',
+                    rol: 'nevera',
+                    activo: nevera.estado === 2,
+                    hijos: []
+                  }))
+                }))
+              }];
+
+              return (
+                <div key={tiendaUser.id_usuario} className="tienda-component card">
+                  <UserHierarchy
+                    users={tiendaHierarchy}
+                    currentUserRole={currentUser?.role}
+                    currentUserId={currentUser?.id}
+                    onEditUser={handleOpenEditModal}
+                    onToggleStatus={handleToggleStatus}
+                    onDeleteUser={handleDeleteUser}
+                    onSurtir={() => navigate('/logistica/inventario')}
+                  />
+                </div>
+              );
+            })
           ) : (
-            <p>No hay usuarios de logística para mostrar.</p>
+            <p>No hay tiendas para mostrar.</p>
           )}
         </div>
       </div>
       <CreateTokenModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onTokenCreated={handleTokenCreated} />
-      <EditLogisticaModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} userData={selectedUser} onUserUpdated={handleUserUpdated} />
+      <EditLogisticaModal 
+        isOpen={isEditLogisticaModalOpen} 
+        onClose={handleCloseEditLogisticaModal} 
+        userData={selectedUser} 
+        onUserUpdated={handleUserUpdated} 
+      />
+      <EditUserModal 
+        isOpen={isEditUserModalOpen} 
+        onClose={handleCloseEditUserModal} 
+        userData={selectedUser} 
+        onUserUpdated={handleUserUpdated} 
+      />
       
       {showProfileAlert && (
         <Alert

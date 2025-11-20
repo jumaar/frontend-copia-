@@ -17,6 +17,7 @@ export interface ProductionItem {
   name: string;
   details: Record<string, any>;
   children?: ProductionItem[];
+  isActive?: boolean;
 }
 
 interface ProductionHierarchyProps {
@@ -26,6 +27,8 @@ interface ProductionHierarchyProps {
   onDeleteScale?: (scale: ProductionItem) => void;
   onDeleteStation?: (station: ProductionItem) => void;
   userRole?: string;
+  stationLabel?: string;
+  createScaleLabel?: string;
 }
 
 const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
@@ -35,6 +38,8 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
   onDeleteScale,
   onDeleteStation,
   userRole,
+  stationLabel = "Frigorífico",
+  createScaleLabel = "Crear Estación",
 }) => {
   const [expandedIds, setExpandedIds] = useState<Set<string | number>>(new Set(items.map(i => i.id)));
 
@@ -61,33 +66,38 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
                 {isExpanded ? '▼' : '▶'}
               </button>
             )}
-            <span className="item-role">{item.type === 'station' ? `Frigorífico ${item.id}` : 'Estación'}</span>
+            <span className="item-role">{item.type === 'station' ? `${stationLabel} ${item.id}` : 'Nevera'}</span>
             <span className="item-name">{item.type === 'scale' ? item.id : item.name}</span>
             {item.type === 'scale' && (
               <div className="item-details">
-                <span>Clave: {item.details.key}</span>
-                <button
-                  className="button button-secondary"
-                  onClick={() => copyToClipboard(item.details.key)}
-                  title="Copiar clave"
-                >
-                  Copiar
-                </button>
+                <span>{item.details.key}</span>
+                {item.details.value && (
+                  <>
+                    <span className="item-password">Clave: {item.details.value}</span>
+                    <button
+                      className="button button-secondary"
+                      onClick={() => copyToClipboard(item.details.value)}
+                      title="Copiar clave"
+                    >
+                      Copiar
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
           <div className="item-actions">
             {item.type === 'station' && (
               <>
-                <button className="action-button" onClick={() => onEditStation(item)}>Editar</button>
-                <button className="action-button" onClick={() => onCreateScale(item)}>Crear Estación</button>
-                {userRole === 'frigorifico' && onDeleteStation && (
-                  <button className="action-button delete-button" onClick={() => onDeleteStation(item)}>Eliminar</button>
+                <button type="button" className="action-button" onClick={() => onEditStation(item)}>Editar</button>
+                <button type="button" className="action-button" onClick={() => onCreateScale(item)}>{createScaleLabel}</button>
+                {(userRole === 'frigorifico' || userRole === 'tienda') && onDeleteStation && (
+                  <button type="button" className="action-button delete-button" onClick={() => onDeleteStation(item)}>Eliminar</button>
                 )}
               </>
             )}
-            {item.type === 'scale' && onDeleteScale && (
-              <button className="action-button delete-button" onClick={() => onDeleteScale(item)}>Eliminar</button>
+            {item.type === 'scale' && onDeleteScale && !item.isActive && (
+              <button type="button" className="action-button delete-button" onClick={() => onDeleteScale(item)}>Eliminar</button>
             )}
           </div>
         </div>

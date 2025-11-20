@@ -169,6 +169,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error.response?.status === 400) {
         throw new Error('Usuario o contraseña inválidos');
       } else if (error.response?.status === 401) {
+        const errorMessage = error.response?.data?.message;
+        // Verificar si el mensaje indica que el usuario está inactivo
+        if (errorMessage && (errorMessage.includes('Usuario inactivo') || errorMessage.includes('User is inactive'))) {
+          throw new Error('Su cuenta está desactivada. Por favor, comuníquese con un administrador.');
+        }
         throw new Error('Credenciales incorrectas');
       } else if (error.response?.status === 429) {
         throw new Error('Demasiadas solicitudes. Debes esperar 1 minuto antes de intentar nuevamente');

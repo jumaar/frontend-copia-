@@ -28,7 +28,16 @@
   border: none;
 }
 
-.alert-content.welcome .alert-dismiss-button {
+.alert-content.error {
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  border: none;
+}
+
+.alert-content.welcome .alert-dismiss-button,
+.alert-content.error .alert-dismiss-button {
   color: var(--color-text-inverse);
 }
 
