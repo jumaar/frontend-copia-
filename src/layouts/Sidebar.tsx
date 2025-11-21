@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         </NavLink>
       </li>
       <li>
-        <NavLink to="/tienda/inventario/1" className="nav-item">
+        <NavLink to="/tienda/inventario" className="nav-item">
           <NavIcon />
           <span>Inventario Tiendas</span>
         </NavLink>

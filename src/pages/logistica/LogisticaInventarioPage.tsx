@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getLogistica } from '../../services/api';
+import { getLogistica, getNeverasSurtir } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import SurtirNeveraModal from '../../components/SurtirNeveraModal';
 import './LogisticaPage.css';
 
 
@@ -35,13 +36,34 @@ interface GestionLogisticaResponse {
   logistica: LogisticaData[] | null;
   hermanos?: any[];
 }
+
+interface Nevera {
+  id_nevera: number;
+  nombre_tienda: string;
+  direccion: string;
+  ciudad?: string;
+}
+
+interface NeverasSurtirResponse {
+  neveras_activas: Nevera[];
+  total_neveras: number;
+}
 const LogisticaInventarioPage: React.FC = () => {
   const { user } = useAuth();
   const [inventarioData, setInventarioData] = useState<LogisticaInventarioResponse | null>(null);
- const [selectedLogisticaId, setSelectedLogisticaId] = useState<number | null>(null);
+  const [selectedLogisticaId, setSelectedLogisticaId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
- const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [expandedProducts, setExpandedProducts] = useState<Set<number>>(new Set());
+
+  // Estados para neveras surtir
+  const [neverasData, setNeverasData] = useState<NeverasSurtirResponse | null>(null);
+  const [loadingNeveras, setLoadingNeveras] = useState(false);
+  const [errorNeveras, setErrorNeveras] = useState<string | null>(null);
+  const [searchId, setSearchId] = useState('');
+  const [showNeverasSection, setShowNeverasSection] = useState(false);
+  const [isSurtirModalOpen, setIsSurtirModalOpen] = useState(false);
+  const [selectedNeveraId, setSelectedNeveraId] = useState<number | null>(null);
   
   useEffect(() => {
     const fetchLogisticaData = async () => {
@@ -85,6 +107,26 @@ const LogisticaInventarioPage: React.FC = () => {
       fetchLogisticaData();
     }
   }, [user?.id]);
+
+  const handleConsultarNeveras = async () => {
+    try {
+      setLoadingNeveras(true);
+      setErrorNeveras(null);
+      const neverasResponse: NeverasSurtirResponse = await getNeverasSurtir();
+      setNeverasData(neverasResponse);
+      setShowNeverasSection(true);
+    } catch (err: any) {
+      console.error('Error fetching neveras data:', err);
+      if (err.response?.status === 401) {
+        setErrorNeveras('Sesión expirada. Redirigiendo al login...');
+        window.location.href = '/login';
+      } else {
+        setErrorNeveras('Error al cargar las neveras para surtir. Inténtalo de nuevo.');
+      }
+    } finally {
+      setLoadingNeveras(false);
+    }
+  };
   const toggleProductExpansion = (productId: number) => {
     const newExpanded = new Set(expandedProducts);
     if (newExpanded.has(productId)) {
@@ -93,6 +135,21 @@ const LogisticaInventarioPage: React.FC = () => {
       newExpanded.add(productId);
     }
     setExpandedProducts(newExpanded);
+  };
+
+  const handleSurtir = (idNevera: number) => {
+    setSelectedNeveraId(idNevera);
+    setIsSurtirModalOpen(true);
+  };
+
+  const handleCloseSurtirModal = () => {
+    setIsSurtirModalOpen(false);
+    setSelectedNeveraId(null);
+  };
+
+  const handleBuscar = () => {
+    // La búsqueda se hace automáticamente con el filtro en el render
+    // Aquí podríamos agregar lógica adicional si es necesario
   };
 
   if (loading) {
@@ -234,6 +291,138 @@ const LogisticaInventarioPage: React.FC = () => {
           )}
         </div>
       </section>
+
+      {/* Nueva sección para neveras surtir */}
+      <section className="card" style={{ marginTop: '2rem' }}>
+        <div style={{ padding: '1rem' }}>
+          <h2 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>Neveras para Surtir</h2>
+
+          {!showNeverasSection ? (
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <button
+                className="action-button"
+                onClick={handleConsultarNeveras}
+                disabled={loadingNeveras}
+                style={{
+                  padding: '0.75rem 2rem',
+                  backgroundColor: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: loadingNeveras ? 'not-allowed' : 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loadingNeveras ? 'Consultando...' : 'Consultar'}
+              </button>
+            </div>
+          ) : (
+            <>
+              {loadingNeveras ? (
+                <div>Cargando neveras...</div>
+              ) : errorNeveras ? (
+                <div style={{ color: 'red', padding: '1rem', border: '1px solid red', borderRadius: '4px' }}>
+                  {errorNeveras}
+                </div>
+              ) : neverasData ? (
+                <>
+                  {/* Buscador */}
+                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      placeholder="Buscar por ID de nevera..."
+                      value={searchId}
+                      onChange={(e) => setSearchId(e.target.value)}
+                      style={{
+                        padding: '0.5rem',
+                        borderRadius: '4px',
+                        border: '1px solid var(--color-border)',
+                        flex: 1,
+                        maxWidth: '300px'
+                      }}
+                    />
+                    <button
+                      className="action-button"
+                      onClick={handleBuscar}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        minWidth: '80px'
+                      }}
+                    >
+                      Buscar
+                    </button>
+                  </div>
+
+                  {/* Lista de neveras */}
+                  <div style={{ display: 'grid', gap: '1rem' }}>
+                    {neverasData.neveras_activas
+                      .filter(nevera => searchId === '' || nevera.id_nevera.toString().includes(searchId))
+                      .map((nevera) => (
+                        <div
+                          key={nevera.id_nevera}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '1rem',
+                            border: '1px solid var(--color-border)',
+                            borderRadius: 'var(--border-radius-md)',
+                            backgroundColor: 'var(--color-card-bg)'
+                          }}
+                        >
+                          <div>
+                            <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--color-text-primary)' }}>
+                              Nevera ID: {nevera.id_nevera}
+                            </h4>
+                            <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
+                              {nevera.nombre_tienda} - {nevera.direccion}{nevera.ciudad ? `, ${nevera.ciudad}` : ''}
+                            </p>
+                          </div>
+                          <button
+                            className="action-button"
+                            onClick={() => handleSurtir(nevera.id_nevera)}
+                            style={{
+                              padding: '0.5rem 1rem',
+                              backgroundColor: '#667eea',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              minWidth: '80px'
+                            }}
+                          >
+                            Surtir
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+
+                  {neverasData.neveras_activas.filter(nevera => searchId === '' || nevera.id_nevera.toString().includes(searchId)).length === 0 && (
+                    <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '2rem' }}>
+                      No se encontraron neveras con ese ID.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p>No se encontraron datos de neveras.</p>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Modal para surtir nevera */}
+      <SurtirNeveraModal
+        isOpen={isSurtirModalOpen}
+        onClose={handleCloseSurtirModal}
+        idNevera={selectedNeveraId || 0}
+      />
     </div>
   );
 };

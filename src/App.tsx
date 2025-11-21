@@ -109,7 +109,7 @@ const AppContent: React.FC = () => {
             <RootLayout>
               <Routes>
                 <Route index element={<TiendaDashboardPage />} />
-                <Route path="/:id" element={<TiendaInventarioPage />} />
+                <Route path="inventario" element={<TiendaInventarioPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>

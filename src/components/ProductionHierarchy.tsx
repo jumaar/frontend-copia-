@@ -68,23 +68,28 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
             )}
             <span className="item-role">{item.type === 'station' ? `${stationLabel} ${item.id}` : 'Nevera'}</span>
             <span className="item-name">{item.type === 'scale' ? item.id : item.name}</span>
-            {item.type === 'scale' && (
-              <div className="item-details">
-                <span>{item.details.key}</span>
-                {item.details.value && (
-                  <>
-                    <span className="item-password">Clave: {item.details.value}</span>
-                    <button
-                      className="button button-secondary"
-                      onClick={() => copyToClipboard(item.details.value)}
-                      title="Copiar clave"
-                    >
-                      Copiar
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+            <div className="item-details">
+              {item.type === 'station' && item.details.address && item.details.city && (
+                <span>{item.details.address}, {item.details.city}</span>
+              )}
+              {item.type === 'scale' && (
+                <>
+                  <span>{item.details.key}</span>
+                  {item.details.value && (
+                    <>
+                      <span className="item-password">Clave: {item.details.value}</span>
+                      <button
+                        className="button button-secondary"
+                        onClick={() => copyToClipboard(item.details.value)}
+                        title="Copiar clave"
+                      >
+                        Copiar
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           <div className="item-actions">
             {item.type === 'station' && (

@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -642,20 +642,6 @@ export const getTiendas = async (userId: number) => {
   }
 };
 
-/**
- * Obtiene el inventario completo de una tienda incluyendo neveras y productos.
- * @param idTienda El ID de la tienda.
- * @returns Los datos de la tienda con jerarquía de neveras y productos.
- */
-export const getTiendaInventario = async (idTienda: number) => {
-  try {
-    const response = await api.get(`/tienda/inventario/${idTienda}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error al obtener el inventario de la tienda ${idTienda}:`, error);
-    throw error;
-  }
-};
 
 /**
  * Actualiza el stock mínimo y máximo de un producto en una nevera específica.
@@ -710,6 +696,58 @@ export const deleteNevera = async (idNevera: number) => {
     return response.data;
   } catch (error) {
     console.error(`Error al eliminar la nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+/**
+ * Obtiene los detalles de una nevera específica para surtir productos.
+ * @param idNevera El ID de la nevera.
+ * @returns Los detalles de la nevera incluyendo productos y estadísticas.
+ */
+export const getTiendasNeveras = async (idNevera: number) => {
+  try {
+    const response = await api.get(`/tiendas/neveras/${idNevera}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener detalles de la nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene las neveras activas para surtir.
+ * @returns Lista de neveras activas con sus datos.
+ */
+export const getNeverasSurtir = async () => {
+  try {
+    const response = await api.get('/logistica/surtir');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener las neveras para surtir:', error);
+    throw error;
+  }
+};
+
+/**
+ * Actualiza los stocks de productos en una nevera específica.
+ * @param idNevera El ID de la nevera.
+ * @param stockData Array de objetos con id_stock, stock_minimo y stock_maximo.
+ * @returns Respuesta de la API.
+ */
+export const updateNeveraStocks = async (
+  idNevera: number,
+  stockData: Array<{
+    id_stock: number | null;
+    id_producto?: number;
+    stock_minimo: number;
+    stock_maximo: number;
+  }>
+) => {
+  try {
+    const response = await api.patch(`/tiendas/neveras/${idNevera}`, stockData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar stocks de la nevera ${idNevera}:`, error);
     throw error;
   }
 };

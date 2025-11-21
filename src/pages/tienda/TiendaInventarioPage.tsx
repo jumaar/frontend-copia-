@@ -1,24 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getTiendaInventario, updateProductoStock } from '../../services/api';
+import { getTiendas } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import SurtirNeveraModal from '../../components/SurtirNeveraModal';
 import './TiendaDashboardPage.css';
-
-interface Producto {
-  id_producto: number;
-  nombre_producto: string;
-  peso_nominal_g: number;
-  stock_minimo: number;
-  stock_maximo: number;
-  venta_semanal: number;
-  stock_ideal_final: number;
-  stock_en_tiempo_real: number;
-}
 
 interface Nevera {
   id_nevera: number;
+  contraseña: string;
   id_estado_nevera: number;
-  temperatura_nevera: number;
-  productos: Producto[];
 }
 
 interface Tienda {
@@ -26,220 +15,136 @@ interface Tienda {
   nombre_tienda: string;
   direccion: string;
   ciudad: string;
+  departamento: string;
   neveras: Nevera[];
 }
 
-interface TiendaInventarioResponse {
+interface TiendasResponse {
   tiendas: Tienda[];
+  ciudades_disponibles: Array<{
+    id_ciudad: number;
+    nombre_ciudad: string;
+    departamento: string;
+  }>;
 }
 
 const TiendaInventarioPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [inventario, setInventario] = useState<TiendaInventarioResponse | null>(null);
+  const { user } = useAuth();
+  const [tiendasData, setTiendasData] = useState<TiendasResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editingCell, setEditingCell] = useState<{ tiendaId: number; neveraId: number; productoId: number; field: 'stock_minimo' | 'stock_maximo' } | null>(null);
-  const [editValue, setEditValue] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSurtirModalOpen, setIsSurtirModalOpen] = useState(false);
+  const [selectedNeveraId, setSelectedNeveraId] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchInventario = async () => {
-      if (id) {
+    const fetchTiendas = async () => {
+      if (user?.id) {
         try {
-          const data = await getTiendaInventario(Number(id));
-          setInventario(data);
-        } catch (error) {
-          console.error('Error fetching tienda inventario:', error);
+          setLoading(true);
+          setError(null);
+          const data: TiendasResponse = await getTiendas(Number(user.id));
+          setTiendasData(data);
+        } catch (err: any) {
+          console.error('Error fetching tiendas:', err);
+          setError('Error al cargar las tiendas');
         } finally {
           setLoading(false);
         }
       }
     };
 
-    fetchInventario();
-  }, [id]);
+    fetchTiendas();
+  }, [user?.id]);
 
-  const handleEditStart = (tiendaId: number, neveraId: number, productoId: number, field: 'stock_minimo' | 'stock_maximo', currentValue: number) => {
-    setEditingCell({ tiendaId, neveraId, productoId, field });
-    setEditValue(currentValue.toString());
+  const handleMostrarSurtir = (neveraId: number) => {
+    setSelectedNeveraId(neveraId);
+    setIsSurtirModalOpen(true);
   };
 
-  const handleEditSave = async () => {
-    if (!editingCell || !editValue) return;
-
-    try {
-      const newValue = parseInt(editValue);
-      if (isNaN(newValue) || newValue < 0) {
-        alert('Por favor ingrese un número válido mayor o igual a 0');
-        return;
-      }
-
-      const stockData = editingCell.field === 'stock_minimo'
-        ? { stock_minimo: newValue }
-        : { stock_maximo: newValue };
-
-      await updateProductoStock(editingCell.productoId, editingCell.neveraId, stockData);
-
-      // Update local state
-      setInventario(prev => {
-        if (!prev) return prev;
-        const newInventario = { ...prev };
-        newInventario.tiendas = newInventario.tiendas.map(tienda => {
-          if (tienda.id_tienda === editingCell.tiendaId) {
-            tienda.neveras = tienda.neveras.map(nevera => {
-              if (nevera.id_nevera === editingCell.neveraId) {
-                nevera.productos = nevera.productos.map(producto => {
-                  if (producto.id_producto === editingCell.productoId) {
-                    return { ...producto, [editingCell.field]: newValue };
-                  }
-                  return producto;
-                });
-              }
-              return nevera;
-            });
-          }
-          return tienda;
-        });
-        return newInventario;
-      });
-
-      setEditingCell(null);
-      setEditValue('');
-    } catch (error) {
-      console.error('Error updating stock:', error);
-      alert('Error al actualizar el stock. Inténtalo de nuevo.');
-    }
-  };
-
-  const handleEditCancel = () => {
-    setEditingCell(null);
-    setEditValue('');
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleEditSave();
-    } else if (e.key === 'Escape') {
-      handleEditCancel();
-    }
+  const handleCloseSurtirModal = () => {
+    setIsSurtirModalOpen(false);
+    setSelectedNeveraId(null);
   };
 
   if (loading) {
-    return <div className="frigorifico-page"><p>Cargando inventario...</p></div>;
+    return <div className="frigorifico-page">Cargando tiendas...</div>;
   }
 
-  if (!inventario || !inventario.tiendas.length) {
-    return <div className="frigorifico-page"><p>No se encontró información del inventario.</p></div>;
+  if (error) {
+    return <div className="frigorifico-page" style={{ color: 'red' }}>{error}</div>;
   }
-
-  // Flatten the data for table display
-  const tableData: Array<{
-    tienda: Tienda;
-    nevera: Nevera;
-    producto: Producto;
-  }> = [];
-
-  inventario.tiendas.forEach(tienda => {
-    tienda.neveras.forEach(nevera => {
-      nevera.productos.forEach(producto => {
-        tableData.push({ tienda, nevera, producto });
-      });
-    });
-  });
 
   return (
     <div className="frigorifico-page">
       <div className="cuentas-header">
-        <h1>Inventario de Tiendas</h1>
-        <p>Gestión del inventario de productos en neveras por tienda.</p>
+        <h1>Surtir Neveras</h1>
+        <p>Gestión de surtido de productos en neveras de tus tiendas.</p>
       </div>
 
-      {inventario?.tiendas.map(tienda => (
-        <div key={tienda.id_tienda} className="card" style={{ marginTop: 'calc(var(--spacing-unit) * -4)', marginBottom: 'var(--spacing-unit)' }}>
-          <div className="card-header">
-            <h2>{tienda.nombre_tienda}</h2>
-            <p>{tienda.direccion} - {tienda.ciudad}</p>
-          </div>
-
-          {tienda.neveras.map(nevera => (
-            <div key={nevera.id_nevera} style={{ marginLeft: 'var(--spacing-unit)', marginBottom: 'var(--spacing-unit)' }}>
-              <div style={{ backgroundColor: 'var(--color-background-secondary)', padding: 'var(--spacing-unit)', borderRadius: '4px', marginBottom: 'var(--spacing-unit)' }}>
-                <h3>Nevera {nevera.id_nevera}</h3>
-                <p>Estado: {nevera.id_estado_nevera === 1 ? 'Activa' : 'Inactiva'} | Temperatura: {nevera.temperatura_nevera}°C</p>
-              </div>
-
-              <div className="management-table-container" style={{ marginLeft: 'var(--spacing-unit)' }}>
-                {nevera.productos.length > 0 ? (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table className="management-table" style={{ fontSize: '0.85rem', minWidth: '800px' }}>
-                      <thead>
-                        <tr>
-                          <th>Producto</th>
-                          <th>Peso (g)</th>
-                          <th>Venta Semanal</th>
-                          <th>Stock Ideal</th>
-                          <th>Stock Actual</th>
-                          <th>Stock Mínimo</th>
-                          <th>Stock Máximo</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {nevera.productos.map(producto => (
-                          <tr key={producto.id_producto}>
-                            <td>{producto.nombre_producto}</td>
-                            <td>{producto.peso_nominal_g}</td>
-                            <td>{producto.venta_semanal}</td>
-                            <td>{producto.stock_ideal_final}</td>
-                            <td>{producto.stock_en_tiempo_real}</td>
-                            <td
-                              onClick={() => handleEditStart(tienda.id_tienda, nevera.id_nevera, producto.id_producto, 'stock_minimo', producto.stock_minimo)}
-                              style={{ cursor: 'pointer', backgroundColor: editingCell?.productoId === producto.id_producto && editingCell?.field === 'stock_minimo' ? '#f0f8ff' : 'transparent' }}
-                            >
-                              {editingCell?.productoId === producto.id_producto && editingCell?.field === 'stock_minimo' ? (
-                                <input
-                                  type="number"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onBlur={handleEditSave}
-                                  onKeyDown={handleKeyPress}
-                                  autoFocus
-                                  min="0"
-                                  style={{ width: '60px', textAlign: 'center' }}
-                                />
-                              ) : (
-                                producto.stock_minimo
-                              )}
-                            </td>
-                            <td
-                              onClick={() => handleEditStart(tienda.id_tienda, nevera.id_nevera, producto.id_producto, 'stock_maximo', producto.stock_maximo)}
-                              style={{ cursor: 'pointer', backgroundColor: editingCell?.productoId === producto.id_producto && editingCell?.field === 'stock_maximo' ? '#f0f8ff' : 'transparent' }}
-                            >
-                              {editingCell?.productoId === producto.id_producto && editingCell?.field === 'stock_maximo' ? (
-                                <input
-                                  type="number"
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onBlur={handleEditSave}
-                                  onKeyDown={handleKeyPress}
-                                  autoFocus
-                                  min="0"
-                                  style={{ width: '60px', textAlign: 'center' }}
-                                />
-                              ) : (
-                                producto.stock_maximo
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+      <section className="card" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
+        <div style={{ padding: '1rem' }}>
+          {tiendasData?.tiendas.length === 0 ? (
+            <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '2rem' }}>
+              No tienes tiendas asignadas.
+            </p>
+          ) : (
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {tiendasData?.tiendas.map((tienda) => (
+                <div
+                  key={tienda.id_tienda}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '1rem',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--border-radius-md)',
+                    backgroundColor: 'var(--color-card-bg)'
+                  }}
+                >
+                  <div>
+                    <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--color-text-primary)' }}>
+                      {tienda.nombre_tienda}
+                    </h4>
+                    <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
+                      {tienda.direccion} - {tienda.ciudad}, {tienda.departamento}
+                    </p>
+                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
+                      Neveras activas: {tienda.neveras.filter(n => n.id_estado_nevera === 2).length}
+                    </p>
                   </div>
-                ) : (
-                  <p>No hay productos en esta nevera.</p>
-                )}
-              </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {tienda.neveras.filter(n => n.id_estado_nevera === 2).map((nevera) => (
+                      <button
+                        key={nevera.id_nevera}
+                        className="action-button"
+                        onClick={() => handleMostrarSurtir(nevera.id_nevera)}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          backgroundColor: '#667eea',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          minWidth: '100px'
+                        }}
+                      >
+                        Mostrar Nevera {nevera.id_nevera}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      ))}
+      </section>
+
+      <SurtirNeveraModal
+        isOpen={isSurtirModalOpen}
+        onClose={handleCloseSurtirModal}
+        idNevera={selectedNeveraId || 0}
+      />
     </div>
   );
 };
