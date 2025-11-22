@@ -752,4 +752,19 @@ export const updateNeveraStocks = async (
   }
 };
 
+/**
+ * Confirma el surtido de una nevera específica mediante petición GET.
+ * @param idNevera El ID de la nevera a surtir.
+ * @returns Respuesta de la API con confirmación del surtido.
+ */
+export const confirmarSurtidoNevera = async (idNevera: number) => {
+  try {
+    const response = await api.get(`/logistica/surtir/${idNevera}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al confirmar surtido de la nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
 export default api;

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getLogistica, getNeverasSurtir } from '../../services/api';
+import { getLogistica, getNeverasSurtir, confirmarSurtidoNevera } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import SurtirNeveraModal from '../../components/SurtirNeveraModal';
+import ConfirmarSurtidoModal from '../../components/ConfirmarSurtidoModal';
 import './LogisticaPage.css';
 
 
@@ -64,6 +65,8 @@ const LogisticaInventarioPage: React.FC = () => {
   const [showNeverasSection, setShowNeverasSection] = useState(false);
   const [isSurtirModalOpen, setIsSurtirModalOpen] = useState(false);
   const [selectedNeveraId, setSelectedNeveraId] = useState<number | null>(null);
+  const [isConfirmarSurtidoModalOpen, setIsConfirmarSurtidoModalOpen] = useState(false);
+  const [selectedNeveraNombre, setSelectedNeveraNombre] = useState<string>('');
   
   useEffect(() => {
     const fetchLogisticaData = async () => {
@@ -140,6 +143,56 @@ const LogisticaInventarioPage: React.FC = () => {
   const handleSurtir = (idNevera: number) => {
     setSelectedNeveraId(idNevera);
     setIsSurtirModalOpen(true);
+  };
+
+  const handleConfirmarSurtir = (idNevera: number) => {
+    // Buscar el nombre de la nevera
+    const nevera = neverasData?.neveras_activas.find(n => n.id_nevera === idNevera);
+    setSelectedNeveraId(idNevera);
+    setSelectedNeveraNombre(nevera ? nevera.nombre_tienda : 'Tienda');
+    setIsConfirmarSurtidoModalOpen(true);
+  };
+
+  const handleRealizarSurtido = async (idNevera: number) => {
+    try {
+      console.log(`🚀 Iniciando surtido para nevera ID: ${idNevera}`);
+      
+      // Realizar la petición GET para confirmar el surtido
+      const response = await confirmarSurtidoNevera(idNevera);
+      
+      alert(`✅ ${response.message || 'Surtido confirmado exitosamente'}\n\n📅 Timestamp: ${new Date().toLocaleString('es-CO')}`);
+      
+      // Cerrar el modal
+      setIsConfirmarSurtidoModalOpen(false);
+      setSelectedNeveraId(null);
+      setSelectedNeveraNombre('');
+      
+      // Recargar los datos si es necesario (opcional)
+      console.log('✅ Surtido completado:', response);
+      
+    } catch (error: any) {
+      console.error('❌ Error al realizar el surtido:', error);
+      
+      // Manejar errores específicos
+      if (error.response?.status === 404) {
+        alert('❌ Nevera no encontrada. Verifica el ID de la nevera.');
+      } else if (error.response?.status === 403) {
+        alert('❌ No tienes permisos para surtir esta nevera.');
+      } else if (error.response?.status === 400) {
+        alert('❌ Error en los datos. La nevera no puede ser surtida en este momento.');
+      } else if (error.response?.status === 401) {
+        alert('⚠️ Sesión expirada. Redirigiendo al login...');
+        window.location.href = '/login';
+      } else {
+        alert('❌ Error al realizar el surtido. Por favor intenta de nuevo.');
+      }
+    }
+  };
+
+  const handleCloseConfirmarSurtidoModal = () => {
+    setIsConfirmarSurtidoModalOpen(false);
+    setSelectedNeveraId(null);
+    setSelectedNeveraNombre('');
   };
 
   const handleCloseSurtirModal = () => {
@@ -384,21 +437,43 @@ const LogisticaInventarioPage: React.FC = () => {
                               {nevera.nombre_tienda} - {nevera.direccion}{nevera.ciudad ? `, ${nevera.ciudad}` : ''}
                             </p>
                           </div>
-                          <button
-                            className="action-button"
-                            onClick={() => handleSurtir(nevera.id_nevera)}
-                            style={{
-                              padding: '0.5rem 1rem',
-                              backgroundColor: '#667eea',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              minWidth: '80px'
-                            }}
-                          >
-                            Surtir
-                          </button>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                              onClick={() => handleSurtir(nevera.id_nevera)}
+                              style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: '#059669',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                minWidth: '90px',
+                                fontSize: '0.9rem',
+                                fontWeight: 'bold',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              Inventario
+                            </button>
+                            <button
+                              className="action-button"
+                              onClick={() => handleConfirmarSurtir(nevera.id_nevera)}
+                              style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: '#667eea',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                minWidth: '80px',
+                                fontSize: '0.9rem',
+                                fontWeight: 'bold',
+                                opacity: 1
+                              }}
+                            >
+                              Surtir
+                            </button>
+                          </div>
                         </div>
                       ))}
                   </div>
@@ -422,6 +497,15 @@ const LogisticaInventarioPage: React.FC = () => {
         isOpen={isSurtirModalOpen}
         onClose={handleCloseSurtirModal}
         idNevera={selectedNeveraId || 0}
+      />
+
+      {/* Modal de confirmación de surtido */}
+      <ConfirmarSurtidoModal
+        isOpen={isConfirmarSurtidoModalOpen}
+        onClose={handleCloseConfirmarSurtidoModal}
+        onConfirm={handleRealizarSurtido}
+        idNevera={selectedNeveraId || 0}
+        nombreTienda={selectedNeveraNombre}
       />
     </div>
   );
