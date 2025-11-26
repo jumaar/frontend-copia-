@@ -15,7 +15,8 @@ const CreateProductModal: React.FC<{
     peso_nominal_g: '',
     precio_venta: '',
     dias_vencimiento: '',
-    precio_frigorifico: ''
+    precio_frigorifico: '',
+    media: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +71,8 @@ const CreateProductModal: React.FC<{
           peso_nominal_g: parseInt(formData.peso_nominal_g),
           precio_venta: parseFloat(formData.precio_venta),
           dias_vencimiento: parseInt(formData.dias_vencimiento),
-          precio_frigorifico: parseFloat(formData.precio_frigorifico)
+          precio_frigorifico: parseFloat(formData.precio_frigorifico),
+          media: formData.media.trim()
         };
 
 
@@ -83,7 +85,8 @@ const CreateProductModal: React.FC<{
           peso_nominal_g: '',
           precio_venta: '',
           dias_vencimiento: '',
-          precio_frigorifico: ''
+          precio_frigorifico: '',
+          media: ''
         });
       } catch (err: any) {
         if (err.response?.data?.message) {
@@ -128,6 +131,24 @@ const CreateProductModal: React.FC<{
                 disabled={isLoading}
                 rows={3}
                 required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="media">
+                MEDIA
+                <span className="tooltip-container">
+                  <span className="tooltip-icon">nota</span>
+                  <span className="tooltip-text">Este valor de media indica la cantidad promedio de venta de cada producto en todas las neveras así: venta máxima 200 venta mínima 0 MEDIA = 100 ( este valor es calculado por el sistema y puede ser modificado inicial mente para indicar un valor de surtido inicial )</span>
+                </span>
+              </label>
+              <input
+                type="text"
+                id="media"
+                name="media"
+                value={formData.media}
+                onChange={handleChange}
+                disabled={isLoading}
+                placeholder="Valor para MEDIA (opcional)"
               />
             </div>
             <div className="form-group">
@@ -213,7 +234,8 @@ const EditProductModal: React.FC<{
     peso_nominal_g: '',
     precio_venta: '',
     dias_vencimiento: '',
-    precio_frigorifico: ''
+    precio_frigorifico: '',
+    media: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -226,7 +248,8 @@ const EditProductModal: React.FC<{
         peso_nominal_g: productData.peso_nominal_g?.toString() || '',
         precio_venta: productData.precio_venta?.toString() || '',
         dias_vencimiento: productData.dias_vencimiento?.toString() || '',
-        precio_frigorifico: productData.precio_frigorifico?.toString() || ''
+        precio_frigorifico: productData.precio_frigorifico?.toString() || '',
+        media: productData.media || ''
       });
     }
   }, [productData]);
@@ -260,7 +283,8 @@ const EditProductModal: React.FC<{
           peso_nominal_g: parseInt(formData.peso_nominal_g) || 0,
           precio_venta: parseFloat(formData.precio_venta) || 0,
           dias_vencimiento: parseInt(formData.dias_vencimiento) || 0,
-          precio_frigorifico: parseFloat(formData.precio_frigorifico) || 0
+          precio_frigorifico: parseFloat(formData.precio_frigorifico) || 0,
+          media: formData.media.trim()
         };
 
         const updatedProduct = await updateProducto(productData.id_producto, productDataToUpdate);
@@ -308,6 +332,24 @@ const EditProductModal: React.FC<{
                 onChange={handleChange}
                 disabled={isLoading}
                 rows={3}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="edit_media">
+                MEDIA
+                <span className="tooltip-container">
+                  <span className="tooltip-icon">nota</span>
+                  <span className="tooltip-text">Este valor de media indica la cantidad promedio de venta de cada producto en todas las neveras así: venta máxima 200 venta mínima 0 MEDIA = 100 ( este valor es calculado por el sistema y puede ser modificado inicial mente para indicar un valor de surtido inicial )</span>
+                </span>
+              </label>
+              <input
+                type="text"
+                id="edit_media"
+                name="media"
+                value={formData.media}
+                onChange={handleChange}
+                disabled={isLoading}
+                placeholder="Valor para MEDIA"
               />
             </div>
             <div className="form-group">
@@ -384,6 +426,7 @@ interface Producto {
   precio_venta: number;
   dias_vencimiento: number;
   precio_frigorifico: number;
+  media?: string;
 }
 
 const ProductosPage: React.FC = () => {
@@ -484,8 +527,8 @@ const ProductosPage: React.FC = () => {
     let sortableItems = [...productos];
     if (sortConfig.key !== null) {
       sortableItems.sort((a, b) => {
-        const aValue = a[sortConfig.key!];
-        const bValue = b[sortConfig.key!];
+        const aValue = a[sortConfig.key!] ?? ''; // Handle undefined for optional fields
+        const bValue = b[sortConfig.key!] ?? '';
 
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
@@ -533,29 +576,32 @@ const ProductosPage: React.FC = () => {
           <p>Cargando productos...</p>
         ) : productos.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
-            <table className="management-table" style={{ fontSize: '0.85rem', minWidth: '800px' }}>
+            <table className="management-table" style={{ fontSize: '0.75rem', width: '100%' }}>
               <thead>
                 <tr>
                   <th onClick={() => requestSort('id_producto')} style={{ cursor: 'pointer' }}>
                     ID{getSortIndicator('id_producto')}
                   </th>
                   <th onClick={() => requestSort('nombre_producto')} style={{ cursor: 'pointer' }}>
-                    Nombre{getSortIndicator('nombre_producto')}
+                    Nom.{getSortIndicator('nombre_producto')}
                   </th>
                   <th onClick={() => requestSort('descripcion_producto')} style={{ cursor: 'pointer' }}>
-                    Descripción{getSortIndicator('descripcion_producto')}
+                    Desc.{getSortIndicator('descripcion_producto')}
+                  </th>
+                  <th onClick={() => requestSort('media')} style={{ cursor: 'pointer' }}>
+                    MEDIA{getSortIndicator('media')}
                   </th>
                   <th onClick={() => requestSort('peso_nominal_g')} style={{ cursor: 'pointer' }}>
-                    Peso (g){getSortIndicator('peso_nominal_g')}
+                    Peso(g){getSortIndicator('peso_nominal_g')}
                   </th>
                   <th onClick={() => requestSort('precio_venta')} style={{ cursor: 'pointer' }}>
-                    Precio Venta{getSortIndicator('precio_venta')}
+                    P. Venta{getSortIndicator('precio_venta')}
                   </th>
                   <th onClick={() => requestSort('dias_vencimiento')} style={{ cursor: 'pointer' }}>
-                    Días Venc.{getSortIndicator('dias_vencimiento')}
+                    Días{getSortIndicator('dias_vencimiento')}
                   </th>
                   <th onClick={() => requestSort('precio_frigorifico')} style={{ cursor: 'pointer' }}>
-                    Precio Frigo.{getSortIndicator('precio_frigorifico')}
+                    P. Frigo.{getSortIndicator('precio_frigorifico')}
                   </th>
                   {canEdit && <th>Acciones</th>}
                 </tr>
@@ -566,6 +612,7 @@ const ProductosPage: React.FC = () => {
                     <td>{producto.id_producto}</td>
                     <td>{producto.nombre_producto}</td>
                     <td>{producto.descripcion_producto}</td>
+                    <td>{producto.media || '-'}</td>
                     <td>{producto.peso_nominal_g}g</td>
                     <td>${producto.precio_venta.toLocaleString()}</td>
                     <td>{producto.dias_vencimiento}</td>

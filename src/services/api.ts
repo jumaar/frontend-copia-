@@ -729,6 +729,22 @@ export const getNeverasSurtir = async () => {
 };
 
 /**
+ * Obtiene los datos de distribución de inventario por ciudades.
+ * @returns Lista de neveras activas agrupadas por ciudad.
+ */
+export const getLogisticaSurtir = async () => {
+  try {
+    const response = await api.get('/logistica/surtir');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener datos de distribución:', error);
+    throw error;
+  }
+};
+
+
+
+/**
  * Actualiza los stocks de productos en una nevera específica.
  * @param idNevera El ID de la nevera.
  * @param stockData Array de objetos con id_stock, stock_minimo y stock_maximo.
@@ -763,6 +779,29 @@ export const confirmarSurtidoNevera = async (idNevera: number) => {
     return response.data;
   } catch (error) {
     console.error(`Error al confirmar surtido de la nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Inicia el proceso de distribución de neveras.
+ * @returns Respuesta de la API.
+ */
+export const distribuirNeveras = async (cityIds?: number[]) => {
+  try {
+    let url = '/neveras/surtir';
+    
+    // Si hay ciudades seleccionadas, las añadimos a la query string
+    // Ejemplo: /neveras/surtir?id_ciudad=1,2,3
+    if (cityIds && cityIds.length > 0) {
+      const idsParam = cityIds.join(',');
+      url += `?id_ciudad=${idsParam}`;
+    }
+    
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    console.error('Error al distribuir neveras:', error);
     throw error;
   }
 };

@@ -15,6 +15,7 @@ interface Producto {
   calificacion_sutido: string;
   mensaje_sistema: string;
   stock_en_tiempo_real: number;
+  activo: boolean; // ← Nuevo campo
 }
 
 interface NeveraData {
@@ -42,15 +43,18 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editedStocks, setEditedStocks] = useState<Record<number, { stock_minimo: number; stock_maximo: number }>>({});
+  const [editedActivos, setEditedActivos] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     if (isOpen && idNevera) {
       // Limpiar cambios editados al abrir el modal
       setEditedStocks({});
+      setEditedActivos({});
       fetchNeveraData();
     } else if (!isOpen) {
       // Limpiar cambios editados al cerrar el modal
       setEditedStocks({});
+      setEditedActivos({});
     }
   }, [isOpen, idNevera]);
 
@@ -78,18 +82,26 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
     }));
   };
 
+  const handleActivoChange = (idProducto: number, nuevoEstado: boolean) => {
+    setEditedActivos(prev => ({
+      ...prev,
+      [idProducto]: nuevoEstado
+    }));
+  };
+
   const handleGuardarCambios = async () => {
     if (!neveraData) return;
 
     try {
       console.log('🚀 Iniciando guardado de cambios...');
 
-      // Recopilar todos los cambios
+      // Recopilar todos los cambios (stocks y estados activos)
       const stockUpdates: Array<{
         id_stock: number | null;
         id_producto?: number;
         stock_minimo: number;
         stock_maximo: number;
+        activo?: boolean; // Nuevo campo para estado activo
       }> = [];
 
       // Validar que stock_minimo no sea mayor que stock_maximo
@@ -111,24 +123,42 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       neveraData.productos.forEach((producto) => {
         const editedMinimo = editedStocks[producto.id_producto]?.stock_minimo;
         const editedMaximo = editedStocks[producto.id_producto]?.stock_maximo;
+        const editedActivo = editedActivos[producto.id_producto];
 
-        // Incluir todos los productos que tuvieron cambios en stock_minimo o stock_maximo
-        if (editedMinimo !== undefined || editedMaximo !== undefined) {
+        // Incluir productos que tuvieron cambios en stock o estado activo
+        const hasStockChanges = editedMinimo !== undefined || editedMaximo !== undefined;
+        const hasActivoChange = editedActivo !== undefined;
+
+        if (hasStockChanges || hasActivoChange) {
           if (producto.id_stock === null) {
             // Crear nuevo registro - incluir id_producto e id_stock: null
-            stockUpdates.push({
+            const updateItem: any = {
               id_stock: null,
               id_producto: producto.id_producto,
               stock_minimo: editedMinimo ?? producto.stock_minimo,
               stock_maximo: editedMaximo ?? producto.stock_maximo
-            });
+            };
+            
+            // Agregar estado activo solo si se cambió
+            if (hasActivoChange) {
+              updateItem.activo = editedActivo;
+            }
+            
+            stockUpdates.push(updateItem);
           } else {
             // Actualizar registro existente - incluir id_stock
-            stockUpdates.push({
+            const updateItem: any = {
               id_stock: producto.id_stock,
               stock_minimo: editedMinimo ?? producto.stock_minimo,
               stock_maximo: editedMaximo ?? producto.stock_maximo
-            });
+            };
+            
+            // Agregar estado activo solo si se cambió
+            if (hasActivoChange) {
+              updateItem.activo = editedActivo;
+            }
+            
+            stockUpdates.push(updateItem);
           }
         }
       });
@@ -162,7 +192,8 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       if (exitosos.length > 0) {
         mensaje += `✅ PRODUCTOS PROCESADOS:\n`;
         exitosos.forEach((item: any) => {
-          mensaje += `• ${item.nombre_producto}: ${item.accion} (${item.stock_minimo}-${item.stock_maximo})\n`;
+          const activoInfo = item.activo !== undefined ? `, activo: ${item.activo ? 'true' : 'false'}` : '';
+          mensaje += `• ${item.nombre_producto || `ID ${item.id_producto}`}: ${item.accion} (${item.stock_minimo}-${item.stock_maximo}${activoInfo})\n`;
         });
         mensaje += `\n`;
       }
@@ -182,6 +213,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       // Limpiar los cambios editados (solo los exitosos)
       if (exitosos.length > 0) {
         setEditedStocks({});
+        setEditedActivos({});
       }
 
       // Refrescar los datos para mostrar los valores actualizados
@@ -400,11 +432,19 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                   }}>Calificación</th>
                   <th style={{
                     padding: '12px 8px',
+                    textAlign: 'center',
+                    border: '1px solid #e5e7eb',
+                    fontWeight: 'bold',
+                    backgroundColor: '#f3f4f6',
+                    minWidth: '100px'
+                  }}>Activo</th>
+                  <th style={{
+                    padding: '12px 8px',
                     textAlign: 'left',
                     border: '1px solid #e5e7eb',
                     fontWeight: 'bold',
                     backgroundColor: '#f3f4f6',
-                    minWidth: '250px'
+                    minWidth: '200px'
                   }}>Mensaje del Sistema</th>
                 </tr>
               </thead>
@@ -487,6 +527,42 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                       }}>
                         {producto.calificacion_sutido}
                       </span>
+                    </td>
+                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                      {/* Botón Slide Toggle */}
+                      <div style={{
+                        position: 'relative',
+                        width: '50px',
+                        height: '24px',
+                        backgroundColor: editedActivos[producto.id_producto] ?? producto.activo ? '#10b981' : '#e5e7eb',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s ease'
+                      }}
+                      onClick={() => {
+                        const currentState = editedActivos[producto.id_producto] ?? producto.activo;
+                        handleActivoChange(producto.id_producto, !currentState);
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: '2px',
+                          left: editedActivos[producto.id_producto] ?? producto.activo ? '26px' : '2px',
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: 'white',
+                          borderRadius: '50%',
+                          transition: 'left 0.3s ease',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }} />
+                      </div>
+                      <div style={{
+                        fontSize: '10px',
+                        marginTop: '2px',
+                        color: editedActivos[producto.id_producto] ?? producto.activo ? '#10b981' : '#ef4444',
+                        fontWeight: 'bold'
+                      }}>
+                        {editedActivos[producto.id_producto] ?? producto.activo ? 'ACTIVO' : 'INACTIVO'}
+                      </div>
                     </td>
                     <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', fontSize: '13px' }}>
                       {producto.mensaje_sistema}
