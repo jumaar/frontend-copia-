@@ -38,7 +38,6 @@ const LogisticaPage: React.FC = () => {
       setIsLoading(true);
       try {
         const data = await getManagementData();
-        console.log('Datos recibidos del backend:', data);
 
         // Set user data for the profile section
         setUsers(data.usuario_actual ? [data.usuario_actual] : []);
@@ -49,7 +48,8 @@ const LogisticaPage: React.FC = () => {
 
         // Verificar si el usuario actual de logística necesita completar perfil
         if (data.usuario_actual?.rol === 'Logistica' &&
-            !data.usuario_actual.logistica) {
+            (!data.usuario_actual.logistica || data.usuario_actual.logistica.length === 0) &&
+            (!data.usuario_actual.logisticas || data.usuario_actual.logisticas.length === 0)) {
           setUserProfileData(data.usuario_actual);
           setShowProfileAlert(true);
         }

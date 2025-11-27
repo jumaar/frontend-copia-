@@ -6,6 +6,7 @@ import StationModal from '../../components/StationModal';
 import type { StationData } from '../../components/StationModal';
 import EditUserModal from '../../components/EditUserModal';
 import CreateNeveraModal from '../../components/CreateNeveraModal';
+import PasswordConfirmationModal from '../../components/PasswordConfirmationModal';
 import { getTiendas, createTienda, updateTienda, deleteTienda, getUserDetails, createNevera, deleteNevera } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import './TiendaDashboardPage.css';
@@ -72,6 +73,8 @@ const TiendaDashboardPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isCreateNeveraModalOpen, setCreateNeveraModalOpen] = useState(false);
   const [selectedTiendaForNevera, setSelectedTiendaForNevera] = useState<ProductionItem | null>(null);
+  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
+  const [newNeveraPassword, setNewNeveraPassword] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -204,9 +207,10 @@ const TiendaDashboardPage: React.FC = () => {
         id_tienda: Number(selectedTiendaForNevera.id)
       });
 
-      // Mostrar mensaje de éxito con la contraseña
+      // Mostrar modal de confirmación de contraseña
       if (response && response.nevera) {
-        alert(`Nevera creada exitosamente.\n\nContraseña: ${response.nevera.contraseña}\n\nPor favor, guarda esta contraseña en un lugar seguro.`);
+        setNewNeveraPassword(response.nevera.contraseña);
+        setPasswordModalOpen(true);
 
         // Actualizar el estado localmente para mostrar la contraseña sin recargar
         setProductionItems(prevItems => {
@@ -254,6 +258,13 @@ const TiendaDashboardPage: React.FC = () => {
   };
 
   const handleCloseNeveraModal = () => {
+    setCreateNeveraModalOpen(false);
+    setSelectedTiendaForNevera(null);
+  };
+
+  const handleClosePasswordModal = () => {
+    setPasswordModalOpen(false);
+    setNewNeveraPassword('');
     setCreateNeveraModalOpen(false);
     setSelectedTiendaForNevera(null);
   };
@@ -381,7 +392,7 @@ const TiendaDashboardPage: React.FC = () => {
         } : null}
         availableCities={ciudadesDisponibles}
         onSave={handleSaveStation}
-        title="Nevera"
+        title={editingStation ? "Tienda" : "Tienda"}
       />
       <CreateNeveraModal
         isOpen={isCreateNeveraModalOpen}
@@ -394,6 +405,12 @@ const TiendaDashboardPage: React.FC = () => {
         onClose={handleCloseEditUserModal}
         userData={selectedUser}
         onUserUpdated={handleUserUpdated}
+      />
+      <PasswordConfirmationModal
+        isOpen={isPasswordModalOpen}
+        onClose={handleClosePasswordModal}
+        password={newNeveraPassword}
+        title="Contraseña de Nevera Creada"
       />
     </>
   );

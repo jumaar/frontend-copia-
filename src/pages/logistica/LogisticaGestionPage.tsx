@@ -106,7 +106,7 @@ const LogisticaGestionPage: React.FC = () => {
   // Función para convertir números a palabras en español (en mayúscula)
 const numberToWords = (num: number): string => {
   const unidades = ['CERO', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
-  const decenas = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISÉIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
+  const decenas = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISEIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
   const decenas2 = ['', '', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
   const centenas = ['CIEN', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
 
@@ -281,20 +281,31 @@ const refreshUserData = async () => {
       return;
     }
 
-    // Verificación 1: Cantidad en palabras
-    const cantidadEnPalabras = numberToWords(cantidadTotal);
+    // Verificación 1: Cantidad en palabras o frase especial para grandes cantidades
+    let verificationText: string;
+    let expectedInput: string;
+
+    if (cantidadTotal >= 1000) {
+      verificationText = `LO LOGRAMOS HP`;
+      expectedInput = `LO LOGRAMOS HP`;
+    } else {
+      const cantidadEnPalabras = numberToWords(cantidadTotal);
+      verificationText = cantidadEnPalabras;
+      expectedInput = cantidadEnPalabras;
+    }
+
     const inputValue = prompt(
       `CONFIRMACIÓN CRÍTICA - PASO 1/2\n\n` +
       `Producto: ${productoName}\n` +
       `Cantidad a confirmar: ${cantidadTotal} empaques\n\n` +
       `EJEMPLO DE LO QUE DEBES ESCRIBIR:\n` +
-      `**${cantidadEnPalabras}**\n\n` +
-      `Por favor, escribe exactamente la palabra de arriba para confirmar:`
+      `**${verificationText}**\n\n` +
+      `Por favor, escribe exactamente la palabra${cantidadTotal >= 1000 ? 's' : ''} de arriba para confirmar:`
     );
 
     if (inputValue === null) return;
-    if (inputValue.trim().toUpperCase() !== cantidadEnPalabras.toUpperCase()) {
-      alert(`❌ ERROR: La palabra ingresada no coincide con la cantidad.\nDebe escribir: "${cantidadEnPalabras}"`);
+    if (inputValue.trim().toUpperCase() !== expectedInput.toUpperCase()) {
+      alert(`❌ ERROR: La palabra${cantidadTotal >= 1000 ? 's' : ''} ingresada${cantidadTotal >= 1000 ? 's' : ''} no coincide${cantidadTotal >= 1000 ? 'n' : ''}.\nDebe${cantidadTotal >= 1000 ? 'n' : ''} escribir: "${expectedInput}"`);
       return;
     }
 

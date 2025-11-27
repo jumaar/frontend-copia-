@@ -22,6 +22,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
   });
 
   const turnstileRef = useRef<any>(null);
+  const [turnstileKey, setTurnstileKey] = useState(0);
 
   const sanitizeInput = (value: string, fieldName: string): string => {
     let sanitized = value;
@@ -74,13 +75,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
     setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
+  const getPasswordRequirements = (password: string) => {
+    return {
+      length: password.length >= 10,
+      uppercase: /(?=.*[A-Z])/.test(password),
+      number: /(?=.*\d)/.test(password),
+      symbol: /(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password),
+    };
+  };
+
   // Escuchar eventos de error de Turnstile para refrescar el widget
   useEffect(() => {
     const handleTurnstileError = (event: CustomEvent) => {
-      if (event.detail?.refresh && turnstileRef.current) {
-        // Resetear el token y forzar refresh del widget
+      if (event.detail?.refresh) {
+        // Resetear el token y forzar refresh del widget cambiando la key
         setFormData(prev => ({ ...prev, turnstileToken: '' }));
-        // El componente Turnstile se refresca automáticamente cuando el token se resetea
+        setTurnstileKey(prev => prev + 1);
       }
     };
 
@@ -157,9 +167,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
       } else if (formData.password.length > 128) {
         errors.push("La contraseña no puede exceder 128 caracteres.");
       }
-      if (!/(?=.*[a-z])/.test(formData.password)) {
-        errors.push("La contraseña debe contener al menos una letra minúscula.");
-      }
       if (!/(?=.*[A-Z])/.test(formData.password)) {
         errors.push("La contraseña debe contener al menos una letra mayúscula.");
       }
@@ -202,8 +209,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
 
     onSubmit(dataToSubmit);
 
-    // Resetear el token de Turnstile después del envío para forzar una nueva verificación
-    setFormData(prev => ({ ...prev, turnstileToken: '' }));
+    // Forzar refresh del Turnstile después del envío para una nueva verificación
+    setTurnstileKey(prev => prev + 1);
   };
 
   const isSignUp = formType === 'signUp';
@@ -285,6 +292,27 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
               onChange={handleChange}
               required
             />
+            {isSignUp && (
+              <div className="password-requirements">
+                <p>La contraseña debe cumplir con:</p>
+                <ul>
+                  {Object.entries(getPasswordRequirements(formData.password)).map(([key, valid]) => {
+                    const labels = {
+                      length: 'Al menos 10 caracteres',
+                      uppercase: 'Una letra mayúscula',
+                      number: 'Un número',
+                      symbol: 'Un símbolo especial',
+                    };
+                    return (
+                      <li key={key} className={valid ? 'valid' : 'invalid'}>
+                        <span className="icon">{valid ? '✓' : '✗'}</span>
+                        {labels[key as keyof typeof labels]}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
           {isSignUp && (
             <>
@@ -313,6 +341,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
             </>
           )}
           <Turnstile
+            key={turnstileKey}
             ref={turnstileRef}
             siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             onSuccess={(token) => setFormData(prev => ({ ...prev, turnstileToken: token }))}

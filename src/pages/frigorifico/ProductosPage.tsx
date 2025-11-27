@@ -616,7 +616,7 @@ const ProductosPage: React.FC = () => {
                     <td>{producto.peso_nominal_g}g</td>
                     <td>${producto.precio_venta.toLocaleString()}</td>
                     <td>{producto.dias_vencimiento}</td>
-                    <td>${producto.precio_frigorifico.toLocaleString()}</td>
+                    <td>{producto.precio_frigorifico}% = ${(producto.precio_venta * (producto.precio_frigorifico / 100)).toLocaleString()}</td>
                     {canEdit && (
                       <td>
                         <button

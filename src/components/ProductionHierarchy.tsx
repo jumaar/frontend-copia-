@@ -1,16 +1,6 @@
 import React, { useState } from 'react';
 import './ProductionHierarchy.css';
 
-const copyToClipboard = async (text: string) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    alert('¡Clave copiada al portapapeles!');
-  } catch (err) {
-    console.error('Failed to copy text: ', err);
-    alert('Error al copiar la clave');
-  }
-};
-
 export interface ProductionItem {
   id: string | number;
   type: 'station' | 'scale';
@@ -66,7 +56,7 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
                 {isExpanded ? '▼' : '▶'}
               </button>
             )}
-            <span className="item-role">{item.type === 'station' ? `${stationLabel} ${item.id}` : 'Nevera'}</span>
+            <span className="item-role">{item.type === 'station' ? `${stationLabel} ${item.id}` : (userRole === 'frigorifico' ? 'Estacion' : 'Nevera')}</span>
             <span className="item-name">{item.type === 'scale' ? item.id : item.name}</span>
             <div className="item-details">
               {item.type === 'station' && item.details.address && item.details.city && (
@@ -75,16 +65,9 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
               {item.type === 'scale' && (
                 <>
                   <span>{item.details.key}</span>
-                  {item.details.value && (
+                  {item.details.value && item.details.value.trim() && (
                     <>
-                      <span className="item-password">Clave: {item.details.value}</span>
-                      <button
-                        className="button button-secondary"
-                        onClick={() => copyToClipboard(item.details.value)}
-                        title="Copiar clave"
-                      >
-                        Copiar
-                      </button>
+                     
                     </>
                   )}
                 </>

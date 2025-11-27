@@ -23,14 +23,11 @@ const SignUpPage: React.FC = () => {
     } catch (error: any) {
       console.error('Error creating user:', error);
 
-      // Si hay cualquier error HTTP (400, 500, etc.), refrescar Turnstile
-      if (error.response?.status) {
-        // Forzar refresh del Turnstile emitiendo un evento personalizado
-        const turnstileEvent = new CustomEvent('turnstile-error', {
-          detail: { refresh: true }
-        });
-        window.dispatchEvent(turnstileEvent);
-      }
+      // Refrescar Turnstile en cualquier error de registro para forzar nueva verificación
+      const turnstileEvent = new CustomEvent('turnstile-error', {
+        detail: { refresh: true }
+      });
+      window.dispatchEvent(turnstileEvent);
 
       alert(error.response?.data?.message || 'Error al crear el usuario. Verifica los datos e intenta nuevamente.');
     }

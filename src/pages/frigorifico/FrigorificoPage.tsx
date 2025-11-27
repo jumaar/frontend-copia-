@@ -103,7 +103,7 @@ const FrigorificoPage: React.FC = () => {
                 id: estacion.id_estacion.toString(),
                 type: 'scale' as const,
                 name: `Estación ${estacion.id_estacion}`,
-                details: { key: estacion.clave_vinculacion }
+                details: { key: estacion.clave_vinculacion, value: estacion.clave_vinculacion }
               }))
             }));
             setProductionItems(realProductionItems);

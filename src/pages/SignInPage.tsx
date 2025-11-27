@@ -35,6 +35,13 @@ const SignInPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Login failed:', error);
+
+      // Refrescar Turnstile en cualquier error de login para forzar nueva verificación
+      const turnstileEvent = new CustomEvent('turnstile-error', {
+        detail: { refresh: true }
+      });
+      window.dispatchEvent(turnstileEvent);
+
       // Mostrar el mensaje de error específico al usuario
       setError(error.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
     }

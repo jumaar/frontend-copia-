@@ -29,7 +29,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Si refresh falla, redirigir al login
-        window.location.href = '/login';
+        window.location.href = '/sign-in';
         return Promise.reject(refreshError);
       }
     }
