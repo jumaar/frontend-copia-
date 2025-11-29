@@ -12,7 +12,7 @@ interface Producto {
   stock_maximo: number;
   venta_semanal: number;
   stock_ideal_final: number;
-  calificacion_sutido: string;
+  calificacion_surtido: string;
   mensaje_sistema: string;
   stock_en_tiempo_real: number;
   activo: boolean; // ← Nuevo campo
@@ -259,7 +259,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
 
   // Ordenar productos: críticos primero, luego baja, media, alta, sin configurar al final
   const sortedProductos = neveraData ? [...neveraData.productos].sort((a, b) => {
-    return getCalificacionOrder(a.calificacion_sutido) - getCalificacionOrder(b.calificacion_sutido);
+    return getCalificacionOrder(a.calificacion_surtido) - getCalificacionOrder(b.calificacion_surtido);
   }) : [];
 
   return (
@@ -314,7 +314,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                 fontWeight: 'bold',
                 color: '#1f2937'
               }}>
-                📦 Total productos: <span style={{ color: '#3b82f6' }}>{neveraData.productos.filter(p => p.calificacion_sutido !== 'Sin configurar').length}</span>
+                📦 Total productos: <span style={{ color: '#3b82f6' }}>{neveraData.productos.filter(p => p.calificacion_surtido !== 'Sin configurar').length}</span>
               </div>
               <div style={{
                 textAlign: 'center',
@@ -322,7 +322,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                 fontWeight: 'bold',
                 color: '#1f2937'
               }}>
-                ✅ Con stock: <span style={{ color: '#10b981' }}>{neveraData.productos.filter(p => p.calificacion_sutido !== 'Sin configurar' && p.stock_en_tiempo_real > 0).length}</span>
+                ✅ Con stock: <span style={{ color: '#10b981' }}>{neveraData.productos.filter(p => p.calificacion_surtido !== 'Sin configurar' && p.stock_en_tiempo_real > 0).length}</span>
               </div>
               <div style={{
                 textAlign: 'center',
@@ -330,7 +330,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                 fontWeight: 'bold',
                 color: '#1f2937'
               }}>
-                ❌ Sin stock: <span style={{ color: '#ef4444' }}>{neveraData.productos.filter(p => p.calificacion_sutido !== 'Sin configurar' && p.stock_en_tiempo_real === 0).length}</span>
+                ❌ Sin stock: <span style={{ color: '#ef4444' }}>{neveraData.productos.filter(p => p.calificacion_surtido !== 'Sin configurar' && p.stock_en_tiempo_real === 0).length}</span>
               </div>
             </div>
           )}
@@ -517,7 +517,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                     </td>
                     <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
                       <span style={{
-                        backgroundColor: getCalificacionColor(producto.calificacion_sutido),
+                        backgroundColor: getCalificacionColor(producto.calificacion_surtido),
                         color: 'white',
                         padding: '4px 8px',
                         borderRadius: '12px',
@@ -525,7 +525,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         fontWeight: 'bold',
                         display: 'inline-block'
                       }}>
-                        {producto.calificacion_sutido}
+                        {producto.calificacion_surtido}
                       </span>
                     </td>
                     <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>

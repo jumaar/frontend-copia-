@@ -4,8 +4,10 @@ import type { ReactNode } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Alert from '../components/Alert';
+import SurtirProcesoModal from '../components/SurtirProcesoModal';
 import './RootLayout.css';
 import { useAuth } from '../contexts/AuthContext';
+import { useSurtido } from '../contexts/SurtidoContext';
 
 // Hook simple para detectar el tamaño de la pantalla
 const useIsMobile = () => {
@@ -27,7 +29,8 @@ interface RootLayoutProps {
 }
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, welcomeMessage, dismissWelcomeMessage } = useAuth();
+  const { isAuthenticated, isLoading, welcomeMessage, dismissWelcomeMessage, user } = useAuth();
+  const { surtidoEnCurso, isModalOpen, finalizarSurtido } = useSurtido();
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -74,6 +77,17 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
         />
         <main className="page-content">{children}</main>
       </div>
+
+      {/* Modal global de surtido para usuarios de logística */}
+      {user?.role === 'logistica' && surtidoEnCurso && (
+        <SurtirProcesoModal
+          isOpen={isModalOpen}
+          onClose={finalizarSurtido}
+          idNevera={surtidoEnCurso.idNevera}
+          stockData={surtidoEnCurso.stockData}
+          nombreTienda={surtidoEnCurso.nombreTienda}
+        />
+      )}
     </div>
   );
 };

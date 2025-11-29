@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import {
   getLogistica,
   getNeverasSurtir,
-  confirmarSurtidoNevera,
+  iniciarSurtidoNevera,
 } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSurtido } from "../../contexts/SurtidoContext";
 import SurtirNeveraModal from "../../components/SurtirNeveraModal";
 import ConfirmarSurtidoModal from "../../components/ConfirmarSurtidoModal";
 import DistribuirInventarioModal from "../../components/DistribuirInventarioModal";
@@ -28,6 +29,7 @@ interface LogisticaInventarioResponse {
   total_productos_diferentes: number;
   total_empaques: number;
   id_logistica_usuario: number;
+  ultima_hora_calificacion?: string;
 }
 
 // Interface para manejar la posible estructura de la respuesta de logística
@@ -55,6 +57,7 @@ interface NeverasSurtirResponse {
 }
 const LogisticaInventarioPage: React.FC = () => {
   const { user } = useAuth();
+  const { iniciarSurtido } = useSurtido();
   const [inventarioData, setInventarioData] =
     useState<LogisticaInventarioResponse | null>(null);
   const [selectedLogisticaId, setSelectedLogisticaId] = useState<number | null>(
@@ -81,57 +84,59 @@ const LogisticaInventarioPage: React.FC = () => {
   const [distributing] = useState(false);
   const [isDistribuirInventarioModalOpen, setIsDistribuirInventarioModalOpen] =
     useState(false);
+  const [lastDistributionTime, setLastDistributionTime] = useState<string | null>(null);
+
+  const fetchLogisticaData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Obtener los datos de logística e inventario directamente del endpoint
+      const logisticaResponse:
+        | LogisticaInventarioResponse
+        | GestionLogisticaResponse = await getLogistica();
+
+      // Verificar si la respuesta tiene la estructura de inventario
+      if ("productos_por_logistica" in logisticaResponse) {
+        // La respuesta ya contiene los datos de inventario
+        setInventarioData(logisticaResponse as LogisticaInventarioResponse);
+        setSelectedLogisticaId(logisticaResponse.id_logistica_usuario);
+        setLastDistributionTime(logisticaResponse.ultima_hora_calificacion || null);
+      } else if (
+        "logistica" in logisticaResponse &&
+        Array.isArray(logisticaResponse.logistica) &&
+        logisticaResponse.logistica.length > 0
+      ) {
+        // Si la respuesta tiene la estructura antigua, usarla para obtener el ID
+        const logisticaId = logisticaResponse.logistica[0].id_logistica;
+        setSelectedLogisticaId(logisticaId);
+
+        // En este caso, necesitaríamos hacer otra llamada, pero como el usuario dijo
+        // que el endpoint /logistica ya devuelve todos los datos, no debería suceder
+        throw new Error(
+          "La API debería devolver directamente los datos de inventario"
+        );
+      } else {
+        throw new Error(
+          "No se encontraron los datos esperados en la respuesta"
+        );
+      }
+    } catch (err: any) {
+      console.error("Error fetching logistica data:", err);
+      if (err.response?.status === 401) {
+        setError("Sesión expirada. Redirigiendo al login...");
+        window.location.href = "/login";
+      } else {
+        setError(
+          "Error al cargar los datos de logística. Inténtalo de nuevo."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLogisticaData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Obtener los datos de logística e inventario directamente del endpoint
-        const logisticaResponse:
-          | LogisticaInventarioResponse
-          | GestionLogisticaResponse = await getLogistica();
-
-        // Verificar si la respuesta tiene la estructura de inventario
-        if ("productos_por_logistica" in logisticaResponse) {
-          // La respuesta ya contiene los datos de inventario
-          setInventarioData(logisticaResponse as LogisticaInventarioResponse);
-          setSelectedLogisticaId(logisticaResponse.id_logistica_usuario);
-        } else if (
-          "logistica" in logisticaResponse &&
-          Array.isArray(logisticaResponse.logistica) &&
-          logisticaResponse.logistica.length > 0
-        ) {
-          // Si la respuesta tiene la estructura antigua, usarla para obtener el ID
-          const logisticaId = logisticaResponse.logistica[0].id_logistica;
-          setSelectedLogisticaId(logisticaId);
-
-          // En este caso, necesitaríamos hacer otra llamada, pero como el usuario dijo
-          // que el endpoint /logistica ya devuelve todos los datos, no debería suceder
-          throw new Error(
-            "La API debería devolver directamente los datos de inventario"
-          );
-        } else {
-          throw new Error(
-            "No se encontraron los datos esperados en la respuesta"
-          );
-        }
-      } catch (err: any) {
-        console.error("Error fetching logistica data:", err);
-        if (err.response?.status === 401) {
-          setError("Sesión expirada. Redirigiendo al login...");
-          window.location.href = "/login";
-        } else {
-          setError(
-            "Error al cargar los datos de logística. Inténtalo de nuevo."
-          );
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (user?.id) {
       fetchLogisticaData();
     }
@@ -197,24 +202,30 @@ const LogisticaInventarioPage: React.FC = () => {
     try {
       console.log(`🚀 Iniciando surtido para nevera ID: ${idNevera}`);
 
-      // Realizar la petición GET para confirmar el surtido
-      const response = await confirmarSurtidoNevera(idNevera);
+      // Realizar la petición PATCH para iniciar el surtido
+      const response = await iniciarSurtidoNevera(idNevera);
 
       alert(
         `✅ ${
-          response.message || "Surtido confirmado exitosamente"
+          response.message || "Surtido iniciado exitosamente"
         }\n\n📅 Timestamp: ${new Date().toLocaleString("es-CO")}`
       );
 
-      // Cerrar el modal
+      // Iniciar surtido usando el contexto global
+      iniciarSurtido({
+        idNevera,
+        nombreTienda: selectedNeveraNombre,
+        stockData: response.stock_nevera || []
+      });
+
+      // Cerrar el modal de confirmación
       setIsConfirmarSurtidoModalOpen(false);
       setSelectedNeveraId(null);
       setSelectedNeveraNombre("");
 
-      // Recargar los datos si es necesario (opcional)
-      console.log("✅ Surtido completado:", response);
+      console.log("✅ Surtido iniciado:", response);
     } catch (error: any) {
-      console.error("❌ Error al realizar el surtido:", error);
+      console.error("❌ Error al iniciar el surtido:", error);
 
       // Manejar errores específicos
       if (error.response?.status === 404) {
@@ -222,14 +233,12 @@ const LogisticaInventarioPage: React.FC = () => {
       } else if (error.response?.status === 403) {
         alert("❌ No tienes permisos para surtir esta nevera.");
       } else if (error.response?.status === 400) {
-        alert(
-          "❌ Error en los datos. La nevera no puede ser surtida en este momento."
-        );
+        alert("❌ Error en los datos. La nevera no puede ser surtida en este momento.");
       } else if (error.response?.status === 401) {
         alert("⚠️ Sesión expirada. Redirigiendo al login...");
         window.location.href = "/login";
       } else {
-        alert("❌ Error al realizar el surtido. Por favor intenta de nuevo.");
+        alert("❌ Error al iniciar el surtido. Por favor intenta de nuevo.");
       }
     }
   };
@@ -263,6 +272,8 @@ const LogisticaInventarioPage: React.FC = () => {
     if (showNeverasSection) {
       handleConsultarNeveras();
     }
+    // Recargar datos de logística para actualizar ultima_hora_calificacion
+    fetchLogisticaData();
   };
 
   if (loading) {
@@ -498,6 +509,11 @@ const LogisticaInventarioPage: React.FC = () => {
 
       {/* Sección del botón de distribuir */}
       <div style={{ marginTop: "2rem", textAlign: "center", padding: "1rem" }}>
+        {lastDistributionTime && (
+          <div style={{ marginBottom: "1rem", color: "white", fontSize: "0.9rem" }}>
+            Última distribución: {new Date(lastDistributionTime).toLocaleString('es-CO')}
+          </div>
+        )}
         <button
           onClick={handleDistribuir}
           disabled={distributing}
@@ -823,6 +839,7 @@ const LogisticaInventarioPage: React.FC = () => {
         isOpen={isDistribuirInventarioModalOpen}
         onClose={handleCloseDistribuirInventarioModal}
         onDistribuir={handleDistribuirInventario}
+        lastDistributionTime={lastDistributionTime}
       />
     </div>
   );

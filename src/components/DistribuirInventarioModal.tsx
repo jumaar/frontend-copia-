@@ -19,12 +19,14 @@ interface DistribuirInventarioModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDistribuir: () => void;
+  lastDistributionTime?: string | null;
 }
 
 const DistribuirInventarioModal: React.FC<DistribuirInventarioModalProps> = ({
   isOpen,
   onClose,
-  onDistribuir
+  onDistribuir,
+  lastDistributionTime
 }) => {
   const [neverasData, setNeverasData] = useState<LogisticaSurtirResponse | null>(null);
   const [selectedCities, setSelectedCities] = useState<Set<number>>(new Set());
@@ -240,6 +242,12 @@ const DistribuirInventarioModal: React.FC<DistribuirInventarioModalProps> = ({
             <p>No se encontraron datos para mostrar.</p>
           )}
         </div>
+
+        {lastDistributionTime && (
+          <div style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
+            Última distribución: {new Date(lastDistributionTime).toLocaleString('es-CO')}
+          </div>
+        )}
 
         <footer className="modal-footer">
           <button 

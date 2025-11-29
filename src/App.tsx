@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { SurtidoProvider } from './contexts/SurtidoContext';
 import RootLayout from './layouts/RootLayout';
 import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
@@ -160,9 +161,11 @@ const AppRouter: React.FC = () => {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppRouter />
-      </Router>
+      <SurtidoProvider>
+        <Router>
+          <AppRouter />
+        </Router>
+      </SurtidoProvider>
     </AuthProvider>
   );
 }

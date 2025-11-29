@@ -769,16 +769,31 @@ export const updateNeveraStocks = async (
 };
 
 /**
- * Confirma el surtido de una nevera específica mediante petición GET.
+ * Inicia el surtido de una nevera específica mediante petición PATCH.
  * @param idNevera El ID de la nevera a surtir.
- * @returns Respuesta de la API con confirmación del surtido.
+ * @returns Respuesta de la API con confirmación del inicio del surtido.
  */
-export const confirmarSurtidoNevera = async (idNevera: number) => {
+export const iniciarSurtidoNevera = async (idNevera: number) => {
   try {
-    const response = await api.get(`/logistica/surtir/${idNevera}`);
+    const response = await api.patch(`/logistica/surtir/${idNevera}`);
     return response.data;
   } catch (error) {
-    console.error(`Error al confirmar surtido de la nevera ${idNevera}:`, error);
+    console.error(`Error al iniciar surtido de la nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Finaliza el surtido de una nevera específica mediante petición PATCH.
+ * @param idNevera El ID de la nevera a finalizar surtido.
+ * @returns Respuesta de la API con confirmación del final del surtido.
+ */
+export const finalizarSurtidoNevera = async (idNevera: number) => {
+  try {
+    const response = await api.patch(`/logistica/surtir/${idNevera}/finalizar`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al finalizar surtido de la nevera ${idNevera}:`, error);
     throw error;
   }
 };

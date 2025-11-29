@@ -75,7 +75,7 @@ const CreateProductModal: React.FC<{
           media: formData.media.trim()
         };
 
-
+        // Asegurarse de no enviar el campo id_producto en la creación (el backend lo maneja si llega, pero es mejor no enviarlo)
         const newProduct = await createProducto(productData);
         onProductCreated(newProduct);
         onClose();
