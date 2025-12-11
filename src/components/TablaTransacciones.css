@@ -14,6 +14,8 @@ e.tabla-transacciones {
   background: var(--color-card-bg);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
+  position: relative; /* Necesario para que z-index funcione */
+  z-index: 20;      /* Un z-index más alto para el header */
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
 }
@@ -104,6 +106,8 @@ e.tabla-transacciones {
   background: var(--color-card-bg);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
+  position: relative;
+  z-index: 1; /* z-index más bajo para las tablas */
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
 }
@@ -231,6 +235,7 @@ e.tabla-transacciones {
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
+  z-index: 1; /* z-index más bajo para los consolidados */
   box-shadow: var(--shadow-card);
   overflow: hidden;
 }
@@ -322,6 +327,8 @@ e.tabla-transacciones {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-card);
+  position: relative;
+  z-index: 1;
 }
 
 .loading-spinner {
@@ -419,9 +426,9 @@ e.tabla-transacciones {
   background: var(--color-card-bg);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+ border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-lg);
-  z-index: 1000;
+  z-index: 10000;
   margin-top: calc(var(--spacing-unit) * 0.5);
   max-height: 300px;
   overflow-y: auto;

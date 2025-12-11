@@ -27,8 +27,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
   const sanitizeInput = (value: string, fieldName: string): string => {
     let sanitized = value;
 
-    // Remover caracteres de control y espacios extra
-    sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '').trim();
+    // Remover caracteres de control (pero mantener espacios normales)
+    sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '');
 
     // Para campos de texto (nombre, apellido): permitir solo letras, espacios y algunos caracteres especiales
     if (['nombre_usuario', 'apellido_usuario'].includes(fieldName)) {
@@ -122,21 +122,23 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
 
     // Validaciones adicionales para registro
     if (isSignUp) {
-      // Validar nombre
-      if (!formData.nombre_usuario) {
+      // Validar nombre (después de trim para validación)
+      const nombreTrimmed = formData.nombre_usuario.trim();
+      if (!nombreTrimmed) {
         errors.push("El nombre es requerido.");
-      } else if (formData.nombre_usuario.length < 2) {
+      } else if (nombreTrimmed.length < 2) {
         errors.push("El nombre debe tener al menos 2 caracteres.");
-      } else if (formData.nombre_usuario.length > 50) {
+      } else if (nombreTrimmed.length > 50) {
         errors.push("El nombre no puede exceder 50 caracteres.");
       }
 
-      // Validar apellido
-      if (!formData.apellido_usuario) {
+      // Validar apellido (después de trim para validación)
+      const apellidoTrimmed = formData.apellido_usuario.trim();
+      if (!apellidoTrimmed) {
         errors.push("El apellido es requerido.");
-      } else if (formData.apellido_usuario.length < 2) {
+      } else if (apellidoTrimmed.length < 2) {
         errors.push("El apellido debe tener al menos 2 caracteres.");
-      } else if (formData.apellido_usuario.length > 50) {
+      } else if (apellidoTrimmed.length > 50) {
         errors.push("El apellido no puede exceder 50 caracteres.");
       }
 

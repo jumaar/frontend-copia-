@@ -228,7 +228,14 @@ const LogisticaInventarioPage: React.FC = () => {
       console.error("❌ Error al iniciar el surtido:", error);
 
       // Manejar errores específicos
-      if (error.response?.status === 404) {
+      if (error.response?.data?.message === "Primero debe distribuir el inventario antes de surtir") {
+        const confirmDistribuir = confirm(
+          "⚠️ Primero debes distribuir el inventario antes de surtir.\n\n¿Deseas distribuir el inventario ahora?"
+        );
+        if (confirmDistribuir) {
+          setIsDistribuirInventarioModalOpen(true);
+        }
+      } else if (error.response?.status === 404) {
         alert("❌ Nevera no encontrada. Verifica el ID de la nevera.");
       } else if (error.response?.status === 403) {
         alert("❌ No tienes permisos para surtir esta nevera.");

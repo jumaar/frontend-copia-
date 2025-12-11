@@ -54,27 +54,40 @@ const CuentasPage: React.FC = () => {
   const esLogistica = user?.role === 'logistica';
 
   // Generar lista de meses históricos
-  const generarMesesHistoricos = (fechaCreacion: string) => {
-    const fechaInicio = new Date(fechaCreacion);
-    const fechaActual = new Date();
-    
-    const meses = [];
-    const fechaTemp = new Date(fechaInicio);
-    
-    // Generar todos los meses desde la creación hasta hoy
-    while (fechaTemp <= fechaActual) {
-      meses.push({
-        mes: fechaTemp.getMonth() + 1,
-        año: fechaTemp.getFullYear(),
-        fecha: fechaTemp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
-      });
+    const generarMesesHistoricos = (fechaCreacion: string) => {
+      const fechaInicio = new Date(fechaCreacion);
+      const fechaActual = new Date();
       
-      // Avanzar al siguiente mes
-      fechaTemp.setMonth(fechaTemp.getMonth() + 1);
-    }
-    
-    return meses.reverse(); // Mostrar desde el más reciente
-  };
+      const meses = [];
+      const fechaTemp = new Date(fechaInicio);
+      
+      // Generar todos los meses desde la creación hasta hoy
+      while (fechaTemp <= fechaActual) {
+        meses.push({
+          mes: fechaTemp.getMonth() + 1,
+          año: fechaTemp.getFullYear(),
+          fecha: fechaTemp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
+        });
+        
+        // Avanzar al siguiente mes
+        fechaTemp.setMonth(fechaTemp.getMonth() + 1);
+      }
+      
+      // Asegurarse de que el mes actual esté incluido en la lista
+      const mesActual = fechaActual.getMonth() + 1;
+      const añoActual = fechaActual.getFullYear();
+      const existeMesActual = meses.some(m => m.mes === mesActual && m.año === añoActual);
+      
+      if (!existeMesActual) {
+        meses.push({
+          mes: mesActual,
+          año: añoActual,
+          fecha: fechaActual.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
+        });
+      }
+      
+      return meses.reverse(); // Mostrar desde el más reciente
+    };
 
   // Cargar datos según el tipo de usuario
   useEffect(() => {
@@ -170,9 +183,28 @@ const CuentasPage: React.FC = () => {
     }
   };
 
+  // Función para recargar datos del usuario seleccionado
+  const recargarDatosUsuario = async () => {
+    if (usuarioSeleccionado) {
+      try {
+        setLoading(true);
+        const data = await getTransaccionesCuentas(usuarioSeleccionado);
+        setTransacciones(data);
+      } catch (err: any) {
+        console.error('Error al recargar datos:', err);
+        setError('Error al recargar las transacciones: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   // Manejar el procesamiento del pago
   const manejarPago = async () => {
-    if (!usuarioSeleccionado || !transacciones) return;
+    if (!usuarioSeleccionado || !transacciones) {
+      alert('No hay usuario seleccionado o datos cargados.');
+      return;
+    }
 
     const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
 
@@ -212,30 +244,60 @@ const CuentasPage: React.FC = () => {
         // Redondear el monto antes de enviar
         const montoRedondeado = Math.round(montoFinal);
         const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, notaFinal);
+        
+        // Verificar el tipo de operación
+        const esAdelantoSinDeuda = respuesta.resumen?.tipo_operacion === 'adelanto_sin_deuda';
+        
         // Actualizar transacciones localmente para mostrar inmediatamente
         if (transacciones) {
           const nuevasTransacciones = [...transacciones.transacciones];
-          // Agregar la nueva transacción consolidada
-          nuevasTransacciones.push({
-            ...respuesta,
-            nombre_tipo_transaccion: 'ticket_consolidado',
-            nombre_estado_transaccion: 'CONSOLIDADO'
-          });
-          // Cambiar estado de pendientes a PAGADO y agregar id_transaccion_rel
-          nuevasTransacciones.forEach(t => {
-            if (t.nombre_estado_transaccion === 'PENDIENTE') {
-              t.nombre_estado_transaccion = 'PAGADO';
-              t.id_transaccion_rel = respuesta.id_transaccion;
-            }
-          });
+          
+          if (!esAdelantoSinDeuda) {
+            // Manejo de pago normal con deuda
+            // Agregar la nueva transacción consolidada
+            nuevasTransacciones.push({
+              ...respuesta,
+              nombre_tipo_transaccion: 'ticket_consolidado',
+              nombre_estado_transaccion: 'CONSOLIDADO'
+            });
+            // Cambiar estado de pendientes a PAGADO y agregar id_transaccion_rel
+            nuevasTransacciones.forEach(t => {
+              if (t.nombre_estado_transaccion === 'PENDIENTE') {
+                t.nombre_estado_transaccion = 'PAGADO';
+                t.id_transaccion_rel = respuesta.id_transaccion;
+              }
+            });
+          } else {
+            // Manejo de abono adelantado sin deuda
+            nuevasTransacciones.push({
+              ...respuesta,
+              nombre_tipo_transaccion: 'abono_adelantado',
+              nombre_estado_transaccion: 'ADELANTADO',
+              id_transaccion_rel: respuesta.id_transaccion
+            });
+          }
+          
           setTransacciones({ ...transacciones, transacciones: nuevasTransacciones });
         }
+        
         // Resetear estados
         setTipoPago('');
         setMontoPago(0);
         setNotaPago('');
-        // Mostrar mensaje de éxito detallado
-        const mensajeDetallado = `
+        
+        // Mostrar mensaje de éxito detallado según el tipo de operación
+        let mensajeDetallado = '';
+        if (esAdelantoSinDeuda) {
+          mensajeDetallado = `
+✅ ${respuesta.message}
+
+📋 RESUMEN DEL ABONO ADELANTADO:
+👤 Usuario: ID ${respuesta.resumen.usuario_consolidado}
+💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
+🏷️ Tipo: Abono Adelantado (Sin Deuda Pendiente)
+          `.trim();
+        } else {
+          mensajeDetallado = `
 ✅ ${respuesta.message}
 
 📋 RESUMEN DE LA CONSOLIDACIÓN:
@@ -243,25 +305,28 @@ const CuentasPage: React.FC = () => {
 💰 Usuario Acreedor: ID ${respuesta.resumen.usuario_acreedor}
 💵 Monto Consolidado: $${respuesta.resumen.monto_consolidado.toLocaleString()}
 💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
-        `.trim();
+          `.trim();
+        }
         
         alert(mensajeDetallado);
         setSuccessMessage('Pago procesado exitosamente.');
         
-        // Recargar datos inmediatamente después del pago (solo mes actual)
-        try {
-          const data = await getTransaccionesCuentas(usuarioSeleccionado);
-          setTransacciones(data);
-        } catch (err: any) {
-          console.error('Error en recarga inmediata:', err);
-          // No mostrar error en recarga silenciosa
-        }
+        // Recargar datos del usuario seleccionado después del pago
+        await recargarDatosUsuario();
         
         // Auto-ocultar mensaje después de 3 segundos
         setTimeout(() => setSuccessMessage(null), 3000);
       } catch (err: any) {
         console.error('Error al procesar pago:', err);
-        setError('Error al procesar el pago: ' + (err.response?.data?.message || err.message));
+        
+        // Verificar si es un error específico del backend para abonos adelantados
+        const errorMessage = err.response?.data?.message || err.message;
+        if (errorMessage.includes('adelanto') || errorMessage.includes('sin deuda')) {
+          setError('Error en el abono adelantado: ' + errorMessage);
+        } else {
+          setError('Error al procesar el pago: ' + errorMessage);
+        }
+        
         // Auto-ocultar error después de 5 segundos
         setTimeout(() => setError(null), 5000);
       } finally {
@@ -532,15 +597,18 @@ const CuentasPage: React.FC = () => {
         </div>
       )}
 
-      {/* Sección de Pago/Abono - Solo para usuarios logística y admin con frigorífico seleccionado y saldo pendiente */}
+      {/* Sección de Pago/Abono - Para usuarios logística y admin con frigorífico seleccionado */}
       {(esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && usuarioSeleccionado && transacciones && (() => {
         const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
-        return saldoTotalPendientes > 0 ? (
+        return (
           <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>💰 Gestión de Pagos</h3>
 
             <div style={{ marginBottom: '1rem' }}>
-              <strong>Saldo Total Pendiente:</strong> <span style={{ fontSize: '1.2em', color: 'var(--color-error)' }}>{formatMoneda(saldoTotalPendientes)}</span>
+              <strong>Saldo Total Pendiente:</strong> <span style={{ fontSize: '1.2em', color: saldoTotalPendientes > 0 ? 'var(--color-error)' : 'var(--color-success)' }}>{formatMoneda(saldoTotalPendientes)}</span>
+              {saldoTotalPendientes === 0 && (
+                <span style={{ color: 'var(--color-success)', marginLeft: '0.5rem' }}>(✅ Sin deuda pendiente)</span>
+              )}
             </div>
 
             <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -674,7 +742,7 @@ const CuentasPage: React.FC = () => {
               {procesandoPago ? 'Procesando...' : 'Pagar'}
             </button>
           </div>
-        ) : null;
+        );
       })()}
     </div>
   );

@@ -156,13 +156,6 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
     );
   }
 
-  if (!data || data.transacciones.length === 0) {
-    return (
-      <div className="transacciones-empty">
-        <p>No hay transacciones para mostrar.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="tabla-transacciones">
@@ -321,21 +314,23 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                     </div>
                   </div>
                   
+                  {/* Información del pago siempre visible arriba */}
+                  {ticket.info_pago && (
+                    <div className="info-pago-section" style={{ margin: '0.5rem 0', padding: '0.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
+                      <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>Información del Pago</h6>
+                      <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
+                        <strong>Pagado por:</strong> {ticket.info_pago.nombre_usuario_pago}
+                      </p>
+                      {ticket.info_pago.nota_opcional_pago && (
+                        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-secondary)' }}>
+                          <strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
                   {isExpanded && (
                     <div className="consolidado-detalle">
-                      {ticket.info_pago && (
-                        <div className="info-pago-section" style={{ marginBottom: '1rem', padding: '0.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
-                          <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>Información del Pago</h6>
-                          <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
-                            <strong>Pagado por:</strong> {ticket.info_pago.nombre_usuario_pago}
-                          </p>
-                          {ticket.info_pago.nota_opcional_pago && (
-                            <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-secondary)' }}>
-                              <strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}
-                            </p>
-                          )}
-                        </div>
-                      )}
                       <h5>Productos incluidos en este ticket:</h5>
                       <div className="tabla-container">
                         <table className="productos-table">
