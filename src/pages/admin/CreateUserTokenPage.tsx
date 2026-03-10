@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createRegistrationToken } from '../../services/api';
+import api, { createRegistrationToken } from '../../services/api';
 import './CreateUserTokenPage.css';
 
 interface Token {
@@ -22,15 +22,8 @@ const CreateUserTokenPage: React.FC = () => {
     const fetchTokens = async () => {
       try {
         // Usar la función de la API que ya maneja la autenticación con cookies
-        const response = await fetch('/api/registration-tokens', {
-          credentials: 'include'
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setExistingTokens(data);
-        } else {
-          throw new Error('Error al cargar tokens');
-        }
+        const response = await api.get('/registration-tokens');
+        setExistingTokens(response.data);
       } catch (err) {
         setError('Error al cargar los tokens existentes.');
         console.error(err);
