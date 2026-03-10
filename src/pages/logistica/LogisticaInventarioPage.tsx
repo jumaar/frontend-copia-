@@ -13,6 +13,7 @@ import "./LogisticaPage.css";
 
 // Interface para la respuesta de logística que incluye el inventario
 interface Empaque {
+  id_empaque: number;
   peso_exacto_g: string;
   EPC_id: string;
 }
@@ -465,7 +466,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                   }}
                                 >
                                   <th style={{ width: "100px" }}>
-                                    ID Producto
+                                    ID Empaque
                                   </th>
                                   <th style={{ width: "250px" }}>Producto</th>
                                   <th style={{ width: "150px" }}>Peso (g)</th>
@@ -479,7 +480,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                         "1px solid var(--color-border)",
                                     }}
                                   >
-                                    <td>{producto.id_producto}</td>
+                                    <td>{empaque.id_empaque}</td>
                                     <td>{producto.nombre_producto}</td>
                                     <td>
                                       {parseFloat(
