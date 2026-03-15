@@ -403,6 +403,21 @@ export const getHermanos = async () => {
 };
 
 /**
+ * Obtiene la lista de tiendas sobrinas para gestión de logística o admins.
+ * @param userId El ID del usuario que hace la solicitud.
+ * @returns Datos de logística y lista de tiendas sobrinas.
+ */
+export const getTiendasSobrinas = async (userId: number) => {
+  try {
+    const response = await api.get(`/tiendas/sobrinas/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener las tiendas sobrinas:', error);
+    throw error;
+  }
+};
+
+/**
  * Actualiza los datos del usuario logístico.
  * @param userId El ID del usuario.
  * @param logisticaData Los datos de logística a actualizar.
@@ -515,15 +530,21 @@ export const getInventarioLogistica = async (idLogistica: number) => {
 };
 
 /**
- * Obtiene las transacciones de cuentas globales para un usuario específico
+ * Obtiene las transacciones de cuentas para un usuario específico o nevera específica
  * @param id_usuario El ID del usuario para obtener sus transacciones
+ * @param id_nevera El ID de la nevera para filtrar transacciones (opcional)
  * @param mes Mes específico a consultar (opcional)
  * @param año Año específico a consultar (opcional)
  * @returns Las transacciones con información del usuario y período
  */
-export const getTransaccionesCuentas = async (id_usuario: number, mes?: number, año?: number) => {
+export const getTransaccionesCuentas = async (id_usuario: number, id_nevera?: number, mes?: number, año?: number) => {
   try {
     let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
+
+    // Agregar parámetro de nevera si está presente
+    if (id_nevera) {
+      url += `&id_nevera=${id_nevera}`;
+    }
 
     // Agregar parámetros opcionales mes/año
     if (mes && año) {
@@ -533,27 +554,33 @@ export const getTransaccionesCuentas = async (id_usuario: number, mes?: number, 
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error(`Error al obtener transacciones de cuentas para usuario ${id_usuario}:`, error);
+    console.error(`Error al obtener transacciones de cuentas para usuario ${id_usuario}${id_nevera ? ` y nevera ${id_nevera}` : ''}:`, error);
     throw error;
   }
 };
 
 /**
- * Procesa un pago o abono para las cuentas de un usuario frigorífico
+ * Procesa un pago o abono para las cuentas de un usuario frigorífico o nevera específica
  * @param id_usuario El ID del usuario frigorífico
  * @param monto El monto del pago
+ * @param id_nevera El ID de la nevera (opcional)
  * @param nota_opcional Nota opcional para el pago
  * @returns Respuesta de la API
  */
-export const procesarPago = async (id_usuario: number, monto: number, nota_opcional?: string) => {
+export const procesarPago = async (id_usuario: number, monto: number, id_nevera?: number, nota_opcional?: string) => {
   try {
-    const response = await api.post(`/logistica/cuentas?id_usuario=${id_usuario}`, {
+    let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
+    if (id_nevera) {
+      url += `&id_nevera=${id_nevera}`;
+    }
+
+    const response = await api.post(url, {
       monto,
       nota_opcional
     });
     return response.data;
   } catch (error) {
-    console.error(`Error al procesar pago para usuario ${id_usuario}:`, error);
+    console.error(`Error al procesar pago para usuario ${id_usuario}${id_nevera ? ` y nevera ${id_nevera}` : ''}:`, error);
     throw error;
   }
 };

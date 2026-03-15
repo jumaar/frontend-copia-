@@ -70,6 +70,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Cuentas Globales</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/admin/cuentas-tiendas" className="nav-item">
+          <NavIcon />
+          <span>Cuentas Tiendas</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -134,6 +140,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Cuentas Frigoríficos</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/logistica/cuentas-tiendas" className="nav-item">
+          <NavIcon />
+          <span>Cuentas Tiendas</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -152,6 +164,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         <NavLink to="/tienda/inventario" className="nav-item">
           <NavIcon />
           <span>Inventario Tiendas</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/tienda/cuentas" className="nav-item">
+          <NavIcon />
+          <span>Mis Cuentas</span>
         </NavLink>
       </li>
     </>
