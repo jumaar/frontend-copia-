@@ -73,7 +73,21 @@ const CuentasTiendaPage: React.FC = () => {
   const [showTipoMenu, setShowTipoMenu] = useState(false);
   const [busquedaNevera, setBusquedaNevera] = useState<string>('');
   const [showTiendaMenu, setShowTiendaMenu] = useState(false);
-  const [showNeveraMenu, setShowNeveraMenu] = useState(false);
+  const [showCiudadMenu, setShowCiudadMenu] = useState(false);
+
+  // Cerrar menús desplegables al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!(event.target as Element).closest('.meses-dropdown')) {
+        setShowCiudadMenu(false);
+        setShowTiendaMenu(false);
+        setShowTipoMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Determinar el tipo de usuario
   const esTienda = user?.role === 'tienda';
@@ -455,16 +469,26 @@ const CuentasTiendaPage: React.FC = () => {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ flex: '1 1 100%' }}>
+                <div style={{ flex: '1 1 100%', marginBottom: '1rem' }}>
                   <label className="selector-label">🔍 Buscar por ID de Nevera:</label>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}>
                     <input
                       type="text"
                       className="usuario-select"
                       value={busquedaNevera}
                       onChange={(e) => setBusquedaNevera(e.target.value)}
                       placeholder="Ingresa el ID de la nevera..."
-                      style={{ flex: '1', padding: '0.5rem', borderRadius: '4px', border: '2px solid var(--color-border)', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-primary)' }}
+                      style={{
+                        flex: '1',
+                        padding: '0.75rem',
+                        borderRadius: '4px',
+                        border: '2px solid #666',
+                        backgroundColor: 'var(--color-bg)',
+                        color: 'var(--color-text-primary)',
+                        fontSize: '1rem',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        outline: 'none'
+                      }}
                     />
                     <button
                       className="btn-consultar"
@@ -496,10 +520,12 @@ const CuentasTiendaPage: React.FC = () => {
                         backgroundColor: 'var(--color-success)',
                         color: 'white',
                         border: 'none',
-                        padding: '0.5rem 1rem',
+                        padding: '0.75rem 1.5rem',
                         borderRadius: '4px',
                         cursor: (!busquedaNevera.trim() || loading) ? 'not-allowed' : 'pointer',
-                        opacity: (!busquedaNevera.trim() || loading) ? 0.5 : 1
+                        opacity: (!busquedaNevera.trim() || loading) ? 0.5 : 1,
+                        fontSize: '1rem',
+                        fontWeight: '500'
                       }}
                     >
                       {loading ? 'Buscando...' : 'Buscar'}
@@ -509,20 +535,64 @@ const CuentasTiendaPage: React.FC = () => {
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                   <div style={{ flex: '1 1 250px' }}>
                     <label className="selector-label">1. Filtrar por Ciudad:</label>
-                    <select
-                      className="usuario-select"
-                      value={ciudadSeleccionada || ''}
-                      onChange={(e) => {
-                        setCiudadSeleccionada(e.target.value || null);
-                        setTiendaSeleccionada(null);
-                        setTransacciones(null);
-                      }}
-                    >
-                      <option value="">Todas las ciudades</option>
-                      {ciudades.map(c => (
-                        <option key={c.id_ciudad} value={c.nombre_ciudad}>{c.nombre_ciudad} - {c.departamento}</option>
-                      ))}
-                    </select>
+                    <div className="meses-dropdown" style={{ marginTop: '0.5rem' }}>
+                      <button
+                        className="dropdown-toggle"
+                        onClick={() => setShowCiudadMenu(!showCiudadMenu)}
+                        disabled={loadingUsuarios}
+                        style={{
+                          opacity: loadingUsuarios ? 0.7 : 1,
+                          cursor: loadingUsuarios ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        {ciudadSeleccionada ? (
+                          (() => {
+                            const ciudad = ciudades.find(c => c.nombre_ciudad === ciudadSeleccionada);
+                            return ciudad ? `${ciudad.nombre_ciudad} - ${ciudad.departamento}` : 'Selecciona una ciudad...';
+                          })()
+                        ) : (
+                          <span>Selecciona una ciudad...</span>
+                        )}
+                        <span className="dropdown-arrow">▼</span>
+                      </button>
+
+                      {showCiudadMenu && !loadingUsuarios && (
+                        <div className="dropdown-menu">
+                          <div className="dropdown-item">
+                            <span className="mes-fecha">Todas las ciudades</span>
+                            <button
+                              className={`btn-consultar ${!ciudadSeleccionada ? 'activo' : ''}`}
+                              onClick={() => {
+                                setCiudadSeleccionada(null);
+                                setTiendaSeleccionada(null);
+                                setTransacciones(null);
+                                setShowCiudadMenu(false);
+                              }}
+                              disabled={loading}
+                            >
+                              {loading ? 'Cargando...' : 'Seleccionar'}
+                            </button>
+                          </div>
+                          {ciudades.map(ciudad => (
+                            <div key={ciudad.id_ciudad} className="dropdown-item">
+                              <span className="mes-fecha">{ciudad.nombre_ciudad} - {ciudad.departamento}</span>
+                              <button
+                                className={`btn-consultar ${ciudadSeleccionada === ciudad.nombre_ciudad ? 'activo' : ''}`}
+                                onClick={() => {
+                                  setCiudadSeleccionada(ciudad.nombre_ciudad);
+                                  setTiendaSeleccionada(null);
+                                  setTransacciones(null);
+                                  setShowCiudadMenu(false);
+                                }}
+                                disabled={loading}
+                              >
+                                {loading ? 'Cargando...' : 'Seleccionar'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div style={{ flex: '1 1 350px' }}>
                     <label className="selector-label">2. Seleccionar Tienda:</label>
@@ -541,7 +611,7 @@ const CuentasTiendaPage: React.FC = () => {
                             for (const user of usuariosTienda) {
                               const tienda = user.tiendas?.find(t => t.id_tienda === tiendaSeleccionada);
                               if (tienda) {
-                                return <span>🏪 {tienda.nombre_tienda} (ID: {tienda.id_tienda})</span>;
+                                return <span>🏪 {tienda.nombre_tienda}</span>;
                               }
                             }
                             return <span>Selecciona una tienda...</span>;
@@ -564,7 +634,7 @@ const CuentasTiendaPage: React.FC = () => {
                               return (
                                 <div key={tienda.id_tienda} className="dropdown-item">
                                   <span className="mes-fecha" style={{ color: tienePendientes ? 'var(--color-error)' : 'var(--color-text-primary)' }}>
-                                    🏪 {tienda.nombre_tienda} - {tienda.direccion} (ID: {tienda.id_tienda})
+                                    🏪 {tienda.nombre_tienda}
                                     {tienePendientes && <span style={{ color: 'var(--color-error)', fontWeight: 'bold', marginLeft: '8px' }}>💰 Pendientes</span>}
                                   </span>
                                   <button
@@ -587,75 +657,11 @@ const CuentasTiendaPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div style={{ flex: '1 1 300px' }}>
-                    <label className="selector-label">3. Seleccionar Nevera:</label>
-                    <div className="meses-dropdown">
-                      <button
-                        className="dropdown-toggle"
-                        onClick={() => setShowNeveraMenu(!showNeveraMenu)}
-                        disabled={!tiendaSeleccionada || loadingUsuarios}
-                        style={{
-                          opacity: (!tiendaSeleccionada || loadingUsuarios) ? 0.7 : 1,
-                          cursor: (!tiendaSeleccionada || loadingUsuarios) ? 'not-allowed' : 'pointer'
-                        }}
-                      >
-                        {neveraSeleccionada ? (
-                          (() => {
-                            // Encontrar la nevera seleccionada
-                            for (const user of usuariosTienda) {
-                              for (const tienda of user.tiendas) {
-                                const nevera = tienda.neveras?.find(n => n.id_nevera === neveraSeleccionada);
-                                if (nevera) {
-                                  return <span>❄️ ID: {nevera.id_nevera} - {nevera.id_estado_nevera === 2 ? 'Activa' : 'Inactiva'} {nevera.pendientes_pago ? '💰 Pendientes' : '✅ Al día'}</span>;
-                                }
-                              }
-                            }
-                            return <span>Selecciona una nevera...</span>;
-                          })()
-                        ) : (
-                          <span>Selecciona una nevera...</span>
-                        )}
-                        <span className="dropdown-arrow">▼</span>
-                      </button>
-
-                      {showNeveraMenu && tiendaSeleccionada && !loadingUsuarios && (
-                        <div className="dropdown-menu">
-                          {(() => {
-                            // Encontrar la tienda seleccionada y sus neveras
-                            for (const user of usuariosTienda) {
-                              const tienda = user.tiendas?.find(t => t.id_tienda === tiendaSeleccionada);
-                              if (tienda) {
-                                return tienda.neveras?.map(nevera => (
-                                  <div key={nevera.id_nevera} className="dropdown-item">
-                                    <span className="mes-fecha" style={{ color: nevera.pendientes_pago ? 'var(--color-error)' : 'var(--color-text-primary)' }}>
-                                      ❄️ ID: {nevera.id_nevera} - {nevera.id_estado_nevera === 2 ? 'Activa' : 'Inactiva'} {nevera.pendientes_pago ? '💰 Pendientes' : '✅ Al día'}
-                                    </span>
-                                    <button
-                                      className={`btn-consultar ${neveraSeleccionada === nevera.id_nevera ? 'activo' : ''}`}
-                                      onClick={() => {
-                                        setNeveraSeleccionada(nevera.id_nevera);
-                                        cargarTransacciones(user.id_usuario, nevera.id_nevera);
-                                        setShowNeveraMenu(false);
-                                      }}
-                                      disabled={loading}
-                                    >
-                                      {loading && neveraSeleccionada === nevera.id_nevera ? 'Consultando...' : 'Consultar'}
-                                    </button>
-                                  </div>
-                                ));
-                              }
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
             
-            {loading && tiendaSeleccionada && neveraSeleccionada && (
+            {loading && tiendaSeleccionada && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)' }}>
                 <div className="loading-spinner" style={{ width: '16px', height: '16px' }}></div>
                 <span>Consultando transacciones...</span>
@@ -691,22 +697,66 @@ const CuentasTiendaPage: React.FC = () => {
                           ❄️ Neveras ({store.neveras?.length || 0})
                         </h5>
                         {store.neveras && store.neveras.length > 0 ? (
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             {store.neveras.map(nevera => (
                               <div
                                 key={nevera.id_nevera}
                                 style={{
-                                  padding: '0.5rem 0.75rem',
-                                  borderRadius: '4px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  padding: '0.75rem',
+                                  borderRadius: '6px',
                                   border: '1px solid var(--color-border)',
                                   backgroundColor: nevera.pendientes_pago ? 'var(--color-error-bg)' : (nevera.id_estado_nevera === 2 ? 'var(--color-success-bg)' : 'var(--color-error-bg)'),
-                                  color: nevera.pendientes_pago ? 'var(--color-error)' : (nevera.id_estado_nevera === 2 ? 'var(--color-success)' : 'var(--color-error)'),
-                                  fontSize: '0.85rem',
-                                  fontWeight: 'bold'
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                 }}
                               >
-                                ID: {nevera.id_nevera} {nevera.id_estado_nevera === 2 ? '✅ Activa' : '❌ Inactiva'}
-                                {nevera.pendientes_pago && <span style={{ marginLeft: '4px' }}>💰</span>}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <span style={{
+                                    color: nevera.pendientes_pago ? 'var(--color-error)' : (nevera.id_estado_nevera === 2 ? 'var(--color-success)' : 'var(--color-error)'),
+                                    fontSize: '1.2rem'
+                                  }}>
+                                    ❄️
+                                  </span>
+                                  <div>
+                                    <div style={{
+                                      color: 'var(--color-text-primary)',
+                                      fontWeight: 'bold',
+                                      fontSize: '0.9rem'
+                                    }}>
+                                      ID: {nevera.id_nevera}
+                                    </div>
+                                    <div style={{
+                                      color: nevera.pendientes_pago ? 'var(--color-error)' : (nevera.id_estado_nevera === 2 ? 'var(--color-success)' : 'var(--color-error)'),
+                                      fontSize: '0.8rem',
+                                      fontWeight: '500'
+                                    }}>
+                                      {nevera.id_estado_nevera === 2 ? '✅ Activa' : '❌ Inactiva'} {nevera.pendientes_pago ? '💰 Pendientes' : '✅ Al día'}
+                                    </div>
+                                  </div>
+                                </div>
+                                <button
+                                  className={`btn-consultar ${neveraSeleccionada === nevera.id_nevera ? 'activo' : ''}`}
+                                  onClick={() => {
+                                    setNeveraSeleccionada(nevera.id_nevera);
+                                    cargarTransacciones(userOfStore.id_usuario, nevera.id_nevera);
+                                  }}
+                                  disabled={loading}
+                                  style={{
+                                    padding: '0.5rem 1rem',
+                                    fontSize: '0.85rem',
+                                    minWidth: '100px',
+                                    backgroundColor: 'var(--color-success)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: loading ? 'not-allowed' : 'pointer',
+                                    opacity: loading ? 0.7 : 1
+                                  }}
+                                >
+                                  {loading && neveraSeleccionada === nevera.id_nevera ? 'Consultando...' : 'Consultar'}
+                                </button>
                               </div>
                             ))}
                           </div>
@@ -830,14 +880,14 @@ const CuentasTiendaPage: React.FC = () => {
         </div>
       )}
 
-      {!esTienda && (!tiendaSeleccionada || !neveraSeleccionada) && !loading && !error && (
+      {!esTienda && !tiendaSeleccionada && !loading && !error && (
         <div className="no-selection-message">
           <div className="no-selection-content">
             <span className="no-selection-icon">📋</span>
-            <h3>Selecciona una tienda y nevera para ver sus transacciones</h3>
+            <h3>Selecciona una tienda para ver sus neveras</h3>
             <p>
-              Elige una tienda de la lista desplegable y luego selecciona una nevera específica
-              para consultar sus productos pendientes y tickets consolidados pagados.
+              Elige una tienda de la lista desplegable para ver sus neveras y consultar
+              las transacciones de cada una.
             </p>
             {usuariosTienda.length === 0 && (
               <div className="no-users-warning">
