@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTransaccionesCuentas, getTiendasSobrinas, procesarPago } from '../../services/api';
+import { getTransaccionesTienda, getTiendasSobrinas, procesarPago } from '../../services/api';
 import TablaTransacciones from '../../components/TablaTransacciones';
 import '../../components/TablaTransacciones.css'; // Usando los estilos con dropdown bonito
 
@@ -214,7 +214,7 @@ const CuentasTiendaPage: React.FC = () => {
       setSuccessMessage(null);
       setTransacciones(null);
 
-      const data = await getTransaccionesCuentas(idUsuario, idNevera, mes, año);
+      const data = await getTransaccionesTienda(idUsuario, idNevera, mes, año);
       setTransacciones(data);
     } catch (err: any) {
       console.error('Error al cargar transacciones:', err);
@@ -266,7 +266,7 @@ const CuentasTiendaPage: React.FC = () => {
           }
         }
         if (userId) {
-          const data = await getTransaccionesCuentas(userId, neveraSeleccionada);
+          const data = await getTransaccionesTienda(userId, neveraSeleccionada);
           setTransacciones(data);
         }
       } catch (err: any) {

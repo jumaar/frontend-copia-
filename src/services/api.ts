@@ -530,14 +530,38 @@ export const getInventarioLogistica = async (idLogistica: number) => {
 };
 
 /**
- * Obtiene las transacciones de cuentas para un usuario específico o nevera específica
- * @param id_usuario El ID del usuario para obtener sus transacciones
+ * Obtiene las transacciones de cuentas para un frigorífico (sin filtrar por nevera)
+ * @param id_usuario El ID del usuario frigorífico
+ * @param mes Mes específico a consultar (opcional)
+ * @param año Año específico a consultar (opcional)
+ * @returns Las transacciones con información del usuario y período
+ */
+export const getTransaccionesFrigorifico = async (id_usuario: number, mes?: number, año?: number) => {
+  try {
+    let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
+
+    // Agregar parámetros opcionales mes/año
+    if (mes && año) {
+      url += `&mes=${mes}&año=${año}`;
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener transacciones de cuentas para frigorífico ${id_usuario}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene las transacciones de cuentas para una tienda o nevera específica
+ * @param id_usuario El ID del usuario tienda
  * @param id_nevera El ID de la nevera para filtrar transacciones (opcional)
  * @param mes Mes específico a consultar (opcional)
  * @param año Año específico a consultar (opcional)
  * @returns Las transacciones con información del usuario y período
  */
-export const getTransaccionesCuentas = async (id_usuario: number, id_nevera?: number, mes?: number, año?: number) => {
+export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: number, mes?: number, año?: number) => {
   try {
     let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
 
@@ -554,7 +578,7 @@ export const getTransaccionesCuentas = async (id_usuario: number, id_nevera?: nu
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error(`Error al obtener transacciones de cuentas para usuario ${id_usuario}${id_nevera ? ` y nevera ${id_nevera}` : ''}:`, error);
+    console.error(`Error al obtener transacciones de cuentas para tienda ${id_usuario}${id_nevera ? ` y nevera ${id_nevera}` : ''}:`, error);
     throw error;
   }
 };

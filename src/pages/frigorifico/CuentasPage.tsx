@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTransaccionesCuentas, getHermanos, procesarPago } from '../../services/api';
+import { getTransaccionesFrigorifico, getHermanos, procesarPago } from '../../services/api';
 import TablaTransacciones from '../../components/TablaTransacciones';
 import './CuentasPage.css';
 
@@ -159,7 +159,7 @@ const CuentasPage: React.FC = () => {
       setSuccessMessage(null);
       setTransacciones(null);
       
-      const data = await getTransaccionesCuentas(idUsuario, mes, año);
+      const data = await getTransaccionesFrigorifico(idUsuario, mes, año);
       setTransacciones(data);
     } catch (err: any) {
       console.error('Error al cargar transacciones:', err);
@@ -188,7 +188,7 @@ const CuentasPage: React.FC = () => {
     if (usuarioSeleccionado) {
       try {
         setLoading(true);
-        const data = await getTransaccionesCuentas(usuarioSeleccionado);
+        const data = await getTransaccionesFrigorifico(usuarioSeleccionado);
         setTransacciones(data);
       } catch (err: any) {
         console.error('Error al recargar datos:', err);
@@ -243,7 +243,7 @@ const CuentasPage: React.FC = () => {
         setProcesandoPago(true);
         // Redondear el monto antes de enviar
         const montoRedondeado = Math.round(montoFinal);
-        const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, notaFinal);
+        const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, undefined, notaFinal);
         
         // Verificar el tipo de operación
         const esAdelantoSinDeuda = respuesta.resumen?.tipo_operacion === 'adelanto_sin_deuda';
