@@ -565,7 +565,7 @@ const ProductosPage: React.FC = () => {
         <h1>Gestión de Productos</h1>
         <p>Administrar el catálogo de productos del frigorífico.</p>
         {canEdit && (
-          <button className="button button-primary" onClick={handleOpenCreateModal}>
+          <button className="button button-success" onClick={handleOpenCreateModal}>
             Añadir Producto
           </button>
         )}

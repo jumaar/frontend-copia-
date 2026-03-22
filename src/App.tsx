@@ -59,7 +59,6 @@ const AppContent: React.FC = () => {
                 <Route path="dashboard" element={<AdminDashboardPage />} />
                 <Route path="users" element={<UserManagementPage />} />
                 <Route path="tiendas" element={<StoreManagementPage />} />
-                <Route path="frigorificos" element={<FrigorificoCuentasPage />} />
                 <Route path="logistica" element={<LogisticaManagementPage />} />
                 <Route path="productos" element={<FrigorificoProductosPage />} />
                 <Route path="neveras" element={<FridgeManagementPage />} />
@@ -71,11 +70,11 @@ const AppContent: React.FC = () => {
         }
       />
 
-      {/* Rutas de Frigorífico - Solo frigorifico */}
+      {/* Rutas de Frigorífico - Solo frigorifico, logistica, admin, superadmin */}
       <Route
         path="/frigorifico/*"
         element={
-          <ProtectedRoute allowedRoles={['frigorifico', 'logistica']}>
+          <ProtectedRoute allowedRoles={['frigorifico', 'logistica', 'admin', 'superadmin']}>
             <RootLayout>
               <Routes>
                 <Route index element={<FrigorificoPage />} />

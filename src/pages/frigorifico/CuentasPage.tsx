@@ -103,7 +103,7 @@ const CuentasPage: React.FC = () => {
 
   // Actualizar meses históricos cuando se cargan transacciones de frigorífico
   useEffect(() => {
-    if ((esFrigorifico || esLogistica) && transacciones?.fecha_creacion_usuario) {
+    if ((esFrigorifico || esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && transacciones?.fecha_creacion_usuario) {
       const meses = generarMesesHistoricos(transacciones.fecha_creacion_usuario);
       setMesesHistoricos(meses);
       // Establecer mes actual como seleccionado
@@ -111,7 +111,7 @@ const CuentasPage: React.FC = () => {
         setMesSeleccionado({ mes: meses[0].mes, año: meses[0].año });
       }
     }
-  }, [esFrigorifico, esLogistica, transacciones?.fecha_creacion_usuario]);
+  }, [esFrigorifico, esLogistica, user?.role, transacciones?.fecha_creacion_usuario]);
 
   // Actualizar monto de pago cuando cambie el tipo o las transacciones
   useEffect(() => {
@@ -174,7 +174,7 @@ const CuentasPage: React.FC = () => {
 
   // Consultar transacciones de un mes específico
   const consultarMesEspecifico = (mes: number, año: number) => {
-    if ((esFrigorifico && user?.id) || (esLogistica && usuarioSeleccionado)) {
+    if ((esFrigorifico && user?.id) || ((esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && usuarioSeleccionado)) {
       setMesSeleccionado({ mes, año });
       const userId = esFrigorifico ? parseInt(user.id) : usuarioSeleccionado;
       if (userId) {
@@ -570,7 +570,7 @@ const CuentasPage: React.FC = () => {
             mesesHistoricos={mesesHistoricos}
             mesSeleccionado={mesSeleccionado}
             onConsultarMes={consultarMesEspecifico}
-            esFrigorifico={esFrigorifico || esLogistica}
+            esFrigorifico={esFrigorifico || esLogistica || user?.role === 'admin' || user?.role === 'superadmin'}
           />
         </div>
       )}

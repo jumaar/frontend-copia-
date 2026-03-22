@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         </NavLink>
       </li>
       <li>
-        <NavLink to="/admin/frigorificos" className="nav-item">
+        <NavLink to="/frigorifico/cuentas" className="nav-item">
           <NavIcon />
           <span>Gestión de Frigoríficos</span>
         </NavLink>
