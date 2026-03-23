@@ -428,7 +428,7 @@ e.tabla-transacciones {
   border: 1px solid var(--color-border);
  border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-lg);
-  z-index: 10000;
+  z-index: 999999;
   margin-top: calc(var(--spacing-unit) * 0.5);
   max-height: 300px;
   overflow-y: auto;

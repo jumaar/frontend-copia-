@@ -93,7 +93,7 @@ const CuentasTiendaPage: React.FC = () => {
   const esTienda = user?.role === 'tienda';
   const esLogistica = user?.role === 'logistica';
   const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
-  const puedeVerOtrasTiendas = esLogistica || esAdmin;
+  const puedeVerOtrasTiendas = esLogistica || esAdmin || esTienda;
 
   // Generar lista de meses históricos
   const generarMesesHistoricos = (fechaCreacion: string) => {
@@ -133,16 +133,12 @@ const CuentasTiendaPage: React.FC = () => {
 
   // Cargar datos según el tipo de usuario
   useEffect(() => {
-    if (esTienda && user?.id) {
-      // Para tienda: cargar directamente sus transacciones (mes actual)
-      // Nota: Para usuarios tienda, no filtramos por nevera específica
-      cargarTransacciones(parseInt(user.id));
-    } else if (puedeVerOtrasTiendas && user) {
-      // Para logística y admin: cargar lista de tiendas para seleccionar
+    if (puedeVerOtrasTiendas && user) {
+      // Cargar lista de tiendas para seleccionar
       setLoadingUsuarios(true);
       cargarUsuariosTienda();
     }
-  }, [esTienda, puedeVerOtrasTiendas, user?.id]);
+  }, [puedeVerOtrasTiendas, user?.id]);
 
   // Actualizar meses históricos cuando se cargan transacciones de la tienda
   useEffect(() => {
@@ -425,7 +421,7 @@ const CuentasTiendaPage: React.FC = () => {
     }).format(monto);
   };
 
-  if (loadingUsuarios && !esTienda) {
+  if (loadingUsuarios) {
     return (
       <div className="cuentas-page">
         <div className="loading-container">
@@ -439,25 +435,14 @@ const CuentasTiendaPage: React.FC = () => {
   return (
     <div className="cuentas-page">
       <div className="cuentas-header">
-        {esTienda ? (
-          <>
-            <h1>Mis Cuentas de Tienda</h1>
-            <p className="subtitle">
-              Revisa tus transacciones de productos pendientes y consolidados
-            </p>
-          </>
-        ) : (
-          <>
-            <h1>Cuentas de Neveras</h1>
-            <p className="subtitle">
-              Consulta las transacciones de productos pendientes y consolidados por nevera específica
-            </p>
-          </>
-        )}
+        <h1>Cuentas de Neveras</h1>
+        <p className="subtitle">
+          Consulta las transacciones de productos pendientes y consolidados por nevera específica
+        </p>
 
       {/* Selectores de tienda y nevera al frente de la página */}
       {puedeVerOtrasTiendas && (
-        <div className="usuario-selector">
+        <div className="usuario-selector" style={{ position: 'relative', zIndex: 1000000 }}>
           <div className="selector-container">
             <h3 style={{ color: 'var(--color-text-primary)' }}>
               SELECCIONAR TIENDA:
@@ -538,7 +523,11 @@ const CuentasTiendaPage: React.FC = () => {
                     <div className="meses-dropdown" style={{ marginTop: '0.5rem' }}>
                       <button
                         className="dropdown-toggle"
-                        onClick={() => setShowCiudadMenu(!showCiudadMenu)}
+                        onClick={() => {
+                          setShowCiudadMenu(!showCiudadMenu);
+                          setShowTiendaMenu(false);
+                          setShowTipoMenu(false);
+                        }}
                         disabled={loadingUsuarios}
                         style={{
                           opacity: loadingUsuarios ? 0.7 : 1,
@@ -880,8 +869,8 @@ const CuentasTiendaPage: React.FC = () => {
         </div>
       )}
 
-      {!esTienda && !tiendaSeleccionada && !loading && !error && (
-        <div className="no-selection-message">
+      {!tiendaSeleccionada && !loading && !error && (
+        <div className="no-selection-message" style={{ zIndex: 0, position: 'relative' }}>
           <div className="no-selection-content">
             <span className="no-selection-icon">📋</span>
             <h3>Selecciona una tienda para ver sus neveras</h3>
