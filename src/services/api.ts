@@ -205,6 +205,7 @@ export const createProducto = async (productData: {
   precio_venta: number;
   dias_vencimiento: number;
   precio_frigorifico: number;
+  precio_tienda: number;
 }) => {
   try {
     const response = await api.post('/frigorifico/productos', productData);
@@ -228,6 +229,7 @@ export const updateProducto = async (productId: number, productData: Partial<{
   precio_venta: number;
   dias_vencimiento: number;
   precio_frigorifico: number;
+  precio_tienda: number;
 }>) => {
   try {
     const response = await api.patch(`/frigorifico/productos/${productId}`, productData);

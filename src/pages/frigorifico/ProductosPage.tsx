@@ -16,6 +16,7 @@ const CreateProductModal: React.FC<{
     precio_venta: '',
     dias_vencimiento: '',
     precio_frigorifico: '',
+    precio_tienda: '',
     media: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +54,9 @@ const CreateProductModal: React.FC<{
     if (!formData.precio_frigorifico || parseFloat(formData.precio_frigorifico) <= 0) {
       errors.push('El precio frigorífico debe ser un número mayor a 0.');
     }
+    if (!formData.precio_tienda || parseFloat(formData.precio_tienda) <= 0) {
+      errors.push('El precio tienda debe ser un número mayor a 0.');
+    }
 
     if (errors.length > 0) {
       setError(errors.join(' '));
@@ -72,6 +76,7 @@ const CreateProductModal: React.FC<{
           precio_venta: parseFloat(formData.precio_venta),
           dias_vencimiento: parseInt(formData.dias_vencimiento),
           precio_frigorifico: parseFloat(formData.precio_frigorifico),
+          precio_tienda: parseFloat(formData.precio_tienda),
           media: formData.media.trim()
         };
 
@@ -86,6 +91,7 @@ const CreateProductModal: React.FC<{
           precio_venta: '',
           dias_vencimiento: '',
           precio_frigorifico: '',
+          precio_tienda: '',
           media: ''
         });
       } catch (err: any) {
@@ -205,6 +211,20 @@ const CreateProductModal: React.FC<{
                 required
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="precio_tienda">Precio Tienda *</label>
+              <input
+                type="number"
+                id="precio_tienda"
+                name="precio_tienda"
+                value={formData.precio_tienda}
+                onChange={handleChange}
+                disabled={isLoading}
+                min="0.01"
+                step="0.01"
+                required
+              />
+            </div>
             {error && <p className="modal-error">{error}</p>}
             <div className="modal-footer">
               <button type="button" className="button button-secondary" onClick={onClose} disabled={isLoading}>
@@ -235,6 +255,7 @@ const EditProductModal: React.FC<{
     precio_venta: '',
     dias_vencimiento: '',
     precio_frigorifico: '',
+    precio_tienda: '',
     media: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -249,6 +270,7 @@ const EditProductModal: React.FC<{
         precio_venta: productData.precio_venta?.toString() || '',
         dias_vencimiento: productData.dias_vencimiento?.toString() || '',
         precio_frigorifico: productData.precio_frigorifico?.toString() || '',
+        precio_tienda: productData.precio_tienda?.toString() || '',
         media: productData.media || ''
       });
     }
@@ -284,6 +306,7 @@ const EditProductModal: React.FC<{
           precio_venta: parseFloat(formData.precio_venta) || 0,
           dias_vencimiento: parseInt(formData.dias_vencimiento) || 0,
           precio_frigorifico: parseFloat(formData.precio_frigorifico) || 0,
+          precio_tienda: parseFloat(formData.precio_tienda) || 0,
           media: formData.media.trim()
         };
 
@@ -402,6 +425,19 @@ const EditProductModal: React.FC<{
                 step="0.01"
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="edit_precio_tienda">Precio Tienda</label>
+              <input
+                type="number"
+                id="edit_precio_tienda"
+                name="precio_tienda"
+                value={formData.precio_tienda}
+                onChange={handleChange}
+                disabled={isLoading}
+                min="0"
+                step="0.01"
+              />
+            </div>
             {error && <p className="modal-error">{error}</p>}
             <div className="modal-footer">
               <button type="button" className="button button-secondary" onClick={onClose} disabled={isLoading}>
@@ -426,6 +462,7 @@ interface Producto {
   precio_venta: number;
   dias_vencimiento: number;
   precio_frigorifico: number;
+  precio_tienda: number;
   media?: string;
 }
 
@@ -603,6 +640,9 @@ const ProductosPage: React.FC = () => {
                   <th onClick={() => requestSort('precio_frigorifico')} style={{ cursor: 'pointer' }}>
                     P. Frigo.{getSortIndicator('precio_frigorifico')}
                   </th>
+                  <th onClick={() => requestSort('precio_tienda')} style={{ cursor: 'pointer' }}>
+                    P. Tienda{getSortIndicator('precio_tienda')}
+                  </th>
                   {canEdit && <th>Acciones</th>}
                 </tr>
               </thead>
@@ -617,6 +657,7 @@ const ProductosPage: React.FC = () => {
                     <td>${producto.precio_venta.toLocaleString()}</td>
                     <td>{producto.dias_vencimiento}</td>
                     <td>{producto.precio_frigorifico}% = ${(producto.precio_venta * (producto.precio_frigorifico / 100)).toLocaleString()}</td>
+                    <td>{producto.precio_tienda}% = ${(producto.precio_venta * (producto.precio_tienda / 100)).toLocaleString()}</td>
                     {canEdit && (
                       <td>
                         <button
