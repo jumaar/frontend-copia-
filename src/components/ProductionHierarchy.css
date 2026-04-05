@@ -71,6 +71,24 @@
   color: var(--color-text-tertiary);
 }
 
+.fecha-activacion {
+  font-size: 0.8rem;
+  color: var(--color-success);
+  font-weight: var(--font-weight-medium);
+}
+
+.action-button.active-button {
+  background: var(--color-success) !important;
+  color: white !important;
+  border: none !important;
+  cursor: default !important;
+}
+
+.action-button.active-button:hover {
+  background: var(--color-success) !important;
+  opacity: 1 !important;
+}
+
 .item-actions {
   display: flex;
   gap: 0.5rem;

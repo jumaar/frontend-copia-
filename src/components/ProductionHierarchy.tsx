@@ -72,10 +72,16 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
               {item.type === 'scale' && (
                 <>
                   <span>{item.details.key}</span>
-                  {item.details.value && item.details.value.trim() && (
-                    <>
-
-                    </>
+                  {item.details.fecha_activacion ? (
+                    <span className="fecha-activacion">
+                      Activada: {new Date(item.details.fecha_activacion).toLocaleDateString('es-CO')}
+                    </span>
+                  ) : (
+                    item.details.fecha_creacion && (
+                      <span className="fecha-creacion">
+                        Creada: {new Date(item.details.fecha_creacion).toLocaleDateString('es-CO')}
+                      </span>
+                    )
                   )}
                 </>
               )}
@@ -91,8 +97,14 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
                 )}
               </>
             )}
-            {item.type === 'scale' && onDeleteScale && !item.isActive && (
-              <button type="button" className="action-button delete-button" onClick={() => onDeleteScale(item)}>Eliminar</button>
+            {item.type === 'scale' && (
+              <>
+                {item.details.fecha_activacion ? (
+                  <button type="button" className="action-button active-button" disabled>Activa</button>
+                ) : onDeleteScale && (
+                  <button type="button" className="action-button delete-button" onClick={() => onDeleteScale(item)}>Eliminar</button>
+                )}
+              </>
             )}
           </div>
         </div>

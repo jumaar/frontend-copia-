@@ -26,6 +26,8 @@ interface Frigorifico {
   estaciones: Array<{
     id_estacion: number;
     clave_vinculacion: string;
+    fecha_creacion: string;
+    fecha_activacion: string | null;
   }>;
 }
 
@@ -105,7 +107,13 @@ const FrigorificoPage: React.FC = () => {
                 id: estacion.id_estacion.toString(),
                 type: 'scale' as const,
                 name: `Estación ${estacion.id_estacion}`,
-                details: { key: estacion.clave_vinculacion, value: estacion.clave_vinculacion }
+                details: {
+                  key: estacion.clave_vinculacion,
+                  value: estacion.clave_vinculacion,
+                  fecha_creacion: estacion.fecha_creacion,
+                  fecha_activacion: estacion.fecha_activacion,
+                  isActive: estacion.fecha_activacion !== null
+                }
               }))
             }));
             setProductionItems(realProductionItems);
