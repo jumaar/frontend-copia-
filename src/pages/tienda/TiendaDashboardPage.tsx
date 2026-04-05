@@ -15,6 +15,8 @@ interface Nevera {
   id_nevera: number;
   id_tienda: number;
   id_estado_nevera: number;
+  fecha_creacion: string;
+  fecha_activacion: string | null;
   contraseña?: string;
 }
 
@@ -22,6 +24,7 @@ interface Tienda {
   id_tienda: number;
   nombre_tienda: string;
   direccion: string;
+  fecha_creacion: string;
   ciudad: string;
   departamento: string;
   neveras?: Nevera[];
@@ -97,17 +100,20 @@ const TiendaDashboardPage: React.FC = () => {
               name: tienda.nombre_tienda,
               details: {
                 address: tienda.direccion,
-                city: tienda.ciudad
+                city: tienda.ciudad,
+                fecha_creacion: tienda.fecha_creacion
               },
               children: tienda.neveras ? tienda.neveras.map(nevera => ({
-                id: nevera.id_nevera.toString(),
+                id:nevera.id_nevera.toString(),
                 type: 'scale',
                 name: `Nevera ${nevera.id_nevera}`,
                 details: {
                   key: `Estado: ${nevera.id_estado_nevera === 2 ? 'Activa' : 'Inactiva'}`,
-                  value: nevera.contraseña // Usamos value para pasar la contraseña si está disponible
+                  value:nevera.contraseña,
+                  fecha_creacion:nevera.fecha_creacion,
+                  fecha_activacion:nevera.fecha_activacion
                 },
-                isActive: nevera.id_estado_nevera === 2
+                isActive:nevera.id_estado_nevera === 2
               })) : []
             }));
             setProductionItems(realProductionItems);
@@ -222,7 +228,9 @@ const TiendaDashboardPage: React.FC = () => {
                 name: `Nevera ${response.nevera.id_nevera}`,
                 details: {
                   key: `Estado: ${response.nevera.id_estado_nevera === 2 ? 'Activa' : 'Inactiva'}`,
-                  value: response.nevera.contraseña
+                  value: response.nevera.contraseña,
+                  fecha_creacion: response.nevera.fecha_creacion,
+                  fecha_activacion: null
                 },
                 isActive: response.nevera.id_estado_nevera === 2
               };
