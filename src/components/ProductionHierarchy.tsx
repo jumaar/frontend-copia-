@@ -60,14 +60,21 @@ const ProductionHierarchy: React.FC<ProductionHierarchyProps> = ({
             <span className="item-name">{item.type === 'scale' ? item.id : item.name}</span>
             <div className="item-details">
               {item.type === 'station' && item.details.address && item.details.city && (
-                <span>{item.details.address}, {item.details.city}</span>
+                <>
+                  <span>{item.details.address}, {item.details.city}</span>
+                  {item.details.fecha_creacion && (
+                    <span className="fecha-creacion">
+                      Creado: {new Date(item.details.fecha_creacion).toLocaleDateString('es-CO')}
+                    </span>
+                  )}
+                </>
               )}
               {item.type === 'scale' && (
                 <>
                   <span>{item.details.key}</span>
                   {item.details.value && item.details.value.trim() && (
                     <>
-                     
+
                     </>
                   )}
                 </>

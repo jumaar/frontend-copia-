@@ -14,6 +14,7 @@ interface Frigorifico {
   id_frigorifico: number;
   nombre_frigorifico: string;
   direccion: string;
+  fecha_creacion: string;
   ciudad: {
     id_ciudad: number;
     nombre_ciudad: string;
@@ -97,7 +98,8 @@ const FrigorificoPage: React.FC = () => {
               name: frigorifico.nombre_frigorifico,
               details: {
                 address: frigorifico.direccion,
-                city: frigorifico.ciudad.nombre_ciudad
+                city: frigorifico.ciudad.nombre_ciudad,
+                fecha_creacion: frigorifico.fecha_creacion
               },
               children: frigorifico.estaciones.map((estacion: any) => ({
                 id: estacion.id_estacion.toString(),
