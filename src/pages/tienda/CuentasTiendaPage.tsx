@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTransaccionesTienda, getTiendasSobrinas, procesarPago } from '../../services/api';
+import { getTransaccionesTienda, getTiendasSobrinas, procesarPago, getCuentasNevera } from '../../services/api';
 import TablaTransacciones from '../../components/TablaTransacciones';
-import '../../components/TablaTransacciones.css'; // Usando los estilos con dropdown bonito
+import '../../components/TablaTransacciones.css';
 
 interface Ciudad {
   id_ciudad: number;
@@ -32,6 +32,25 @@ interface UsuarioTienda {
   email: string;
   celular: string;
   tiendas: Tienda[];
+}
+
+interface EmpaquePendiente {
+  id_empaque: number;
+  costo_tienda: number;
+  precio_venta_total: number;
+  id_producto: number;
+}
+
+interface ProductoPendiente {
+  id_producto: number;
+  nombre_producto: string;
+  peso_nominal_g: number;
+  precio_tienda: number;
+}
+
+interface CuentasNeveraResponse {
+  empaques: EmpaquePendiente[];
+  productos: ProductoPendiente[];
 }
 
 interface TransaccionesData {
@@ -74,6 +93,8 @@ const CuentasTiendaPage: React.FC = () => {
   const [busquedaNevera, setBusquedaNevera] = useState<string>('');
   const [showTiendaMenu, setShowTiendaMenu] = useState(false);
   const [showCiudadMenu, setShowCiudadMenu] = useState(false);
+  const [cuentaNevera, setCuentaNevera] = useState<CuentasNeveraResponse | null>(null);
+  const [loadingCuentaNevera, setLoadingCuentaNevera] = useState(false);
 
   // Cerrar menús desplegables al hacer clic fuera
   useEffect(() => {
@@ -154,13 +175,20 @@ const CuentasTiendaPage: React.FC = () => {
 
   // Actualizar monto de pago cuando cambie el tipo o las transacciones
   useEffect(() => {
-    if (transacciones && tipoPago === 'pago') {
+    if (transacciones && transacciones.transacciones && tipoPago === "pago") {
       const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
       setMontoPago(saldoTotalPendientes);
     } else if (tipoPago === 'abono') {
       setMontoPago(0);
     }
   }, [tipoPago, transacciones]);
+
+  // Reset cuentaNevera cuando cambie la nevera seleccionada
+  useEffect(() => {
+    if (!neveraSeleccionada) {
+      setCuentaNevera(null);
+    }
+  }, [neveraSeleccionada]);
 
   // Filtrar usuarios por ID de nevera
   const filtrarUsuariosPorNevera = (usuarios: UsuarioTienda[], idNevera: string) => {
@@ -209,9 +237,27 @@ const CuentasTiendaPage: React.FC = () => {
       setError(null);
       setSuccessMessage(null);
       setTransacciones(null);
+      setCuentaNevera(null);
 
-      const data = await getTransaccionesTienda(idUsuario, idNevera, mes, año);
-      setTransacciones(data);
+      // Cargar transacciones solo si NO hay nevera seleccionada
+      if (!idNevera) {
+        const data = await getTransaccionesTienda(idUsuario, undefined, mes, año);
+        setTransacciones(data);
+      }
+
+      // Si hay nevera seleccionada, cargar también los empaques pendientes
+      if (idNevera) {
+        setLoadingCuentaNevera(true);
+        try {
+          const cuentaData = await getCuentasNevera(idNevera);
+          console.log('Setting cuentaNevera', cuentaData);
+          setCuentaNevera(cuentaData);
+        } catch (err: any) {
+          console.error('Error al cargar empaques pendientes:', err);
+        } finally {
+          setLoadingCuentaNevera(false);
+        }
+      }
     } catch (err: any) {
       console.error('Error al cargar transacciones:', err);
       setError(
@@ -222,8 +268,7 @@ const CuentasTiendaPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Consultar transacciones de un mes específico
+// Consultar transacciones de un mes específico
   const consultarMesEspecifico = (mes: number, año: number) => {
     if ((esTienda && user?.id) || (puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada)) {
       setMesSeleccionado({ mes, año });
@@ -276,7 +321,7 @@ const CuentasTiendaPage: React.FC = () => {
 
   // Manejar el procesamiento del pago
   const manejarPago = async () => {
-    if (!tiendaSeleccionada || !neveraSeleccionada || !transacciones) {
+    if (!tiendaSeleccionada || !neveraSeleccionada || !transacciones || !transacciones.transacciones) {
       alert('No hay tienda y nevera seleccionadas o datos cargados.');
       return;
     }
@@ -337,7 +382,7 @@ const CuentasTiendaPage: React.FC = () => {
         const esAdelantoSinDeuda = respuesta.resumen?.tipo_operacion === 'adelanto_sin_deuda';
         
         if (transacciones) {
-          const nuevasTransacciones = [...transacciones.transacciones];
+          const nuevasTransacciones = [...(transacciones?.transacciones || [])];
           
           if (!esAdelantoSinDeuda) {
             nuevasTransacciones.push({
@@ -769,7 +814,7 @@ const CuentasTiendaPage: React.FC = () => {
       {/* Contenido principal después de los selectores */}
 
       {/* Resumen financiero */}
-      {transacciones && tiendaSeleccionada && neveraSeleccionada && (() => {
+      {transacciones && tiendaSeleccionada && neveraSeleccionada && transacciones.transacciones && (() => {
            const pendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').length;
            const consolidados = transacciones.transacciones.filter(t => t.nombre_tipo_transaccion === 'ticket_consolidado').length;
            const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
@@ -864,8 +909,73 @@ const CuentasTiendaPage: React.FC = () => {
             mesesHistoricos={mesesHistoricos}
             mesSeleccionado={mesSeleccionado}
             onConsultarMes={consultarMesEspecifico}
-            esFrigorifico={esTienda || puedeVerOtrasTiendas} 
+            esFrigorifico={esTienda || puedeVerOtrasTiendas}
           />
+        </div>
+      )}
+
+      {/* Tabla de empaques pendientes para la nevera seleccionada */}
+      {neveraSeleccionada && (
+        <div className="empaques-container" style={{ marginTop: '2rem', padding: '1rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>
+            📦 Empaques Pendientes de Liquidación
+          </h3>
+
+          {loadingCuentaNevera ? (
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <div className="loading-spinner" style={{ width: '30px', height: '30px', margin: '0 auto 1rem' }}></div>
+              <p>Cargando empaques pendientes...</p>
+            </div>
+          ) : !cuentaNevera?.empaques?.length ? (
+            <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+              No hay empaques pendientes para liquidar.
+            </p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="productos-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Peso Nominal (g)</th>
+                    <th># Empaques</th>
+                    <th>Costo Total</th>
+                    <th>Precio Venta Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cuentaNevera.productos?.map(producto => {
+                    const empaquesProducto = cuentaNevera.empaques?.filter(e => e.id_producto === producto.id_producto) || [];
+                    const totalCosto = empaquesProducto.reduce((sum, e) => sum + e.costo_tienda, 0);
+                    const totalPrecio = empaquesProducto.reduce((sum, e) => sum + e.precio_venta_total, 0);
+
+                    return (
+                      <tr key={producto.id_producto}>
+                        <td style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
+                          {producto.nombre_producto}
+                        </td>
+                        <td>{producto.peso_nominal_g}</td>
+                        <td>{empaquesProducto.length}</td>
+                        <td style={{ color: 'var(--color-error)', fontWeight: '500' }}>
+                          {new Intl.NumberFormat('es-CO', {
+                            style: 'currency',
+                            currency: 'COP',
+                            minimumFractionDigits: 0
+                          }).format(totalCosto)}
+                        </td>
+                        <td style={{ color: 'var(--color-success)', fontWeight: '500' }}>
+                          {new Intl.NumberFormat('es-CO', {
+                            style: 'currency',
+                            currency: 'COP',
+                            minimumFractionDigits: 0
+                          }).format(totalPrecio)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -890,7 +1000,7 @@ const CuentasTiendaPage: React.FC = () => {
         </div>
       )}
 
-      {puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada && transacciones && (() => {
+{puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada && transacciones && transacciones.transacciones && (() => {
         const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
         return (
           <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>

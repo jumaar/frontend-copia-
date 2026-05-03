@@ -490,6 +490,21 @@ export const getLogistica = async () => {
 };
 
 /**
+ * Obtiene empaques pendientes de pago (estado 4) de una nevera específica + datos de productos relacionados.
+ * @param id_nevera El ID de la nevera a consultar.
+ * @returns Los empaques pendientes con sus productos asociados.
+ */
+export const getCuentasNevera = async (id_nevera: number) => {
+  try {
+    const response = await api.get(`/logistica/cuentas/nevera/${id_nevera}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener cuentas de la nevera ${id_nevera}:`, error);
+    throw error;
+  }
+};
+
+/**
  * Cambia el estado de los empaques de un producto en una estación específica.
  * @param idEstacion El ID de la estación.
  * @param idProducto El ID del producto.
@@ -565,11 +580,13 @@ export const getTransaccionesFrigorifico = async (id_usuario: number, mes?: numb
  */
 export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: number, mes?: number, año?: number) => {
   try {
-    let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
+    let url;
 
-    // Agregar parámetro de nevera si está presente
+    // Usar path param para nevera si está presente
     if (id_nevera) {
-      url += `&id_nevera=${id_nevera}`;
+      url = `/logistica/cuentas/nevera/${id_nevera}?id_usuario=${id_usuario}`;
+    } else {
+      url = `/logistica/cuentas?id_usuario=${id_usuario}`;
     }
 
     // Agregar parámetros opcionales mes/año
@@ -595,9 +612,13 @@ export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: num
  */
 export const procesarPago = async (id_usuario: number, monto: number, id_nevera?: number, nota_opcional?: string) => {
   try {
-    let url = `/logistica/cuentas?id_usuario=${id_usuario}`;
+    let url;
+
+    // Usar path param para nevera si está presente
     if (id_nevera) {
-      url += `&id_nevera=${id_nevera}`;
+      url = `/logistica/cuentas/nevera/${id_nevera}?id_usuario=${id_usuario}`;
+    } else {
+      url = `/logistica/cuentas?id_usuario=${id_usuario}`;
     }
 
     const response = await api.post(url, {
