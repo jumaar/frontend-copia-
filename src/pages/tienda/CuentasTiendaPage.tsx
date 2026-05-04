@@ -36,21 +36,29 @@ interface UsuarioTienda {
 
 interface EmpaquePendiente {
   id_empaque: number;
-  costo_tienda: number;
   precio_venta_total: number;
   id_producto: number;
+  promocion: number | null;
 }
 
 interface ProductoPendiente {
   id_producto: number;
   nombre_producto: string;
   peso_nominal_g: number;
-  precio_tienda: number;
+  precio_tienda: string;
+}
+
+interface Promocion {
+  id_promocion: number;
+  nombre: string;
+  tipo: string;
+  valor: number;
 }
 
 interface CuentasNeveraResponse {
   empaques: EmpaquePendiente[];
   productos: ProductoPendiente[];
+  promociones: Promocion[];
 }
 
 interface TransaccionesData {
@@ -95,6 +103,7 @@ const CuentasTiendaPage: React.FC = () => {
   const [showCiudadMenu, setShowCiudadMenu] = useState(false);
   const [cuentaNevera, setCuentaNevera] = useState<CuentasNeveraResponse | null>(null);
   const [loadingCuentaNevera, setLoadingCuentaNevera] = useState(false);
+  const [expandedProductos, setExpandedProductos] = useState<Set<number>>(new Set());
 
   // Cerrar menús desplegables al hacer clic fuera
   useEffect(() => {
@@ -239,11 +248,9 @@ const CuentasTiendaPage: React.FC = () => {
       setTransacciones(null);
       setCuentaNevera(null);
 
-      // Cargar transacciones solo si NO hay nevera seleccionada
-      if (!idNevera) {
-        const data = await getTransaccionesTienda(idUsuario, undefined, mes, año);
-        setTransacciones(data);
-      }
+      // Cargar transacciones (sin idNevera para obtener transacciones consolidadas)
+      const data = await getTransaccionesTienda(idUsuario, undefined, mes, año);
+      setTransacciones(data);
 
       // Si hay nevera seleccionada, cargar también los empaques pendientes
       if (idNevera) {
@@ -931,49 +938,191 @@ const CuentasTiendaPage: React.FC = () => {
               No hay empaques pendientes para liquidar.
             </p>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="productos-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Peso Nominal (g)</th>
-                    <th># Empaques</th>
-                    <th>Costo Total</th>
-                    <th>Precio Venta Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cuentaNevera.productos?.map(producto => {
-                    const empaquesProducto = cuentaNevera.empaques?.filter(e => e.id_producto === producto.id_producto) || [];
-                    const totalCosto = empaquesProducto.reduce((sum, e) => sum + e.costo_tienda, 0);
-                    const totalPrecio = empaquesProducto.reduce((sum, e) => sum + e.precio_venta_total, 0);
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {cuentaNevera.productos?.map(producto => {
+                const empaquesProducto = cuentaNevera.empaques?.filter(e => e.id_producto === producto.id_producto) || [];
+                const precioTiendaPorcentaje = parseFloat(producto.precio_tienda) || 0;
 
-                    return (
-                      <tr key={producto.id_producto}>
-                        <td style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>
-                          {producto.nombre_producto}
-                        </td>
-                        <td>{producto.peso_nominal_g}</td>
-                        <td>{empaquesProducto.length}</td>
-                        <td style={{ color: 'var(--color-error)', fontWeight: '500' }}>
-                          {new Intl.NumberFormat('es-CO', {
-                            style: 'currency',
-                            currency: 'COP',
-                            minimumFractionDigits: 0
-                          }).format(totalCosto)}
-                        </td>
-                        <td style={{ color: 'var(--color-success)', fontWeight: '500' }}>
-                          {new Intl.NumberFormat('es-CO', {
-                            style: 'currency',
-                            currency: 'COP',
-                            minimumFractionDigits: 0
-                          }).format(totalPrecio)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                const calcularLiquidar = (empaque: EmpaquePendiente) => {
+                  const precioVenta = empaque.precio_venta_total;
+                  let descuento = 0;
+                  let precioConDescuento = precioVenta;
+
+                  if (empaque.promocion) {
+                    const promo = cuentaNevera.promociones?.find(p => p.id_promocion === empaque.promocion);
+                    if (promo && promo.valor > 0) {
+                      descuento = Math.ceil(precioVenta * (promo.valor / 100));
+                      precioConDescuento = precioVenta - descuento;
+                    }
+                  }
+
+                  const tiendaComision = Math.ceil(precioConDescuento * (precioTiendaPorcentaje / 100));
+                  const liquidar = Math.ceil(precioConDescuento - tiendaComision);
+
+                  return { descuento, precioConDescuento, tiendaComision, liquidar };
+                };
+
+                const totalPrecio = empaquesProducto.reduce((sum, e) => sum + e.precio_venta_total, 0);
+                const totalDescuento = empaquesProducto.reduce((sum, e) => sum + calcularLiquidar(e).descuento, 0);
+                const totalComision = empaquesProducto.reduce((sum, e) => sum + calcularLiquidar(e).tiendaComision, 0);
+                const totalLiquidar = empaquesProducto.reduce((sum, e) => sum + calcularLiquidar(e).liquidar, 0);
+                const isExpanded = expandedProductos.has(producto.id_producto);
+
+                return (
+                  <div
+                    key={producto.id_producto}
+                    style={{
+                      border: '1px solid var(--color-border)',
+                      borderRadius: '6px',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newExpanded = new Set(expandedProductos);
+                        if (newExpanded.has(producto.id_producto)) {
+                          newExpanded.delete(producto.id_producto);
+                        } else {
+                          newExpanded.add(producto.id_producto);
+                        }
+                        setExpandedProductos(newExpanded);
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '1rem',
+                        backgroundColor: 'var(--color-hover-bg)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <span style={{ fontWeight: 'bold', color: 'var(--color-text-primary)', fontSize: '1rem' }}>
+                          {producto.nombre_producto} (ID: {producto.id_producto})
+                        </span>
+                        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                          <span>{empaquesProducto.length} empaques</span>
+                          <span>Comision Tienda: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalComision)}</span>
+                          <span>Venta: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalPrecio)}</span>
+                          <span style={{ color: totalDescuento > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
+                            Desc: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalDescuento)}
+                          </span>
+                          <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>
+                            Liquidar: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalLiquidar)}
+                          </span>
+                        </div>
+                      </div>
+                      <span style={{ color: 'var(--color-text-secondary)', fontSize: '1.2rem' }}>
+                        {isExpanded ? '▲' : '▼'}
+                      </span>
+                    </button>
+
+                    {isExpanded && (
+                      <div style={{ padding: '1rem', backgroundColor: 'var(--color-card-bg)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ borderBottom: '2px solid var(--color-border)' }}>
+                              <th style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>ID</th>
+                              <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>Precio Venta</th>
+                              <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>Desc</th>
+                              <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>Venta Final</th>
+                              <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>Comision Tienda</th>
+                              <th style={{ textAlign: 'right', padding: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>Liquidar</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {empaquesProducto.map((empaque, index) => {
+                              const { descuento, precioConDescuento, tiendaComision, liquidar } = calcularLiquidar(empaque);
+                              return (
+                                <tr key={index} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                  <td style={{ padding: '0.5rem', color: 'var(--color-text-primary)' }}>{empaque.id_empaque}</td>
+                                  <td style={{ padding: '0.5rem', textAlign: 'right', color: 'var(--color-text-primary)' }}>
+                                    {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(empaque.precio_venta_total)}
+                                  </td>
+                                  <td style={{ padding: '0.5rem', textAlign: 'right', color: totalDescuento > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
+                                    {descuento > 0 ? (
+                                      <span title={`${cuentaNevera.promociones?.find(p => p.id_promocion === empaque.promocion)?.nombre || 'Descuento'} (${cuentaNevera.promociones?.find(p => p.id_promocion === empaque.promocion)?.valor}%)`}>
+                                        -{new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(descuento)}
+                                      </span>
+                                    ) : '-'}
+                                  </td>
+                                  <td style={{ padding: '0.5rem', textAlign: 'right', color: 'var(--color-success)' }}>
+                                    {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(precioConDescuento)}
+                                  </td>
+                                  <td style={{ padding: '0.5rem', textAlign: 'right', color: 'var(--color-error)' }}>
+                                    {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(tiendaComision)}
+                                  </td>
+                                  <td style={{ padding: '0.5rem', textAlign: 'right', color: 'var(--color-primary)', fontWeight: '600' }}>
+                                    {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(liquidar)}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                          <tfoot>
+                            <tr style={{ backgroundColor: 'var(--color-hover-bg)' }}>
+                              <td style={{ padding: '0.5rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>TOTAL</td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
+                                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalPrecio)}
+                              </td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-warning)' }}>
+                                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalDescuento)}
+                              </td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-success)' }}>
+                                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalPrecio - totalDescuento)}
+                              </td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-error)' }}>
+                                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalComision)}
+                              </td>
+                              <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                                {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(totalLiquidar)}
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                        {precioTiendaPorcentaje > 0 && (
+                          <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--color-text-secondary)', textAlign: 'right' }}>
+                            * Comisión tienda: {precioTiendaPorcentaje}%
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div
+                style={{
+                  marginTop: '1rem',
+                  padding: '1rem',
+                  backgroundColor: 'var(--color-success)',
+                  color: 'white',
+                  borderRadius: '6px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem'
+                }}
+              >
+                TOTAL A LIQUIDAR: {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(
+                  cuentaNevera.empaques?.reduce((sum, e) => {
+                    const precioTiendaPorcentaje = parseFloat(cuentaNevera.productos?.find(p => p.id_producto === e.id_producto)?.precio_tienda || '0') || 0;
+                    let descuento = 0;
+                    let precioConDescuento = e.precio_venta_total;
+                    if (e.promocion) {
+                      const promo = cuentaNevera.promociones?.find(p => p.id_promocion === e.promocion);
+                      if (promo && promo.valor > 0) {
+                        descuento = Math.ceil(e.precio_venta_total * (promo.valor / 100));
+                        precioConDescuento = e.precio_venta_total - descuento;
+                      }
+                    }
+                    const tiendaComision = Math.ceil(precioConDescuento * (precioTiendaPorcentaje / 100));
+                    return sum + (precioConDescuento - tiendaComision);
+                  }, 0) || 0
+                )}
+              </div>
             </div>
           )}
         </div>
