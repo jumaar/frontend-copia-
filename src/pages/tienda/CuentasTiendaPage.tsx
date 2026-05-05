@@ -411,13 +411,18 @@ const CuentasTiendaPage: React.FC = () => {
         setNotaPago('');
         
         let mensajeDetallado = '';
+        const montoAbonado = respuesta.resumen?.monto_abonado ?? 0;
+        const montoConsolidado = respuesta.resumen?.monto_consolidado ?? 0;
+        const usuarioConsolidado = respuesta.resumen?.usuario_consolidado ?? 'N/A';
+        const usuarioAcreedor = respuesta.resumen?.usuario_acreedor ?? 'N/A';
+
         if (esAdelantoSinDeuda) {
           mensajeDetallado = `
 ✅ ${respuesta.message}
 
 📋 RESUMEN DEL ABONO ADELANTADO:
-👤 Usuario: ID ${respuesta.resumen.usuario_consolidado}
-💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
+👤 Usuario: ID ${usuarioConsolidado}
+💸 Monto Abonado: $${montoAbonado.toLocaleString()}
 🏷️ Tipo: Abono Adelantado (Sin Deuda Pendiente)
           `.trim();
         } else {
@@ -425,19 +430,47 @@ const CuentasTiendaPage: React.FC = () => {
 ✅ ${respuesta.message}
 
 📋 RESUMEN DE LA CONSOLIDACIÓN:
-👤 Usuario Consolidado: ID ${respuesta.resumen.usuario_consolidado}
-💰 Usuario Acreedor: ID ${respuesta.resumen.usuario_acreedor}
-💵 Monto Consolidado: $${respuesta.resumen.monto_consolidado.toLocaleString()}
-💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
+👤 Usuario Consolidado: ID ${usuarioConsolidado}
+💰 Usuario Acreedor: ID ${usuarioAcreedor}
+💵 Monto Consolidado: $${montoConsolidado.toLocaleString()}
+💸 Monto Abonado: $${montoAbonado.toLocaleString()}
           `.trim();
         }
         
         alert(mensajeDetallado);
         setSuccessMessage('Cobro procesado exitosamente.');
 
-        // Recargar datos de la nevera
+        // Recargar datos de la nevera SIN loading spinner para mejor UX
         if (userId) {
-          cargarTransacciones(userId, neveraSeleccionada);
+          try {
+            const data = await getTransaccionesTienda(userId, neveraSeleccionada);
+
+            if (data.empaques && data.empaques.length > 0) {
+              const total = data.empaques.reduce((sum: number, e: EmpaquePendiente) => {
+                const precioTiendaPorcentaje = parseFloat(data.productos?.find((p: ProductoPendiente) => p.id_producto === e.id_producto)?.precio_tienda || '0') || 0;
+                let descuento = 0;
+                let precioConDescuento = e.precio_venta_total;
+                if (e.promocion) {
+                  const promo = data.promociones?.find((p: Promocion) => p.id_promocion === e.promocion);
+                  if (promo && promo.valor > 0) {
+                    descuento = Math.ceil(e.precio_venta_total * (promo.valor / 100));
+                    precioConDescuento = e.precio_venta_total - descuento;
+                  }
+                }
+                const tiendaComision = Math.ceil(precioConDescuento * (precioTiendaPorcentaje / 100));
+                return sum + (precioConDescuento - tiendaComision);
+              }, 0);
+              setSaldoTotalLiquidar(total);
+            } else {
+              setSaldoTotalLiquidar(0);
+            }
+
+            setTransacciones(data);
+          } catch (err) {
+            console.error('Error al recargar transacciones:', err);
+          }
+
+          cargarUsuariosTienda();
         }
 
         setTimeout(() => setSuccessMessage(null), 3000);
