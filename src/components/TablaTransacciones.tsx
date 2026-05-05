@@ -331,7 +331,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                     <div className="info-pago-section" style={{ margin: '0.5rem 0', padding: '0.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
                       <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>Información del Pago</h6>
                       <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
-                        <strong>Pagado por:</strong> {ticket.info_pago.nombre_usuario_pago}
+                        <strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})
                       </p>
                       {ticket.info_pago.nota_opcional_pago && (
                         <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-secondary)' }}>

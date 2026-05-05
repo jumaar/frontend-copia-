@@ -278,7 +278,10 @@ const CuentasTiendaPage: React.FC = () => {
           const tiendaComision = Math.ceil(precioConDescuento * (precioTiendaPorcentaje / 100));
           return sum + (precioConDescuento - tiendaComision);
         }, 0) || 0;
-        setSaldoTotalLiquidar(total);
+
+        const totalFromTransacciones = data.transacciones?.filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum: number, t: any) => sum + (t.monto || 0), 0) || 0;
+        const saldoFinal = total + totalFromTransacciones;
+        setSaldoTotalLiquidar(saldoFinal);
       } else {
         const data = await getTransaccionesTienda(idUsuario, undefined, mes, año);
         setTransacciones(data);
@@ -320,8 +323,13 @@ const CuentasTiendaPage: React.FC = () => {
 
   // Manejar el procesamiento del pago
   const manejarPago = async () => {
-    if (!tiendaSeleccionada || !neveraSeleccionada || !transacciones?.empaques?.length) {
-      alert('No hay tienda y nevera seleccionadas o datos cargados.');
+    if (!tiendaSeleccionada || !neveraSeleccionada) {
+      alert('No hay tienda y nevera seleccionadas.');
+      return;
+    }
+
+    if (tipoPago === 'abono' && montoPago <= 0) {
+      alert('Para abonos, debe ingresar un monto mayor a 0.');
       return;
     }
 
@@ -375,7 +383,13 @@ const CuentasTiendaPage: React.FC = () => {
         }
 
         const empaquesAfectados = transacciones?.empaques?.map(e => e.id_empaque) || [];
-        const respuesta = await procesarPago(userId, montoRedondeado, neveraSeleccionada, notaFinal, empaquesAfectados);
+        const respuesta = await procesarPago(
+          userId,
+          montoRedondeado,
+          neveraSeleccionada,
+          notaFinal,
+          empaquesAfectados.length > 0 ? empaquesAfectados : undefined
+        );
         
         const esAdelantoSinDeuda = respuesta.resumen?.tipo_operacion === 'adelanto_sin_deuda';
         
@@ -445,25 +459,24 @@ const CuentasTiendaPage: React.FC = () => {
           try {
             const data = await getTransaccionesTienda(userId, neveraSeleccionada);
 
-            if (data.empaques && data.empaques.length > 0) {
-              const total = data.empaques.reduce((sum: number, e: EmpaquePendiente) => {
-                const precioTiendaPorcentaje = parseFloat(data.productos?.find((p: ProductoPendiente) => p.id_producto === e.id_producto)?.precio_tienda || '0') || 0;
-                let descuento = 0;
-                let precioConDescuento = e.precio_venta_total;
-                if (e.promocion) {
-                  const promo = data.promociones?.find((p: Promocion) => p.id_promocion === e.promocion);
-                  if (promo && promo.valor > 0) {
-                    descuento = Math.ceil(e.precio_venta_total * (promo.valor / 100));
-                    precioConDescuento = e.precio_venta_total - descuento;
-                  }
+            const totalFromEmpaques = data.empaques?.reduce((sum: number, e: EmpaquePendiente) => {
+              const precioTiendaPorcentaje = parseFloat(data.productos?.find((p: ProductoPendiente) => p.id_producto === e.id_producto)?.precio_tienda || '0') || 0;
+              let descuento = 0;
+              let precioConDescuento = e.precio_venta_total;
+              if (e.promocion) {
+                const promo = data.promociones?.find((p: Promocion) => p.id_promocion === e.promocion);
+                if (promo && promo.valor > 0) {
+                  descuento = Math.ceil(e.precio_venta_total * (promo.valor / 100));
+                  precioConDescuento = e.precio_venta_total - descuento;
                 }
-                const tiendaComision = Math.ceil(precioConDescuento * (precioTiendaPorcentaje / 100));
-                return sum + (precioConDescuento - tiendaComision);
-              }, 0);
-              setSaldoTotalLiquidar(total);
-            } else {
-              setSaldoTotalLiquidar(0);
-            }
+              }
+              const tiendaComision = Math.ceil(precioConDescuento * (precioTiendaPorcentaje / 100));
+              return sum + (precioConDescuento - tiendaComision);
+            }, 0) || 0;
+
+            const totalFromTransacciones = data.transacciones?.filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum: number, t: any) => sum + (t.monto || 0), 0) || 0;
+            const saldoFinal = totalFromEmpaques + totalFromTransacciones;
+            setSaldoTotalLiquidar(saldoFinal);
 
             setTransacciones(data);
           } catch (err) {
@@ -1204,7 +1217,7 @@ const CuentasTiendaPage: React.FC = () => {
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>💰 Gestión de Cobro</h3>
 
             <div style={{ marginBottom: '1rem' }}>
-              <strong>Total a Cobrar:</strong> <span style={{ fontSize: '1.2em', color: saldoTotalLiquidar > 0 ? 'var(--color-success)' : 'var(--color-success)' }}>{formatMoneda(saldoTotalLiquidar)}</span>
+              <strong>Total a Cobrar:</strong> <span style={{ fontSize: '1.2em', color: saldoTotalLiquidar > 0 ? 'var(--color-success)' : (saldoTotalLiquidar < 0 ? 'var(--color-error)' : 'var(--color-success)') }}>{formatMoneda(saldoTotalLiquidar)}</span>
               {saldoTotalLiquidar === 0 && (
                 <span style={{ color: 'var(--color-success)', marginLeft: '0.5rem' }}>(✅ Sin deuda pendiente)</span>
               )}
