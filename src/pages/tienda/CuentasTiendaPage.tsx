@@ -1198,7 +1198,7 @@ const CuentasTiendaPage: React.FC = () => {
         </div>
       )}
 
-{puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada && transacciones?.empaques?.length && (() => {
+{puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada && transacciones && (() => {
         return (
           <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>💰 Gestión de Cobro</h3>

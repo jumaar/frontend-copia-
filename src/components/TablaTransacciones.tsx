@@ -33,6 +33,11 @@ interface TransaccionesData {
     año_devuelto: number | null;
     es_periodo_actual: boolean;
   };
+  nevera?: {
+    id_nevera: number;
+    id_tienda: number;
+    nombre_tienda: string;
+  };
 }
 
 interface TablaTransaccionesProps {
@@ -159,13 +164,20 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
 
   return (
     <div className="tabla-transacciones">
-      {/* Información del usuario y período */}
+{/* Información del usuario y período */}
       <div className="transacciones-header">
         <div className="user-info">
-          <h2>{data.nombre_usuario} {data.apellido_usuario}</h2>
+          {data.nevera && (
+            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
+              Nevera #{data.nevera.id_nevera}
+            </div>
+          )}
           <p className="periodo-info">
             Período: {data.periodo.mes}/{data.periodo.año}
             {data.parametros_usados.es_periodo_actual && <span className="badge-actual">ACTUAL</span>}
+          </p>
+          <p className="fecha-creacion">
+            Usuario desde: {formatFecha(data.fecha_creacion_usuario)}
           </p>
           <p className="fecha-creacion">
             Usuario desde: {formatFecha(data.fecha_creacion_usuario)}
