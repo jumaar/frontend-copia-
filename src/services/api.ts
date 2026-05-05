@@ -608,9 +608,10 @@ export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: num
  * @param monto El monto del pago
  * @param id_nevera El ID de la nevera (opcional)
  * @param nota_opcional Nota opcional para el pago
+ * @param empaques Array de IDs de empaques afectados (opcional)
  * @returns Respuesta de la API
  */
-export const procesarPago = async (id_usuario: number, monto: number, id_nevera?: number, nota_opcional?: string) => {
+export const procesarPago = async (id_usuario: number, monto: number, id_nevera?: number, nota_opcional?: string, empaques?: number[]) => {
   try {
     let url;
 
@@ -621,10 +622,16 @@ export const procesarPago = async (id_usuario: number, monto: number, id_nevera?
       url = `/logistica/cuentas?id_usuario=${id_usuario}`;
     }
 
-    const response = await api.post(url, {
+    const body: any = {
       monto,
       nota_opcional
-    });
+    };
+
+    if (empaques && empaques.length > 0) {
+      body.empaques = empaques;
+    }
+
+    const response = await api.post(url, body);
     return response.data;
   } catch (error) {
     console.error(`Error al procesar pago para usuario ${id_usuario}${id_nevera ? ` y nevera ${id_nevera}` : ''}:`, error);
