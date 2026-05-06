@@ -66,6 +66,7 @@ interface Transaccion {
   id_empaque: number | null;
   id_transaccion_rel: number | null;
   monto: number;
+  costo_tienda: number;
   hora_transaccion?: string;
   nombre_tipo_transaccion: string;
   nombre_estado_transaccion?: string;
@@ -868,6 +869,9 @@ const CuentasTiendaPage: React.FC = () => {
            const montoTotalMes = transacciones.transacciones.filter(t =>
              t.nombre_estado_transaccion === 'PENDIENTE' || t.nombre_estado_transaccion === 'PAGADO'
            ).filter(t => t.id_empaque !== null).reduce((sum, t) => sum + t.monto, 0);
+           const montoTiendaMes = transacciones.transacciones.filter(t =>
+             t.nombre_estado_transaccion === 'PENDIENTE' || t.nombre_estado_transaccion === 'PAGADO'
+           ).filter(t => t.id_empaque !== null).reduce((sum, t) => sum + (t.costo_tienda || 0), 0);
            const saldoALiquidar = transacciones?.empaques?.length ? saldoTotalLiquidar : 0;
 
            return (
@@ -894,6 +898,12 @@ const CuentasTiendaPage: React.FC = () => {
                 <span className="resumen-label">📅 Monto del Mes:</span>
                 <span className="resumen-value">
                   {formatMoneda(montoTotalMes)}
+                </span>
+              </div>
+              <div className="resumen-item">
+                <span className="resumen-label">🏪 Monto Tienda Mes:</span>
+                <span className="resumen-value">
+                  {formatMoneda(montoTiendaMes)}
                 </span>
               </div>
             </div>

@@ -292,6 +292,13 @@ e.tabla-transacciones {
   color: var(--color-success);
 }
 
+.consolidado-ganancia {
+  margin: 0 0 calc(var(--spacing-unit) * 0.25) 0;
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
 .consolidado-fecha,
 .consolidado-productos {
   margin: 0;

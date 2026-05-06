@@ -6,6 +6,7 @@ interface Transaccion {
   id_empaque: number | null;
   id_transaccion_rel: number | null;
   monto: number;
+  costo_tienda: number;
   hora_transaccion?: string;
   nombre_tipo_transaccion: string;
   nombre_estado_transaccion?: string;
@@ -250,6 +251,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                   <th>ID Transacción</th>
                   <th>ID Empaque</th>
                   <th>Monto</th>
+                  <th>Costo Tienda</th>
                   <th>Fecha</th>
                   <th>Tipo</th>
                   <th>Estado</th>
@@ -266,6 +268,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                       )}
                     </td>
                     <td className="monto-cell">{formatMoneda(transaccion.monto)}</td>
+                    <td className="monto-cell">{formatMoneda(transaccion.costo_tienda)}</td>
                     <td>{transaccion.hora_transaccion ? formatFecha(transaccion.hora_transaccion) : '-'}</td>
                     <td>
                       <span className="badge tipo-venta">{transaccion.nombre_tipo_transaccion}</span>
@@ -302,6 +305,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
           <div className="consolidados-lista">
             {consolidados.map(({ ticket, productos }) => {
               const isExpanded = expandedConsolidados.has(ticket.id_transaccion);
+              const gananciaTienda = productos.reduce((sum, p) => sum + (p.costo_tienda || 0), 0);
               return (
                 <div key={ticket.id_transaccion} className="consolidado-item">
                   <div 
@@ -315,6 +319,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                       <div className="consolidado-datos">
                         <h4>Ticket #{ticket.id_transaccion}</h4>
                         <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
+                        <p className="consolidado-ganancia">Ganancia tienda: {formatMoneda(gananciaTienda)}</p>
                         <p className="consolidado-fecha">{ticket.hora_transaccion ? formatFecha(ticket.hora_transaccion) : '-'}</p>
                         <p className="consolidado-productos">
                           {productos.length} producto{productos.length !== 1 ? 's' : ''} agrupado{productos.length !== 1 ? 's' : ''}
@@ -351,6 +356,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                               <th>ID Transacción</th>
                               <th>ID Empaque</th>
                               <th>Monto</th>
+                              <th>Costo Tienda</th>
                               <th>Fecha</th>
                               <th>Nota</th>
                             </tr>
@@ -361,6 +367,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                                 <td className="id-cell">{producto.id_transaccion}</td>
                                 <td>{producto.id_empaque || '-'}</td>
                                 <td className="monto-cell">{formatMoneda(producto.monto)}</td>
+                                <td className="monto-cell">{formatMoneda(producto.costo_tienda)}</td>
                                 <td>{producto.hora_transaccion ? formatFecha(producto.hora_transaccion) : '-'}</td>
                                 <td className={`nota-cell ${expandedNotas.has(producto.id_transaccion) ? 'nota-expanded' : ''}`}>
                                   <span className="nota-text">{producto.nota_opcional}</span>

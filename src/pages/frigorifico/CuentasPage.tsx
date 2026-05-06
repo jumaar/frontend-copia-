@@ -487,6 +487,9 @@ const CuentasPage: React.FC = () => {
            const montoTotalMes = transacciones.transacciones.filter(t =>
              t.nombre_estado_transaccion === 'PENDIENTE' || t.nombre_estado_transaccion === 'PAGADO'
            ).filter(t => t.id_empaque !== null).reduce((sum, t) => sum + t.monto, 0);
+           const montoTiendaMes = transacciones.transacciones.filter(t =>
+             t.nombre_estado_transaccion === 'PENDIENTE' || t.nombre_estado_transaccion === 'PAGADO'
+           ).filter(t => t.id_empaque !== null).reduce((sum, t) => sum + (t.costo_tienda || 0), 0);
           
           return (
             <div className="resumen-financiero">
@@ -512,6 +515,12 @@ const CuentasPage: React.FC = () => {
                 <span className="resumen-label">📅 Monto del Mes:</span>
                 <span className="resumen-value">
                   {formatMoneda(montoTotalMes)}
+                </span>
+              </div>
+              <div className="resumen-item">
+                <span className="resumen-label">🏪 Monto Tienda Mes:</span>
+                <span className="resumen-value">
+                  {formatMoneda(montoTiendaMes)}
                 </span>
               </div>
             </div>
