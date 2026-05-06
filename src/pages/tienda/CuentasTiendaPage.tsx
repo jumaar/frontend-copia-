@@ -227,6 +227,31 @@ const CuentasTiendaPage: React.FC = () => {
     );
   };
 
+  // Buscar nevera por ID ingresado
+  const buscarNevera = () => {
+    if (!busquedaNevera.trim()) return;
+
+    const neveraId = parseInt(busquedaNevera.trim());
+    if (isNaN(neveraId)) {
+      alert('Por favor ingresa un ID válido.');
+      return;
+    }
+
+    for (const user of usuariosTienda) {
+      for (const tienda of user.tiendas) {
+        const nevera = tienda.neveras?.find(n => n.id_nevera === neveraId);
+        if (nevera) {
+          setTiendaSeleccionada(tienda.id_tienda);
+          setNeveraSeleccionada(neveraId);
+          cargarTransacciones(user.id_usuario, neveraId);
+          setBusquedaNevera('');
+          return;
+        }
+      }
+    }
+    alert('Nevera no encontrada con ese ID.');
+  };
+
   // Cargar usuarios tiendas (solo para roles administrativos)
   const cargarUsuariosTienda = async () => {
     try {
@@ -555,6 +580,12 @@ const CuentasTiendaPage: React.FC = () => {
                       className="usuario-select"
                       value={busquedaNevera}
                       onChange={(e) => setBusquedaNevera(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          buscarNevera();
+                        }
+                      }}
                       placeholder="Ingresa el ID de la nevera..."
                       style={{
                         flex: '1',
@@ -570,29 +601,7 @@ const CuentasTiendaPage: React.FC = () => {
                     />
                     <button
                       className="btn-consultar"
-                      onClick={() => {
-                        if (busquedaNevera.trim()) {
-                          const neveraId = parseInt(busquedaNevera.trim());
-                          if (!isNaN(neveraId)) {
-                            // Buscar la tienda y nevera correspondiente
-                            for (const user of usuariosTienda) {
-                              for (const tienda of user.tiendas) {
-                                const nevera = tienda.neveras?.find(n => n.id_nevera === neveraId);
-                                if (nevera) {
-                                  setTiendaSeleccionada(tienda.id_tienda);
-                                  setNeveraSeleccionada(neveraId);
-                                  cargarTransacciones(user.id_usuario, neveraId);
-                                  setBusquedaNevera('');
-                                  return;
-                                }
-                              }
-                            }
-                            alert('Nevera no encontrada con ese ID.');
-                          } else {
-                            alert('Por favor ingresa un ID válido.');
-                          }
-                        }
-                      }}
+                      onClick={buscarNevera}
                       disabled={!busquedaNevera.trim() || loading}
                       style={{
                         backgroundColor: 'var(--color-success)',
