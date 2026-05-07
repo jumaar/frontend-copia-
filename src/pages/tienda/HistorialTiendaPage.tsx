@@ -629,9 +629,7 @@ const HistorialTiendaPage: React.FC = () => {
                     className="dropdown-toggle"
                     onClick={() => setShowMesesMenu(!showMesesMenu)}
                   >
-                    {mesSeleccionado
-                      ? `${mesesHistoricos.find(m => m.mes === mesSeleccionado.mes && m.año === mesSeleccionado.año)?.fecha || 'Consultar Meses Anteriores'}`
-                      : 'Consultar Meses Anteriores'}
+                    Consultar Meses Anteriores
                     <span className={`dropdown-arrow ${showMesesMenu ? 'open' : ''}`}>▼</span>
                   </button>
                   {showMesesMenu && (
@@ -1031,18 +1029,6 @@ const HistorialTiendaPage: React.FC = () => {
                 </div>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {!historial && !loading && !error && puedeVerSelector && !usuarioSeleccionado && (
-        <div className="no-selection-message" style={{ zIndex: 0, position: 'relative' }}>
-          <div className="no-selection-content">
-            <span className="no-selection-icon">📋</span>
-            <h3>Selecciona un usuario tienda para ver su historial</h3>
-            <p>
-              Elige un usuario de la lista desplegable para consultar el historial completo de movimientos.
-            </p>
           </div>
         </div>
       )}

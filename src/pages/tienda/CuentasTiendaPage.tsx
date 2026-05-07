@@ -1209,27 +1209,6 @@ const CuentasTiendaPage: React.FC = () => {
         </div>
       )}
 
-      {!tiendaSeleccionada && !loading && !error && (
-        <div className="no-selection-message" style={{ zIndex: 0, position: 'relative' }}>
-          <div className="no-selection-content">
-            <span className="no-selection-icon">📋</span>
-            <h3>Selecciona una tienda para ver sus neveras</h3>
-            <p>
-              Elige una tienda de la lista desplegable para ver sus neveras y consultar
-              las transacciones de cada una.
-            </p>
-            {usuariosTienda.length === 0 && (
-              <div className="no-users-warning">
-                <p>
-                  <strong>Nota:</strong> No se encontraron tiendas relacionadas.
-                  Esto puede indicar que no tienes permisos para ver estos datos.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
 {puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada && transacciones && (() => {
         return (
           <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
