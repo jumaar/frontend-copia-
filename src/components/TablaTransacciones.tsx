@@ -180,9 +180,6 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
           <p className="fecha-creacion">
             Usuario desde: {formatFecha(data.fecha_creacion_usuario)}
           </p>
-          <p className="fecha-creacion">
-            Usuario desde: {formatFecha(data.fecha_creacion_usuario)}
-          </p>
           
           {/* Menú desplegable de meses históricos - Solo para frigorífico */}
           {esFrigorifico && mesesHistoricos.length > 0 && (

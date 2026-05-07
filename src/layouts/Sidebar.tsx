@@ -76,6 +76,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Cuentas Tiendas</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/admin/historial-tienda" className="nav-item">
+          <NavIcon />
+          <span>Historial Tienda</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -146,6 +152,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Cuentas Tiendas</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/logistica/historial-tienda" className="nav-item">
+          <NavIcon />
+          <span>Historial Tienda</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -170,6 +182,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         <NavLink to="/tienda/cuentas" className="nav-item">
           <NavIcon />
           <span>Mis Cuentas</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/tienda/historial" className="nav-item">
+          <NavIcon />
+          <span>Historial</span>
         </NavLink>
       </li>
     </>

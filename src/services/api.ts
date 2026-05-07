@@ -902,4 +902,27 @@ export const distribuirNeveras = async (cityIds?: number[]) => {
   }
 };
 
+/**
+ * Obtiene el historial completo de una tienda/usuario, dividido por neveras.
+ * @param id_usuario El ID del usuario tienda
+ * @param mes Mes específico a consultar (opcional)
+ * @param año Año específico a consultar (opcional)
+ * @returns Historial por nevera con empaques, consolidados, transacciones y resúmenes
+ */
+export const getHistorialTienda = async (id_usuario: number, mes?: number, año?: number) => {
+  try {
+    let url = `/logistica/historial/tienda/${id_usuario}`;
+
+    if (mes && año) {
+      url += `?mes=${mes}&año=${año}`;
+    }
+
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener historial de tienda para usuario ${id_usuario}:`, error);
+    throw error;
+  }
+};
+
 export default api;

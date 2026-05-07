@@ -560,7 +560,7 @@ const CuentasTiendaPage: React.FC = () => {
 
       {/* Selectores de tienda y nevera al frente de la página */}
       {puedeVerOtrasTiendas && (
-        <div className="usuario-selector" style={{ position: 'relative', zIndex: 1000000 }}>
+        <div className="usuario-selector">
           <div className="selector-container">
             <h3 style={{ color: 'var(--color-text-primary)' }}>
               SELECCIONAR TIENDA:

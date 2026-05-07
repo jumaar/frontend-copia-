@@ -22,6 +22,7 @@ import LogisticaInventarioPage from './pages/logistica/LogisticaInventarioPage';
 import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
 import TiendaInventarioPage from './pages/tienda/TiendaInventarioPage';
 import CuentasTiendaPage from './pages/tienda/CuentasTiendaPage';
+import HistorialTiendaPage from './pages/tienda/HistorialTiendaPage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 export const getDashboardPath = (role: string): string => {
@@ -64,6 +65,7 @@ const AppContent: React.FC = () => {
                 <Route path="neveras" element={<FridgeManagementPage />} />
                 <Route path="accounts" element={<GlobalAccountsPage />} />
                 <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
+                <Route path="historial-tienda" element={<HistorialTiendaPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>
@@ -98,6 +100,7 @@ const AppContent: React.FC = () => {
                 <Route path="gestion" element={<LogisticaGestionPage />} />
                 <Route path="inventario" element={<LogisticaInventarioPage />} />
                 <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
+                <Route path="historial-tienda" element={<HistorialTiendaPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>
@@ -114,6 +117,7 @@ const AppContent: React.FC = () => {
                 <Route index element={<TiendaDashboardPage />} />
                 <Route path="inventario" element={<TiendaInventarioPage />} />
                 <Route path="cuentas" element={<CuentasTiendaPage />} />
+                <Route path="historial" element={<HistorialTiendaPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>
