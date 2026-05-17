@@ -146,6 +146,7 @@ const CuentasTiendaPage: React.FC = () => {
   const esLogistica = user?.role === 'logistica';
   const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const puedeVerOtrasTiendas = esLogistica || esAdmin || esTienda;
+  const puedeGestionarCobro = esLogistica || esAdmin;
 
   // Generar lista de meses históricos
   const generarMesesHistoricos = (fechaCreacion: string) => {
@@ -1209,7 +1210,7 @@ const CuentasTiendaPage: React.FC = () => {
         </div>
       )}
 
-{puedeVerOtrasTiendas && tiendaSeleccionada && neveraSeleccionada && transacciones && (() => {
+{puedeGestionarCobro && tiendaSeleccionada && neveraSeleccionada && transacciones && (() => {
         return (
           <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)' }}>💰 Gestión de Cobro</h3>
