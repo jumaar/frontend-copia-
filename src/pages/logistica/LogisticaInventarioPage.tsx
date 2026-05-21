@@ -25,12 +25,39 @@ interface Producto {
   empaques: Empaque[];
 }
 
+interface EmpaquePrioridad {
+  id_empaque: number;
+  epc: string;
+  id_producto: number;
+  nombre_producto: string;
+  fecha_empaque_1: string;
+  fecha_vencimiento: string;
+  dias_vencimiento: number;
+  porcentaje_transcurrido: number;
+  hora_para_cambio_5: string | null;
+}
+
+interface NeveraPrioridad {
+  id_nevera: number;
+  nombre_tienda: string;
+  direccion: string;
+  empaques: EmpaquePrioridad[];
+}
+
+interface CiudadPrioridad {
+  id_ciudad: number;
+  nombre_ciudad: string;
+  neveras: NeveraPrioridad[];
+}
+
 interface LogisticaInventarioResponse {
   productos_por_logistica: Producto[];
   total_productos_diferentes: number;
   total_empaques: number;
   id_logistica_usuario: number;
   ultima_hora_calificacion?: string;
+  para_cambio?: CiudadPrioridad[];
+  vencidos?: CiudadPrioridad[];
 }
 
 // Interface para manejar la posible estructura de la respuesta de logística
@@ -68,6 +95,10 @@ const LogisticaInventarioPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [expandedProducts, setExpandedProducts] = useState<Set<number>>(new Set());
   const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
+  const [expandedPrioridadCities, setExpandedPrioridadCities] = useState<Set<number>>(new Set());
+  const [expandedPrioridadNeveras, setExpandedPrioridadNeveras] = useState<Set<number>>(new Set());
+  const [expandedVencidosCities, setExpandedVencidosCities] = useState<Set<number>>(new Set());
+  const [expandedVencidosNeveras, setExpandedVencidosNeveras] = useState<Set<number>>(new Set());
 
   // Estados para neveras surtir
   const [neverasData, setNeverasData] = useState<NeverasSurtirResponse | null>(
@@ -182,6 +213,46 @@ const LogisticaInventarioPage: React.FC = () => {
       newExpanded.add(ciudad);
     }
     setExpandedCities(newExpanded);
+  };
+
+  const togglePrioridadCity = (cityId: number) => {
+    const newExpanded = new Set(expandedPrioridadCities);
+    if (newExpanded.has(cityId)) {
+      newExpanded.delete(cityId);
+    } else {
+      newExpanded.add(cityId);
+    }
+    setExpandedPrioridadCities(newExpanded);
+  };
+
+  const togglePrioridadNevera = (neveraId: number) => {
+    const newExpanded = new Set(expandedPrioridadNeveras);
+    if (newExpanded.has(neveraId)) {
+      newExpanded.delete(neveraId);
+    } else {
+      newExpanded.add(neveraId);
+    }
+    setExpandedPrioridadNeveras(newExpanded);
+  };
+
+  const toggleVencidosCity = (cityId: number) => {
+    const newExpanded = new Set(expandedVencidosCities);
+    if (newExpanded.has(cityId)) {
+      newExpanded.delete(cityId);
+    } else {
+      newExpanded.add(cityId);
+    }
+    setExpandedVencidosCities(newExpanded);
+  };
+
+  const toggleVencidosNevera = (neveraId: number) => {
+    const newExpanded = new Set(expandedVencidosNeveras);
+    if (newExpanded.has(neveraId)) {
+      newExpanded.delete(neveraId);
+    } else {
+      newExpanded.add(neveraId);
+    }
+    setExpandedVencidosNeveras(newExpanded);
   };
 
   const handleSurtir = (idNevera: number) => {
@@ -547,6 +618,420 @@ const LogisticaInventarioPage: React.FC = () => {
           ⚠️ Solo presionar al salir del frigorífico
         </p>
       </div>
+
+      {/* Sección: Empaques con Prioridad (para_cambio) */}
+      {(() => {
+        const hasParaCambio = !!(inventarioData?.para_cambio && inventarioData.para_cambio.length > 0);
+        const hasVencidos = !!(inventarioData?.vencidos && inventarioData.vencidos.length > 0);
+        if (!hasParaCambio && !hasVencidos) {
+          return (
+            <div style={{ margin: "1rem", padding: "1rem", background: "#fef3c7", borderRadius: "8px", textAlign: "center" }}>
+              <p style={{ margin: 0, color: "#b45309", fontWeight: "bold" }}>
+                {inventarioData ? "No hay empaques con prioridad ni vencidos" : "Cargando datos..."}
+              </p>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
+      {inventarioData?.para_cambio && inventarioData.para_cambio.length > 0 && (
+        <section className="card" style={{ marginTop: "1rem" }}>
+          <div style={{ padding: "1rem" }}>
+            <h2 style={{ marginBottom: "1rem", color: "var(--color-text-primary)" }}>
+              Empaques con Prioridad
+            </h2>
+            <div style={{ display: "grid", gap: "1rem" }}>
+              {inventarioData.para_cambio
+                .sort((a, b) => a.nombre_ciudad.localeCompare(b.nombre_ciudad))
+                .map((ciudad) => {
+                  const isCityExpanded = expandedPrioridadCities.has(ciudad.id_ciudad);
+                  return (
+                    <div
+                      key={`prioridad-${ciudad.id_ciudad}`}
+                      style={{
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "var(--border-radius-md)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => togglePrioridadCity(ciudad.id_ciudad)}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "1rem",
+                          backgroundColor: "var(--color-hover-bg)",
+                          border: "none",
+                          borderBottom: isCityExpanded ? "1px solid var(--color-border)" : "none",
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: "1.1rem",
+                            color: "var(--color-text-primary)",
+                          }}
+                        >
+                          {ciudad.nombre_ciudad} ({ciudad.neveras.length} neveras)
+                        </span>
+                        <span style={{ color: "var(--color-text-secondary)" }}>
+                          {isCityExpanded ? "▲" : "▼"}
+                        </span>
+                      </button>
+                      {isCityExpanded && (
+                        <div
+                          style={{
+                            padding: "1rem",
+                            display: "grid",
+                            gap: "0.75rem",
+                            backgroundColor: "var(--color-card-bg)",
+                          }}
+                        >
+                          {ciudad.neveras.map((nevera) => {
+                            const isNeveraExpanded = expandedPrioridadNeveras.has(nevera.id_nevera);
+                            return (
+                              <div
+                                key={`prioridad-nevera-${nevera.id_nevera}`}
+                                style={{
+                                  border: "1px solid var(--color-border)",
+                                  borderRadius: "var(--border-radius-md)",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => togglePrioridadNevera(nevera.id_nevera)}
+                                  style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    padding: "0.75rem",
+                                    backgroundColor: "white",
+                                    border: "none",
+                                    borderBottom: isNeveraExpanded ? "1px solid var(--color-border)" : "none",
+                                    cursor: "pointer",
+                                    textAlign: "left",
+                                  }}
+                                >
+                                  <div>
+                                    <h4 style={{ margin: "0 0 0.25rem 0", color: "var(--color-text-primary)" }}>
+                                      Nevera #{nevera.id_nevera} - {nevera.nombre_tienda}
+                                    </h4>
+                                    <p style={{ margin: "0", color: "var(--color-text-secondary)", fontSize: "0.85rem" }}>
+                                      {nevera.direccion}
+                                    </p>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <span
+                                      style={{
+                                        padding: "0.25rem 0.5rem",
+                                        borderRadius: "999px",
+                                        backgroundColor: "#fef3c7",
+                                        color: "#b45309",
+                                        fontWeight: "bold",
+                                        fontSize: "0.8rem",
+                                      }}
+                                    >
+                                      {nevera.empaques.length} empaques
+                                    </span>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>
+                                      {isNeveraExpanded ? "▲" : "▼"}
+                                    </span>
+                                  </div>
+                                </button>
+                                {isNeveraExpanded && (
+                                  <div style={{ overflowX: "auto", backgroundColor: "white" }}>
+                                    <table
+                                      className="products-table"
+                                      style={{ marginTop: "0", minWidth: "800px", width: "100%" }}
+                                    >
+                                      <thead>
+                                        <tr
+                                          className="empaque-header-row"
+                                          style={{
+                                            backgroundColor: "var(--color-card-bg)",
+                                            fontWeight: "bold",
+                                            color: "var(--color-text-secondary)",
+                                          }}
+                                        >
+                                          <th style={{ width: "100px" }}>ID Emp.</th>
+                                          <th style={{ width: "220px" }}>EPC</th>
+                                          <th>Producto</th>
+                                          <th style={{ width: "120px" }}>F. Empaque</th>
+                                          <th style={{ width: "120px" }}>F. Vencim.</th>
+                                          <th style={{ width: "80px" }}>Días</th>
+                                          <th style={{ width: "80px" }}>% Trans.</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {nevera.empaques.map((empaque) => (
+                                          <tr
+                                            key={`prioridad-emp-${empaque.id_empaque}`}
+                                            style={{
+                                              borderBottom: "1px solid var(--color-border)",
+                                            }}
+                                          >
+                                            <td>{empaque.id_empaque}</td>
+                                            <td
+                                              style={{
+                                                fontWeight: "bold",
+                                                color: "#ff6b35",
+                                              }}
+                                            >
+                                              {empaque.epc}
+                                            </td>
+                                            <td>{empaque.nombre_producto}</td>
+                                            <td>
+                                              {new Date(empaque.fecha_empaque_1).toLocaleDateString("es-CO")}
+                                            </td>
+                                            <td>
+                                              {new Date(empaque.fecha_vencimiento).toLocaleDateString("es-CO")}
+                                            </td>
+                                            <td>{empaque.dias_vencimiento}</td>
+                                            <td>
+                                              <span
+                                                style={{
+                                                  padding: "0.15rem 0.4rem",
+                                                  borderRadius: "4px",
+                                                  backgroundColor:
+                                                    empaque.porcentaje_transcurrido >= 90
+                                                      ? "#fecaca"
+                                                      : empaque.porcentaje_transcurrido >= 75
+                                                      ? "#fef3c7"
+                                                      : "#bbf7d0",
+                                                  color:
+                                                    empaque.porcentaje_transcurrido >= 90
+                                                      ? "#991b1b"
+                                                      : empaque.porcentaje_transcurrido >= 75
+                                                      ? "#b45309"
+                                                      : "#166534",
+                                                  fontWeight: "bold",
+                                                  fontSize: "0.85rem",
+                                                }}
+                                              >
+                                                {empaque.porcentaje_transcurrido.toFixed(1)}%
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Sección: Empaques Vencidos */}
+      {inventarioData?.vencidos && inventarioData.vencidos.length > 0 && (
+        <section className="card" style={{ marginTop: "1rem" }}>
+          <div style={{ padding: "1rem" }}>
+            <h2 style={{ marginBottom: "1rem", color: "#dc2626" }}>
+              Empaques Vencidos
+            </h2>
+            <div style={{ display: "grid", gap: "1rem" }}>
+              {inventarioData.vencidos
+                .sort((a, b) => a.nombre_ciudad.localeCompare(b.nombre_ciudad))
+                .map((ciudad) => {
+                  const isCityExpanded = expandedVencidosCities.has(ciudad.id_ciudad);
+                  return (
+                    <div
+                      key={`vencidos-${ciudad.id_ciudad}`}
+                      style={{
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "var(--border-radius-md)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleVencidosCity(ciudad.id_ciudad)}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "1rem",
+                          backgroundColor: "#fef2f2",
+                          border: "none",
+                          borderBottom: isCityExpanded ? "1px solid var(--color-border)" : "none",
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: "1.1rem",
+                            color: "#dc2626",
+                          }}
+                        >
+                          {ciudad.nombre_ciudad} ({ciudad.neveras.length} neveras)
+                        </span>
+                        <span style={{ color: "var(--color-text-secondary)" }}>
+                          {isCityExpanded ? "▲" : "▼"}
+                        </span>
+                      </button>
+                      {isCityExpanded && (
+                        <div
+                          style={{
+                            padding: "1rem",
+                            display: "grid",
+                            gap: "0.75rem",
+                            backgroundColor: "var(--color-card-bg)",
+                          }}
+                        >
+                          {ciudad.neveras.map((nevera) => {
+                            const isNeveraExpanded = expandedVencidosNeveras.has(nevera.id_nevera);
+                            return (
+                              <div
+                                key={`vencidos-nevera-${nevera.id_nevera}`}
+                                style={{
+                                  border: "1px solid var(--color-border)",
+                                  borderRadius: "var(--border-radius-md)",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => toggleVencidosNevera(nevera.id_nevera)}
+                                  style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    padding: "0.75rem",
+                                    backgroundColor: "white",
+                                    border: "none",
+                                    borderBottom: isNeveraExpanded ? "1px solid var(--color-border)" : "none",
+                                    cursor: "pointer",
+                                    textAlign: "left",
+                                  }}
+                                >
+                                  <div>
+                                    <h4 style={{ margin: "0 0 0.25rem 0", color: "var(--color-text-primary)" }}>
+                                      Nevera #{nevera.id_nevera} - {nevera.nombre_tienda}
+                                    </h4>
+                                    <p style={{ margin: "0", color: "var(--color-text-secondary)", fontSize: "0.85rem" }}>
+                                      {nevera.direccion}
+                                    </p>
+                                  </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <span
+                                      style={{
+                                        padding: "0.25rem 0.5rem",
+                                        borderRadius: "999px",
+                                        backgroundColor: "#fee2e2",
+                                        color: "#dc2626",
+                                        fontWeight: "bold",
+                                        fontSize: "0.8rem",
+                                      }}
+                                    >
+                                      {nevera.empaques.length} empaques
+                                    </span>
+                                    <span style={{ color: "var(--color-text-secondary)" }}>
+                                      {isNeveraExpanded ? "▲" : "▼"}
+                                    </span>
+                                  </div>
+                                </button>
+                                {isNeveraExpanded && (
+                                  <div style={{ overflowX: "auto", backgroundColor: "white" }}>
+                                    <table
+                                      className="products-table"
+                                      style={{ marginTop: "0", minWidth: "800px", width: "100%" }}
+                                    >
+                                      <thead>
+                                        <tr
+                                          className="empaque-header-row"
+                                          style={{
+                                            backgroundColor: "var(--color-card-bg)",
+                                            fontWeight: "bold",
+                                            color: "var(--color-text-secondary)",
+                                          }}
+                                        >
+                                          <th style={{ width: "100px" }}>ID Emp.</th>
+                                          <th style={{ width: "220px" }}>EPC</th>
+                                          <th>Producto</th>
+                                          <th style={{ width: "120px" }}>F. Empaque</th>
+                                          <th style={{ width: "120px" }}>F. Vencim.</th>
+                                          <th style={{ width: "80px" }}>Días</th>
+                                          <th style={{ width: "80px" }}>% Trans.</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {nevera.empaques.map((empaque) => (
+                                          <tr
+                                            key={`vencidos-emp-${empaque.id_empaque}`}
+                                            style={{
+                                              borderBottom: "1px solid var(--color-border)",
+                                              backgroundColor: "#fef2f2",
+                                            }}
+                                          >
+                                            <td>{empaque.id_empaque}</td>
+                                            <td
+                                              style={{
+                                                fontWeight: "bold",
+                                                color: "#dc2626",
+                                              }}
+                                            >
+                                              {empaque.epc}
+                                            </td>
+                                            <td>{empaque.nombre_producto}</td>
+                                            <td>
+                                              {new Date(empaque.fecha_empaque_1).toLocaleDateString("es-CO")}
+                                            </td>
+                                            <td>
+                                              {new Date(empaque.fecha_vencimiento).toLocaleDateString("es-CO")}
+                                            </td>
+                                            <td>{empaque.dias_vencimiento}</td>
+                                            <td>
+                                              <span
+                                                style={{
+                                                  padding: "0.15rem 0.4rem",
+                                                  borderRadius: "4px",
+                                                  backgroundColor: "#fecaca",
+                                                  color: "#991b1b",
+                                                  fontWeight: "bold",
+                                                  fontSize: "0.85rem",
+                                                }}
+                                              >
+                                                {empaque.porcentaje_transcurrido.toFixed(1)}%
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Nueva sección para neveras surtir */}
       <section className="card" style={{ marginTop: "2rem" }}>
