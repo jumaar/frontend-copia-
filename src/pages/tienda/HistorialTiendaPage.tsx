@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getHistorialTienda, getTiendasSobrinas } from '../../services/api';
 import '../../components/TablaTransacciones.css';
@@ -560,7 +560,7 @@ const HistorialTiendaPage: React.FC = () => {
                             <strong>❄️ Neveras:</strong> {store.neveras?.length || 0}
                             {store.neveras && store.neveras.length > 0 && (
                               <span style={{ marginLeft: '0.5rem' }}>
-                                {store.neveras.map((n, i) => (
+                                {store.neveras.map((n, _i) => (
                                   <span key={n.id_nevera} style={{
                                     display: 'inline-block', marginRight: '0.35rem',
                                     padding: '0.1rem 0.4rem', borderRadius: '3px', fontSize: '0.75rem',

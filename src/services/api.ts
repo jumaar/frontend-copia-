@@ -880,6 +880,43 @@ export const finalizarSurtidoNevera = async (idNevera: number) => {
 };
 
 /**
+ * Retira empaques en estado 5 (para cambio) pasándolos a estado 6.
+ * @param data Objeto con timestamp y pending_packages.
+ * @returns Respuesta con empaques procesados y no procesados.
+ */
+export const retirarEmpaquesEstado5 = async (data: {
+  timestamp: number;
+  pending_packages: Array<{ epc?: string; id_empaque?: number }>;
+}) => {
+  try {
+    const response = await api.patch('/logistica/decincoaseis', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al retirar empaques estado 5:', error);
+    throw error;
+  }
+};
+
+/**
+ * Valida empaques escaneados en la nevera (transición estado 2/4 → 3).
+ * @param data Objeto con id_nevera, timestamp y pending_packages.
+ * @returns Respuesta con empaques procesados y no procesados.
+ */
+export const validacionDosaTres = async (data: {
+  id_nevera: number;
+  timestamp: number;
+  pending_packages: Array<{ epc?: string; id_empaque?: number }>;
+}) => {
+  try {
+    const response = await api.patch('/neveras/validacionDosaTres', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error en validación de empaques:', error);
+    throw error;
+  }
+};
+
+/**
  * Inicia el proceso de distribución de neveras.
  * @returns Respuesta de la API.
  */

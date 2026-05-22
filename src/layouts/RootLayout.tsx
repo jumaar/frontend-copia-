@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Alert from '../components/Alert';
-import SurtirProcesoModal from '../components/SurtirProcesoModal';
+import SurtirFlujoModal from '../components/SurtirFlujoModal';
 import './RootLayout.css';
 import { useAuth } from '../contexts/AuthContext';
 import { useSurtido } from '../contexts/SurtidoContext';
@@ -80,11 +80,10 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
 
       {/* Modal global de surtido para usuarios de logística */}
       {user?.role === 'logistica' && surtidoEnCurso && (
-        <SurtirProcesoModal
+        <SurtirFlujoModal
           isOpen={isModalOpen}
           onClose={finalizarSurtido}
           idNevera={surtidoEnCurso.idNevera}
-          stockData={surtidoEnCurso.stockData}
           nombreTienda={surtidoEnCurso.nombreTienda}
         />
       )}
