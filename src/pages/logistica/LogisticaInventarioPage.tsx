@@ -16,11 +16,24 @@ interface Empaque {
   EPC_id: string;
 }
 
+interface EmpaqueEstado6Item {
+  id_empaque: number;
+  peso_exacto_g: string;
+  EPC_id: string;
+  porcentaje_transcurrido: number;
+}
+
+interface EmpaqueEstado6Data {
+  logistica_prioridad: EmpaqueEstado6Item[];
+  vencidos: EmpaqueEstado6Item[];
+}
+
 interface Producto {
   id_producto: number;
   nombre_producto: string;
-  peso_nominal: number; // El peso nominal viene directamente de la API
+  peso_nominal: number;
   empaques: Empaque[];
+  empaques_estado_6?: EmpaqueEstado6Data;
 }
 
 interface EmpaquePrioridad {
@@ -92,6 +105,7 @@ const LogisticaInventarioPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedProducts, setExpandedProducts] = useState<Set<number>>(new Set());
+  const [expandedVencidosProducts, setExpandedVencidosProducts] = useState<Set<number>>(new Set());
   const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
   const [expandedPrioridadCities, setExpandedPrioridadCities] = useState<Set<number>>(new Set());
   const [expandedPrioridadNeveras, setExpandedPrioridadNeveras] = useState<Set<number>>(new Set());
@@ -198,6 +212,16 @@ const LogisticaInventarioPage: React.FC = () => {
       newExpanded.add(productId);
     }
     setExpandedProducts(newExpanded);
+  };
+
+  const toggleVencidosProductExpansion = (productId: number) => {
+    const newExpanded = new Set(expandedVencidosProducts);
+    if (newExpanded.has(productId)) {
+      newExpanded.delete(productId);
+    } else {
+      newExpanded.add(productId);
+    }
+    setExpandedVencidosProducts(newExpanded);
   };
 
   const toggleCityExpansion = (ciudad: string) => {
@@ -482,6 +506,58 @@ const LogisticaInventarioPage: React.FC = () => {
                                   <th style={{ width: "150px" }}>Peso (g)</th>
                                   <th>EPC ID</th>
                                 </tr>
+                                {producto.empaques_estado_6?.logistica_prioridad && producto.empaques_estado_6.logistica_prioridad.length > 0 &&
+                                  producto.empaques_estado_6.logistica_prioridad.map((empaque) => (
+                                    <tr
+                                      key={`prioridad-${producto.id_producto}-${empaque.id_empaque}`}
+                                      style={{
+                                        borderBottom: "1px solid #f59e0b",
+                                        background: "#fffbeb",
+                                      }}
+                                    >
+                                      <td style={{ fontWeight: "bold", color: "#b45309" }}>
+                                        <span style={{
+                                          display: "inline-block",
+                                          padding: "0.1rem 0.4rem",
+                                          borderRadius: "3px",
+                                          backgroundColor: "#ef4444",
+                                          color: "white",
+                                          fontSize: "0.65rem",
+                                          fontWeight: "bold",
+                                          marginRight: "0.35rem",
+                                          verticalAlign: "middle",
+                                          textTransform: "uppercase",
+                                        }}>
+                                          PRIORIDAD
+                                        </span>
+                                        {empaque.id_empaque}
+                                      </td>
+                                      <td style={{ fontWeight: "bold", color: "#b45309" }}>
+                                        {producto.nombre_producto}
+                                      </td>
+                                      <td style={{ fontWeight: "bold", color: "#b45309" }}>
+                                        {parseFloat(empaque.peso_exacto_g).toFixed(2)} g
+                                      </td>
+                                      <td>
+                                        <span style={{ fontWeight: "bold", color: "#b45309" }}>
+                                          {empaque.EPC_id}
+                                        </span>
+                                        <span style={{
+                                          display: "inline-block",
+                                          marginLeft: "0.5rem",
+                                          padding: "0.1rem 0.35rem",
+                                          borderRadius: "4px",
+                                          backgroundColor: empaque.porcentaje_transcurrido >= 90 ? "#fecaca" : empaque.porcentaje_transcurrido >= 75 ? "#fef3c7" : "#bbf7d0",
+                                          color: empaque.porcentaje_transcurrido >= 90 ? "#991b1b" : empaque.porcentaje_transcurrido >= 75 ? "#b45309" : "#166534",
+                                          fontSize: "0.75rem",
+                                          fontWeight: "bold",
+                                        }}>
+                                          {empaque.porcentaje_transcurrido.toFixed(0)}%
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))
+                                }
                                 {producto.empaques.map((empaque, index) => (
                                   <tr
                                     key={`${producto.id_producto}-${index}`}
@@ -525,6 +601,145 @@ const LogisticaInventarioPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Sección: Empaques Vencidos (tabla simple) */}
+      {(() => {
+        const todosVencidos = inventarioData?.productos_por_logistica
+          ?.flatMap((producto) =>
+            (producto.empaques_estado_6?.vencidos || []).map((empaque) => ({
+              ...empaque,
+              id_producto: producto.id_producto,
+              nombre_producto: producto.nombre_producto,
+            }))
+          ) || [];
+
+        if (todosVencidos.length === 0) return null;
+
+        const agrupadosPorProducto = todosVencidos.reduce<
+          Record<number, typeof todosVencidos>
+        >((acc, empaque) => {
+          if (!acc[empaque.id_producto]) {
+            acc[empaque.id_producto] = [];
+          }
+          acc[empaque.id_producto].push(empaque);
+          return acc;
+        }, {});
+
+        return (
+          <section className="card" style={{ marginTop: "1rem" }}>
+            <div style={{ padding: "1rem" }}>
+              <h2 style={{ marginBottom: "1rem", color: "#dc2626" }}>
+                Empaques Vencidos
+              </h2>
+              <div className="products-container" style={{ overflowX: "auto" }}>
+                <table className="products-table" style={{ marginTop: "1rem", minWidth: "950px" }}>
+                  <tbody>
+                    {Object.entries(agrupadosPorProducto).map(
+                      ([idProducto, empaques]) => {
+                        const productoId = Number(idProducto);
+                        const nombreProducto = empaques[0].nombre_producto;
+                        const isExpanded = expandedVencidosProducts.has(productoId);
+
+                        return (
+                          <React.Fragment key={`vencidos-tabla-${idProducto}`}>
+                            <tr
+                              className="product-header-row"
+                              style={{
+                                backgroundColor: "#fef2f2",
+                                borderBottom: "2px solid #fca5a5",
+                              }}
+                            >
+                              <td colSpan={4}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    padding: "0.5rem",
+                                    gap: "1rem",
+                                  }}
+                                >
+                                  <span style={{ fontWeight: "bold", color: "#dc2626" }}>
+                                    {idProducto} - {nombreProducto}
+                                  </span>
+                                  <button
+                                    onClick={() => toggleVencidosProductExpansion(productoId)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      fontWeight: "bold",
+                                      color: "#dc2626",
+                                      textDecoration: "underline",
+                                      padding: "0.25rem 0.5rem",
+                                    }}
+                                  >
+                                    Ver {empaques.length} empaques vencidos{" "}
+                                    {isExpanded ? "▲" : "▼"}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                            {isExpanded && (
+                              <>
+                                <tr
+                                  className="empaque-header-row"
+                                  style={{
+                                    backgroundColor: "var(--color-card-bg)",
+                                    fontWeight: "bold",
+                                    color: "var(--color-text-secondary)",
+                                  }}
+                                >
+                                  <th style={{ width: "100px" }}>ID Emp.</th>
+                                  <th style={{ width: "200px" }}>Producto</th>
+                                  <th style={{ width: "120px" }}>Peso (g)</th>
+                                  <th>EPC</th>
+                                </tr>
+                                {empaques.map((empaque) => (
+                                  <tr
+                                    key={`vencidos-tabla-emp-${empaque.id_empaque}`}
+                                    style={{
+                                      borderBottom: "1px solid var(--color-border)",
+                                      backgroundColor: "#fff5f5",
+                                    }}
+                                  >
+                                    <td>{empaque.id_empaque}</td>
+                                    <td>{empaque.nombre_producto}</td>
+                                    <td>{parseFloat(empaque.peso_exacto_g).toFixed(2)} g</td>
+                                    <td>
+                                      <span style={{ fontWeight: "bold", color: "#dc2626" }}>
+                                        {empaque.EPC_id}
+                                      </span>
+                                      <span
+                                        style={{
+                                          display: "inline-block",
+                                          marginLeft: "0.5rem",
+                                          padding: "0.1rem 0.35rem",
+                                          borderRadius: "4px",
+                                          backgroundColor: empaque.porcentaje_transcurrido >= 90 ? "#fecaca" : empaque.porcentaje_transcurrido >= 75 ? "#fef3c7" : "#bbf7d0",
+                                          color: empaque.porcentaje_transcurrido >= 90 ? "#991b1b" : empaque.porcentaje_transcurrido >= 75 ? "#b45309" : "#166534",
+                                          fontSize: "0.75rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {empaque.porcentaje_transcurrido.toFixed(0)}%
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </>
+                            )}
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
+
       {/* Sección del botón de distribuir */}
       <div style={{ marginTop: "2rem", textAlign: "center", padding: "1rem" }}>
         {lastDistributionTime && (
@@ -559,26 +774,11 @@ const LogisticaInventarioPage: React.FC = () => {
       </div>
 
       {/* Sección: Empaques con Prioridad (para_cambio) */}
-      {(() => {
-        const hasParaCambio = !!(inventarioData?.para_cambio && inventarioData.para_cambio.length > 0);
-        const hasVencidos = !!(inventarioData?.vencidos && inventarioData.vencidos.length > 0);
-        if (!hasParaCambio && !hasVencidos) {
-          return (
-            <div style={{ margin: "1rem", padding: "1rem", background: "#fef3c7", borderRadius: "8px", textAlign: "center" }}>
-              <p style={{ margin: 0, color: "#b45309", fontWeight: "bold" }}>
-                {inventarioData ? "No hay empaques con prioridad ni vencidos" : "Cargando datos..."}
-              </p>
-            </div>
-          );
-        }
-        return null;
-      })()}
-
       {inventarioData?.para_cambio && inventarioData.para_cambio.length > 0 && (
         <section className="card" style={{ marginTop: "1rem" }}>
           <div style={{ padding: "1rem" }}>
             <h2 style={{ marginBottom: "1rem", color: "var(--color-text-primary)" }}>
-              Empaques con Prioridad
+              EMPAQUES CON PRIORIDAD EN NEVERA
             </h2>
             <div style={{ display: "grid", gap: "1rem" }}>
               {inventarioData.para_cambio
@@ -782,7 +982,7 @@ const LogisticaInventarioPage: React.FC = () => {
         <section className="card" style={{ marginTop: "1rem" }}>
           <div style={{ padding: "1rem" }}>
             <h2 style={{ marginBottom: "1rem", color: "#dc2626" }}>
-              Empaques Vencidos
+              EMPAQUES VENCIDOS EN NEVERA
             </h2>
             <div style={{ display: "grid", gap: "1rem" }}>
               {inventarioData.vencidos
