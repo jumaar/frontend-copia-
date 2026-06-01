@@ -347,21 +347,48 @@ const LogisticaInventarioPage: React.FC = () => {
             </div>
           ) : inventarioData ? (
             <>
-              {/* Calcular peso total de todos los productos */}
+              {/* Calcular peso total de todos los productos incluyendo estado 6 */}
               {(() => {
                 const pesoTotal =
                   inventarioData!.productos_por_logistica.reduce(
                     (total: number, producto: Producto) => {
-                      const pesoProducto = producto.empaques.reduce(
+                      const pesoE2 = producto.empaques.reduce(
                         (sum: number, empaque: Empaque) => {
                           return sum + parseFloat(empaque.peso_exacto_g);
                         },
                         0
                       );
-                      return total + pesoProducto;
+                      const pesoPrioridad = (producto.empaques_estado_6?.logistica_prioridad || []).reduce(
+                        (sum, e) => sum + parseFloat(e.peso_exacto_g),
+                        0
+                      );
+                      const pesoVencidosLogistica = (producto.empaques_estado_6?.vencidos || []).reduce(
+                        (sum, e) => sum + parseFloat(e.peso_exacto_g),
+                        0
+                      );
+                      return total + pesoE2 + pesoPrioridad + pesoVencidosLogistica;
                     },
                     0
                   );
+
+                const totalEmpaquesAll = inventarioData!.productos_por_logistica.reduce(
+                  (sum, p) =>
+                    sum +
+                    p.empaques.length +
+                    (p.empaques_estado_6?.logistica_prioridad?.length || 0) +
+                    (p.empaques_estado_6?.vencidos?.length || 0),
+                  0
+                );
+
+                const totalE2 = inventarioData!.productos_por_logistica.reduce(
+                  (sum, p) => sum + p.empaques.length, 0
+                );
+                const totalPrioridad = inventarioData!.productos_por_logistica.reduce(
+                  (sum, p) => sum + (p.empaques_estado_6?.logistica_prioridad?.length || 0), 0
+                );
+                const totalVencidosLog = inventarioData!.productos_por_logistica.reduce(
+                  (sum, p) => sum + (p.empaques_estado_6?.vencidos?.length || 0), 0
+                );
                 return (
                   <div
                     style={{
@@ -406,8 +433,14 @@ const LogisticaInventarioPage: React.FC = () => {
                           color: "var(--color-text-secondary)",
                           fontSize: "0.9rem",
                         }}
-                      >
-                        {inventarioData.total_empaques} empaques total
+                       >
+                        {totalEmpaquesAll} empaques total
+                        {" "}
+                        <span style={{ color: "var(--color-text-secondary)", fontSize: "0.8rem" }}>
+                          ({totalE2} normales
+                          {totalPrioridad > 0 && <span style={{ color: "#b45309" }}>, {totalPrioridad} prioridad</span>}
+                          {totalVencidosLog > 0 && <span style={{ color: "#dc2626" }}>, {totalVencidosLog} vencidos</span>})
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -481,7 +514,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                       padding: "0.25rem 0.5rem",
                                     }}
                                   >
-                                    Ver {producto.empaques.length} empaques{" "}
+                                    Ver {producto.empaques.length + (producto.empaques_estado_6?.logistica_prioridad?.length || 0)} empaques{" "}
                                     {expandedProducts.has(producto.id_producto)
                                       ? "▲"
                                       : "▼"}
