@@ -902,6 +902,22 @@ export const retirarEmpaquesEstado5 = async (data: {
 };
 
 /**
+ * Da de baja un empaque vencido (estado 6 → 7).
+ * Solo accesible para administradores.
+ * @param idEmpaque El ID del empaque vencido a dar de baja.
+ * @returns Respuesta del servidor.
+ */
+export const darDeBajaEmpaque = async (idEmpaque: number) => {
+  try {
+    const response = await api.patch('/logistica/seisasiete', { id_empaque: idEmpaque });
+    return response.data;
+  } catch (error) {
+    console.error(`Error al dar de baja empaque ${idEmpaque}:`, error);
+    throw error;
+  }
+};
+
+/**
  * Valida empaques escaneados en la nevera (transición estado 2/4 → 3).
  * @param data Objeto con id_nevera, timestamp y pending_packages.
  * @returns Respuesta con empaques procesados y no procesados.

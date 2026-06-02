@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   getLogistica,
   getNeverasSurtir,
+  darDeBajaEmpaque,
 } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSurtido } from "../../contexts/SurtidoContext";
@@ -829,7 +830,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                 borderBottom: "2px solid #fca5a5",
                               }}
                             >
-                              <td colSpan={4}>
+                              <td colSpan={5}>
                                 <div
                                   style={{
                                     display: "flex",
@@ -874,6 +875,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                   <th style={{ width: "200px" }}>Producto</th>
                                   <th style={{ width: "120px" }}>Peso (g)</th>
                                   <th>EPC</th>
+                                  {esAdmin && <th style={{ width: "90px" }}>Acción</th>}
                                 </tr>
                                 {empaques.map((empaque) => (
                                   <tr
@@ -905,6 +907,38 @@ const LogisticaInventarioPage: React.FC = () => {
                                         {empaque.porcentaje_transcurrido.toFixed(0)}%
                                       </span>
                                     </td>
+                                    {esAdmin && (
+                                      <td>
+                                        <button
+                                          onClick={async () => {
+                                            if (!window.confirm(`¿Dar de baja el empaque ${empaque.id_empaque} del producto ${empaque.nombre_producto}?`)) return;
+                                            try {
+                                              await darDeBajaEmpaque(empaque.id_empaque);
+                                              alert(`Empaque ${empaque.id_empaque} dado de baja exitosamente.`);
+                                              if (esAdmin && selectedUserId) {
+                                                handleSeleccionarLogistica(selectedUserId);
+                                              } else {
+                                                fetchLogisticaData();
+                                              }
+                                            } catch (err: any) {
+                                              alert(err.response?.data?.message || 'Error al dar de baja el empaque.');
+                                            }
+                                          }}
+                                          style={{
+                                            padding: "0.2rem 0.4rem",
+                                            backgroundColor: "#dc2626",
+                                            color: "white",
+                                            border: "none",
+                                            borderRadius: "4px",
+                                            cursor: "pointer",
+                                            fontWeight: "bold",
+                                            fontSize: "0.75rem",
+                                          }}
+                                        >
+                                          Dar de baja
+                                        </button>
+                                      </td>
+                                    )}
                                   </tr>
                                 ))}
                               </>
