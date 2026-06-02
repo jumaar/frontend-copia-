@@ -477,11 +477,15 @@ export const getGestionLogisticaByUser = async (idUsuario: number) => {
 
 /**
  * Obtiene los datos específicos del usuario logístico actual.
+ * Para admin/superadmin: sin idUsuario devuelve lista de usuarios_logistica,
+ * con idUsuario devuelve el inventario del usuario especificado.
+ * @param idUsuario ID del usuario logística a consultar (admin/superadmin).
  * @returns Los datos del usuario logístico incluyendo empresa y vehículo.
  */
-export const getLogistica = async () => {
+export const getLogistica = async (idUsuario?: number) => {
   try {
-    const response = await api.get('/logistica');
+    const params = idUsuario ? `?id_usuario=${idUsuario}` : '';
+    const response = await api.get(`/logistica${params}`);
     return response.data;
   } catch (error) {
     console.error('Error al obtener los datos de logística:', error);

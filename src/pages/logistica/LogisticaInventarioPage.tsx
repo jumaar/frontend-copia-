@@ -94,6 +94,15 @@ interface NeverasSurtirResponse {
   neveras_activas: Nevera[];
   total_neveras: number;
 }
+
+interface UsuarioLogistica {
+  id_usuario: number;
+  nombre_usuario: string;
+  apellido_usuario: string;
+  email: string;
+  celular: string;
+}
+
 const LogisticaInventarioPage: React.FC = () => {
   const { user } = useAuth();
   const { iniciarSurtido } = useSurtido();
@@ -126,6 +135,58 @@ const LogisticaInventarioPage: React.FC = () => {
   const [isDistribuirInventarioModalOpen, setIsDistribuirInventarioModalOpen] =
     useState(false);
   const [lastDistributionTime, setLastDistributionTime] = useState<string | null>(null);
+
+  const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  const [usuariosLogistica, setUsuariosLogistica] = useState<UsuarioLogistica[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false);
+
+  const fetchUsuariosLogistica = async () => {
+    try {
+      setLoadingUsuarios(true);
+      setError(null);
+      const response = await getLogistica();
+      if (response.usuarios_logistica && Array.isArray(response.usuarios_logistica)) {
+        setUsuariosLogistica(response.usuarios_logistica);
+      } else {
+        setUsuariosLogistica([]);
+      }
+    } catch (err: any) {
+      console.error("Error fetching usuarios logistica:", err);
+      setError("Error al cargar la lista de usuarios logística.");
+    } finally {
+      setLoadingUsuarios(false);
+      setLoading(false);
+    }
+  };
+
+  const handleSeleccionarLogistica = async (idUsuario: number) => {
+    try {
+      setSelectedUserId(idUsuario);
+      setShowUserDropdown(false);
+      setLoading(true);
+      setError(null);
+      const response = await getLogistica(idUsuario);
+      if ("productos_por_logistica" in response) {
+        setInventarioData(response as LogisticaInventarioResponse);
+        setSelectedLogisticaId(response.id_logistica_usuario);
+        setLastDistributionTime(response.ultima_hora_calificacion || null);
+      } else {
+        throw new Error("No se encontraron los datos de inventario.");
+      }
+    } catch (err: any) {
+      console.error("Error fetching logistica data:", err);
+      if (err.response?.status === 401) {
+        setError("Sesión expirada. Redirigiendo al login...");
+        window.location.href = "/login";
+      } else {
+        setError("Error al cargar los datos de logística. Inténtalo de nuevo.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchLogisticaData = async () => {
     try {
@@ -179,7 +240,11 @@ const LogisticaInventarioPage: React.FC = () => {
 
   useEffect(() => {
     if (user?.id) {
-      fetchLogisticaData();
+      if (esAdmin) {
+        fetchUsuariosLogistica();
+      } else {
+        fetchLogisticaData();
+      }
     }
   }, [user?.id]);
 
@@ -318,17 +383,99 @@ const LogisticaInventarioPage: React.FC = () => {
     fetchLogisticaData();
   };
 
-  if (loading) {
+  if (loading && !esAdmin) {
     return <div className="management-page">Cargando inventario...</div>;
+  }
+
+  if (esAdmin && loadingUsuarios) {
+    return <div className="management-page">Cargando usuarios logística...</div>;
   }
 
   return (
     <div className="management-page">
       <div className="cuentas-header">
-        <h1>Inventario Recibido</h1>
-        <p>Empaques listos y confirmados para entregas en tiendas</p>
+        <h1>{esAdmin ? 'Inventario de Logística' : 'Inventario Recibido'}</h1>
+        <p>{esAdmin ? 'Selecciona un usuario logística para consultar su inventario' : 'Empaques listos y confirmados para entregas en tiendas'}</p>
       </div>
 
+      {esAdmin && (
+        <div className="usuario-selector" style={{ marginBottom: '1.5rem' }}>
+          <div className="selector-container" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <h3 style={{ color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>
+              SELECCIONAR LOGÍSTICA:
+            </h3>
+            {usuariosLogistica.length === 0 ? (
+              <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+                No hay usuarios logística relacionados disponibles.
+              </p>
+            ) : (
+              <div className="meses-dropdown">
+                <button
+                  className="dropdown-toggle"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                >
+                  {selectedUserId && usuariosLogistica.length > 0 ? (
+                    <span>
+                      {(() => {
+                        const usuario = usuariosLogistica.find(u => u.id_usuario === selectedUserId);
+                        return usuario ? `${usuario.nombre_usuario} ${usuario.apellido_usuario} (ID: ${usuario.id_usuario})` : 'Selecciona una logística...';
+                      })()}
+                    </span>
+                  ) : (
+                    <span>Selecciona una logística...</span>
+                  )}
+                  <span className="dropdown-arrow">▼</span>
+                </button>
+                {showUserDropdown && (
+                  <div className="dropdown-menu">
+                    {usuariosLogistica.map(usuario => (
+                      <div key={usuario.id_usuario} className="dropdown-item">
+                        <span className="mes-fecha">
+                          {usuario.nombre_usuario} {usuario.apellido_usuario} (ID: {usuario.id_usuario})
+                        </span>
+                        <button
+                          className={`btn-consultar ${selectedUserId === usuario.id_usuario ? 'activo' : ''}`}
+                          onClick={() => handleSeleccionarLogistica(usuario.id_usuario)}
+                          disabled={loading}
+                        >
+                          {loading && selectedUserId === usuario.id_usuario ? 'Consultando...' : 'Consultar'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {selectedUserId && usuariosLogistica.length > 0 && (
+              <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '6px', border: '1px solid var(--color-border)' }}>
+                {(() => {
+                  const usuario = usuariosLogistica.find(u => u.id_usuario === selectedUserId);
+                  return usuario ? (
+                    <div>
+                      <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>
+                        {usuario.nombre_usuario} {usuario.apellido_usuario}
+                      </h4>
+                      <p style={{ margin: '0', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
+                        ID: {usuario.id_usuario} | Email: {usuario.email} | Celular: {usuario.celular}
+                      </p>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {esAdmin && !selectedUserId && !loading ? (
+        <div className="no-selection-message">
+          <div className="no-selection-content">
+            <span className="no-selection-icon">📋</span>
+            <h3>Selecciona un usuario logística para ver su inventario</h3>
+            <p>Elige un usuario de la lista desplegable para consultar sus productos en inventario.</p>
+          </div>
+        </div>
+      ) : (!esAdmin || (esAdmin && inventarioData)) ? (
       <section
         className="card"
         style={{ marginTop: "calc(var(--spacing-unit) * -4)" }}
@@ -633,6 +780,7 @@ const LogisticaInventarioPage: React.FC = () => {
           )}
         </div>
       </section>
+      ) : null }
 
       {/* Sección: Empaques Vencidos (tabla simple) */}
       {(() => {
@@ -773,7 +921,8 @@ const LogisticaInventarioPage: React.FC = () => {
         );
       })()}
 
-      {/* Sección del botón de distribuir */}
+      {/* Sección del botón de distribuir — solo logística */}
+      {!esAdmin && (
       <div style={{ marginTop: "2rem", textAlign: "center", padding: "1rem" }}>
         {lastDistributionTime && (
           <div style={{ marginBottom: "1rem", color: "white", fontSize: "0.9rem" }}>
@@ -805,6 +954,7 @@ const LogisticaInventarioPage: React.FC = () => {
           ⚠️ Solo presionar al salir del frigorífico
         </p>
       </div>
+      )}
 
       {/* Sección: Empaques con Prioridad (para_cambio) */}
       {inventarioData?.para_cambio && inventarioData.para_cambio.length > 0 && (
@@ -1205,7 +1355,9 @@ const LogisticaInventarioPage: React.FC = () => {
         </section>
       )}
 
-      {/* Nueva sección para neveras surtir */}
+      {/* Nueva sección para neveras surtir — solo logística */}
+      {!esAdmin && (
+        <>
       <section className="card" style={{ marginTop: "2rem" }}>
         <div style={{ padding: "1rem" }}>
           <h2
@@ -1489,14 +1641,18 @@ const LogisticaInventarioPage: React.FC = () => {
         onClose={handleCloseSurtirModal}
         idNevera={selectedNeveraId || 0}
       />
+        </>
+      )}
 
-      {/* Modal de distribuir inventario */}
+      {/* Modal de distribuir inventario — solo logística */}
+      {!esAdmin && (
       <DistribuirInventarioModal
         isOpen={isDistribuirInventarioModalOpen}
         onClose={handleCloseDistribuirInventarioModal}
         onDistribuir={handleDistribuirInventario}
         lastDistributionTime={lastDistributionTime}
       />
+      )}
     </div>
   );
 };
