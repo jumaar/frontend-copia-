@@ -982,4 +982,37 @@ export const getHistorialTienda = async (id_usuario: number, mes?: number, año?
   }
 };
 
+/**
+ * Ejecuta la validación global de empaques: escaneo de vencidos y calificación de productos.
+ * POST /api/neveras/calificacion — sin body, solo JWT.
+ * @returns Resumen de la calificación procesada.
+ */
+export const postValidacionEmpaques = async () => {
+  try {
+    const response = await api.post('/neveras/calificacion');
+    return response.data;
+  } catch (error) {
+    console.error('Error al ejecutar validación de empaques:', error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene los datos de surtido para una nevera específica con parámetros de ciudad y días.
+ * @param idNevera El ID de la nevera a surtir.
+ * @param idCiudad El ID de la ciudad para scope de neveras competidoras.
+ * @param diasExcluir Días para excluir neveras ya surtidas (0 = todas, default 0).
+ * @returns Datos completos de surtido: productos, estadísticas, para_cambio_5, resumen_logistica.
+ */
+export const getSurtidoPorNevera = async (idNevera: number, idCiudades: number[], diasExcluir: number = 0) => {
+  try {
+    const idsParam = idCiudades.join(',');
+    const response = await api.get(`/neveras/surtir?id_nevera=${idNevera}&id_ciudad=${idsParam}&dias_excluir=${diasExcluir}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener surtido de nevera ${idNevera}:`, error);
+    throw error;
+  }
+};
+
 export default api;

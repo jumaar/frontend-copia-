@@ -44,6 +44,8 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
   const [error, setError] = useState<string | null>(null);
   const [editedStocks, setEditedStocks] = useState<Record<number, { stock_minimo: number; stock_maximo: number }>>({});
   const [editedActivos, setEditedActivos] = useState<Record<number, boolean>>({});
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmInput, setConfirmInput] = useState("");
 
   useEffect(() => {
     if (isOpen && idNevera) {
@@ -89,75 +91,82 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
     }));
   };
 
-  const handleGuardarCambios = async () => {
+  const handleGuardarCambios = () => {
+    if (!neveraData) return;
+
+    // Validar que stock_minimo no sea mayor que stock_maximo
+    for (const producto of neveraData.productos) {
+      const editedMinimo = editedStocks[producto.id_producto]?.stock_minimo;
+      const editedMaximo = editedStocks[producto.id_producto]?.stock_maximo;
+      const stockMinimo = editedMinimo ?? producto.stock_minimo;
+      const stockMaximo = editedMaximo ?? producto.stock_maximo;
+
+      if (stockMinimo > stockMaximo) {
+        alert(`❌ Error en ${producto.nombre_producto}:\nEl stock mínimo (${stockMinimo}) no puede ser mayor que el stock máximo (${stockMaximo}).`);
+        return;
+      }
+    }
+
+    // Verificar si hay cambios que guardar
+    const hasChanges = neveraData.productos.some((producto) => {
+      const hasStockChanges = editedStocks[producto.id_producto]?.stock_minimo !== undefined ||
+        editedStocks[producto.id_producto]?.stock_maximo !== undefined;
+      const hasActivoChange = editedActivos[producto.id_producto] !== undefined;
+      return hasStockChanges || hasActivoChange;
+    });
+
+    if (!hasChanges) {
+      alert('No hay cambios para guardar');
+      return;
+    }
+
+    setShowConfirmModal(true);
+    setConfirmInput("");
+  };
+
+  const ejecutarGuardarCambios = async () => {
     if (!neveraData) return;
 
     try {
       console.log('🚀 Iniciando guardado de cambios...');
 
-      // Recopilar todos los cambios (stocks y estados activos)
       const stockUpdates: Array<{
         id_stock: number | null;
         id_producto?: number;
         stock_minimo: number;
         stock_maximo: number;
-        activo?: boolean; // Nuevo campo para estado activo
+        activo?: boolean;
       }> = [];
-
-      // Validar que stock_minimo no sea mayor que stock_maximo
-      for (const producto of neveraData.productos) {
-        const editedMinimo = editedStocks[producto.id_producto]?.stock_minimo;
-        const editedMaximo = editedStocks[producto.id_producto]?.stock_maximo;
-
-        // Usar valores editados o valores originales
-        const stockMinimo = editedMinimo ?? producto.stock_minimo;
-        const stockMaximo = editedMaximo ?? producto.stock_maximo;
-
-        // Validación: stock mínimo no puede ser mayor que stock máximo
-        if (stockMinimo > stockMaximo) {
-          alert(`❌ Error en ${producto.nombre_producto}:\nEl stock mínimo (${stockMinimo}) no puede ser mayor que el stock máximo (${stockMaximo}).`);
-          return; // Detener el proceso
-        }
-      }
 
       neveraData.productos.forEach((producto) => {
         const editedMinimo = editedStocks[producto.id_producto]?.stock_minimo;
         const editedMaximo = editedStocks[producto.id_producto]?.stock_maximo;
         const editedActivo = editedActivos[producto.id_producto];
 
-        // Incluir productos que tuvieron cambios en stock o estado activo
         const hasStockChanges = editedMinimo !== undefined || editedMaximo !== undefined;
         const hasActivoChange = editedActivo !== undefined;
 
         if (hasStockChanges || hasActivoChange) {
           if (producto.id_stock === null) {
-            // Crear nuevo registro - incluir id_producto e id_stock: null
             const updateItem: any = {
               id_stock: null,
               id_producto: producto.id_producto,
               stock_minimo: editedMinimo ?? producto.stock_minimo,
               stock_maximo: editedMaximo ?? producto.stock_maximo
             };
-            
-            // Agregar estado activo solo si se cambió
             if (hasActivoChange) {
               updateItem.activo = editedActivo;
             }
-            
             stockUpdates.push(updateItem);
           } else {
-            // Actualizar registro existente - incluir id_stock
             const updateItem: any = {
               id_stock: producto.id_stock,
               stock_minimo: editedMinimo ?? producto.stock_minimo,
               stock_maximo: editedMaximo ?? producto.stock_maximo
             };
-            
-            // Agregar estado activo solo si se cambió
             if (hasActivoChange) {
               updateItem.activo = editedActivo;
             }
-            
             stockUpdates.push(updateItem);
           }
         }
@@ -171,24 +180,18 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       }
 
       console.log('📡 Enviando petición PATCH...');
-
-      // Enviar la petición
       const response = await updateNeveraStocks(idNevera, stockUpdates);
-
       console.log('✅ Respuesta del servidor:', response);
 
-      // Procesar respuesta detallada
       const { resultados } = response;
       const exitosos = resultados?.exitosos || [];
       const errores = resultados?.errores || [];
 
-      // Construir mensaje detallado
       let mensaje = `✅ Procesamiento completado\n\n`;
       mensaje += `📊 Total procesados: ${resultados?.total_procesados || stockUpdates.length}\n`;
       mensaje += `✅ Exitosos: ${resultados?.exitosos_count || exitosos.length}\n`;
       mensaje += `❌ Errores: ${resultados?.errores_count || errores.length}\n\n`;
 
-      // Detalles de exitosos
       if (exitosos.length > 0) {
         mensaje += `✅ PRODUCTOS PROCESADOS:\n`;
         exitosos.forEach((item: any) => {
@@ -198,7 +201,6 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
         mensaje += `\n`;
       }
 
-      // Detalles de errores
       if (errores.length > 0) {
         mensaje += `❌ ERRORES ENCONTRADOS:\n`;
         errores.forEach((error: any) => {
@@ -207,22 +209,17 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
         mensaje += `\n`;
       }
 
-      // Mostrar mensaje detallado
       alert(mensaje);
 
-      // Limpiar los cambios editados (solo los exitosos)
       if (exitosos.length > 0) {
         setEditedStocks({});
         setEditedActivos({});
       }
 
-      // Refrescar los datos para mostrar los valores actualizados
       await fetchNeveraData();
 
     } catch (error: any) {
       console.error('Error al guardar cambios:', error);
-
-      // Manejar errores específicos
       if (error.response?.status === 400) {
         alert('❌ Error en los datos enviados. Verifique los valores.');
       } else if (error.response?.status === 403) {
@@ -233,6 +230,21 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
         alert('❌ Error al guardar los cambios. Inténtelo de nuevo.');
       }
     }
+  };
+
+  const handleConfirmarGuardar = () => {
+    if (confirmInput.trim() !== idNevera.toString()) {
+      alert('⚠️ Número de nevera incorrecto. Por favor escribe el número correcto de la nevera para confirmar.');
+      return;
+    }
+    setShowConfirmModal(false);
+    setConfirmInput("");
+    ejecutarGuardarCambios();
+  };
+
+  const handleCancelarConfirmacion = () => {
+    setShowConfirmModal(false);
+    setConfirmInput("");
   };
 
   const getCalificacionColor = (calificacion: string) => {
@@ -616,6 +628,159 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
           Cerrar
         </button>
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '30px',
+            maxWidth: '480px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '15px'
+            }}>
+              ⚠️
+            </div>
+            <h2 style={{
+              color: '#dc2626',
+              marginBottom: '15px',
+              fontSize: '22px',
+              fontWeight: 'bold'
+            }}>
+              ADVERTENCIA
+            </h2>
+            <p style={{
+              color: '#374151',
+              fontSize: '16px',
+              marginBottom: '10px',
+              lineHeight: '1.5'
+            }}>
+              Asegúrese de estar <strong>parado al frente de la nevera</strong> antes de confirmar los cambios.
+            </p>
+            <p style={{
+              color: '#6b7280',
+              fontSize: '14px',
+              marginBottom: '20px'
+            }}>
+              Verifique que el número de nevera que aparece en la etiqueta del equipo coincida con el mostrado aquí.
+            </p>
+            <div style={{
+              backgroundColor: '#fef3c7',
+              border: '2px solid #f59e0b',
+              borderRadius: '8px',
+              padding: '15px',
+              marginBottom: '20px'
+            }}>
+              <div style={{
+                fontSize: '36px',
+                fontWeight: 'bold',
+                color: '#b45309',
+                letterSpacing: '3px'
+              }}>
+                #{idNevera}
+              </div>
+              <p style={{
+                fontSize: '12px',
+                color: '#92400e',
+                marginTop: '5px',
+                marginBottom: 0
+              }}>
+                Número de nevera a confirmar
+              </p>
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '8px',
+                textAlign: 'left'
+              }}>
+                Escriba el número de la nevera para confirmar:
+              </label>
+              <input
+                type="text"
+                value={confirmInput}
+                onChange={(e) => setConfirmInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleConfirmarGuardar();
+                  }
+                }}
+                placeholder="Ej: 123"
+                autoFocus
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  fontSize: '18px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  letterSpacing: '2px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={handleCancelarConfirmacion}
+                style={{
+                  padding: '10px 24px',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmarGuardar}
+                disabled={confirmInput.trim() === ""}
+                style={{
+                  padding: '10px 24px',
+                  backgroundColor: confirmInput.trim() === "" ? '#9ca3af' : '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: confirmInput.trim() === "" ? 'not-allowed' : 'pointer',
+                  boxShadow: confirmInput.trim() === "" ? 'none' : '0 2px 4px rgba(220, 38, 38, 0.3)'
+                }}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

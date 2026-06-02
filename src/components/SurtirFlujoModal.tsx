@@ -37,6 +37,9 @@ interface ProductoNevera {
   mensaje_sistema: string;
   stock_en_tiempo_real: number;
   activo: boolean;
+  cantidad_a_surtir: number;
+  empaques_disponibles_logistica: number;
+  empaques_prioritarios_asignados: number;
 }
 
 interface NeveraCompletaData {
@@ -44,6 +47,7 @@ interface NeveraCompletaData {
     id_nevera: number;
     id_tienda: number;
     nombre_tienda: string;
+    hora_ultimo_surtido?: string;
   };
   estadisticas: {
     total_productos: number;
@@ -52,6 +56,17 @@ interface NeveraCompletaData {
   };
   productos: ProductoNevera[];
   para_cambio_5?: ParaCambio5;
+  resumen_logistica?: {
+    id_logistica: number;
+    total_empaques_estado_2: number;
+    total_empaques_prioritarios_estado_6: number;
+    neveras_competidoras_consideradas: number;
+    neveras_excluidas_por_surtido_reciente: number;
+    parametros: {
+      dias_excluir: number;
+      modo: string;
+    };
+  };
 }
 
 interface SurtirFlujoModalProps {
@@ -91,6 +106,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
   const [validando, setValidando] = useState(false);
   const [finalizando, setFinalizando] = useState(false);
   const [retirando, setRetirando] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmInput, setConfirmInput] = useState("");
 
 
   const isFromContext = !!(surtidoEnCurso && surtidoEnCurso.idNevera === idNevera);
@@ -136,10 +153,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
   };
 
   const productosASurtir = neveraData
-    ? neveraData.productos.filter((p) => {
-        const totalASurtir = Math.max(0, p.stock_ideal_final - p.stock_en_tiempo_real);
-        return totalASurtir > 0;
-      })
+    ? neveraData.productos.filter((p) => p.cantidad_a_surtir > 0)
     : [];
 
   const allConfirmed = productosASurtir.length > 0 && productosASurtir.every((p) => confirmations[p.id_producto]);
@@ -176,7 +190,12 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
     });
   };
 
-  const handleConfirmarInicio = async () => {
+  const handleConfirmarInicio = () => {
+    setShowConfirmModal(true);
+    setConfirmInput("");
+  };
+
+  const ejecutarConfirmarInicio = async () => {
     try {
       setLoading(true);
       const response = await iniciarSurtidoNevera(idNevera);
@@ -214,6 +233,21 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleConfirmarInicioConValidacion = () => {
+    if (confirmInput.trim() !== idNevera.toString()) {
+      alert('⚠️ Número de nevera incorrecto. Por favor escribe el número correcto de la nevera para confirmar.');
+      return;
+    }
+    setShowConfirmModal(false);
+    setConfirmInput("");
+    ejecutarConfirmarInicio();
+  };
+
+  const handleCancelarConfirmacion = () => {
+    setShowConfirmModal(false);
+    setConfirmInput("");
   };
 
   const playBeep = (type: 'success' | 'error') => {
@@ -549,13 +583,13 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <th style={thStyle}>Total a Surtir</th>
                       <th style={thStyle}>Stock Actual</th>
                       <th style={thStyle}>Stock Ideal</th>
+                      <th style={thStyle}>Disp. Logística</th>
+                      <th style={thStyle}>Prioritarios</th>
                       <th style={thStyle}>Calificación</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedProductos.map((producto) => {
-                      const totalASurtir = Math.max(0, producto.stock_ideal_final - producto.stock_en_tiempo_real);
-                      return (
+                    {sortedProductos.map((producto) => (
                         <tr key={producto.id_producto}>
                           <td style={tdStyleCenter}>
                             <div style={{
@@ -587,13 +621,19 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                             <div style={{ fontSize: '12px', color: '#6b7280' }}>{producto.peso_nominal_g}g</div>
                           </td>
                           <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '18px', color: '#059669' }}>
-                            {totalASurtir}
+                            {producto.cantidad_a_surtir}
                           </td>
                           <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px', color: producto.stock_en_tiempo_real === 0 ? '#ef4444' : '#10b981' }}>
                             {producto.stock_en_tiempo_real}
                           </td>
                           <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px' }}>
                             {producto.stock_ideal_final}
+                          </td>
+                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px', color: producto.empaques_disponibles_logistica > 0 ? '#059669' : '#ef4444' }}>
+                            {producto.empaques_disponibles_logistica}
+                          </td>
+                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px', color: producto.empaques_prioritarios_asignados > 0 ? '#f59e0b' : '#6b7280' }}>
+                            {producto.empaques_prioritarios_asignados}
                           </td>
                           <td style={tdStyleCenter}>
                             <span style={{
@@ -608,8 +648,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                             </span>
                           </td>
                         </tr>
-                      );
-                    })}
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1095,7 +1134,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
           </>
         )}
 
-        {fase === 'scanning' && (
+          {fase === 'scanning' && (
           <>
             <button
               onClick={handleCancelarRemoval}
@@ -1131,6 +1170,159 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
           </>
         )}
       </div>
+
+      {/* Modal de confirmación */}
+      {showConfirmModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '30px',
+            maxWidth: '480px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '15px'
+            }}>
+              ⚠️
+            </div>
+            <h2 style={{
+              color: '#dc2626',
+              marginBottom: '15px',
+              fontSize: '22px',
+              fontWeight: 'bold'
+            }}>
+              ADVERTENCIA
+            </h2>
+            <p style={{
+              color: '#374151',
+              fontSize: '16px',
+              marginBottom: '10px',
+              lineHeight: '1.5'
+            }}>
+              Asegúrese de estar <strong>parado al frente de la nevera</strong> antes de confirmar el surtido.
+            </p>
+            <p style={{
+              color: '#6b7280',
+              fontSize: '14px',
+              marginBottom: '20px'
+            }}>
+              Verifique que el número de nevera que aparece en la etiqueta del equipo coincida con el mostrado aquí.
+            </p>
+            <div style={{
+              backgroundColor: '#fef3c7',
+              border: '2px solid #f59e0b',
+              borderRadius: '8px',
+              padding: '15px',
+              marginBottom: '20px'
+            }}>
+              <div style={{
+                fontSize: '36px',
+                fontWeight: 'bold',
+                color: '#b45309',
+                letterSpacing: '3px'
+              }}>
+                #{idNevera}
+              </div>
+              <p style={{
+                fontSize: '12px',
+                color: '#92400e',
+                marginTop: '5px',
+                marginBottom: 0
+              }}>
+                Número de nevera a confirmar
+              </p>
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#374151',
+                marginBottom: '8px',
+                textAlign: 'left'
+              }}>
+                Escriba el número de la nevera para confirmar:
+              </label>
+              <input
+                type="text"
+                value={confirmInput}
+                onChange={(e) => setConfirmInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleConfirmarInicioConValidacion();
+                  }
+                }}
+                placeholder="Ej: 123"
+                autoFocus
+                style={{
+                  width: '100%',
+                  padding: '12px 15px',
+                  fontSize: '18px',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  letterSpacing: '2px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={handleCancelarConfirmacion}
+                style={{
+                  padding: '10px 24px',
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmarInicioConValidacion}
+                disabled={confirmInput.trim() === ""}
+                style={{
+                  padding: '10px 24px',
+                  backgroundColor: confirmInput.trim() === "" ? '#9ca3af' : '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: confirmInput.trim() === "" ? 'not-allowed' : 'pointer',
+                  boxShadow: confirmInput.trim() === "" ? 'none' : '0 2px 4px rgba(220, 38, 38, 0.3)'
+                }}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

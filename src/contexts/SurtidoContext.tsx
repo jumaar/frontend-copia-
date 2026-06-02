@@ -41,6 +41,9 @@ interface ProductoNevera {
   mensaje_sistema: string;
   stock_en_tiempo_real: number;
   activo: boolean;
+  cantidad_a_surtir: number;
+  empaques_disponibles_logistica: number;
+  empaques_prioritarios_asignados: number;
 }
 
 interface NeveraCompletaData {
@@ -48,6 +51,7 @@ interface NeveraCompletaData {
     id_nevera: number;
     id_tienda: number;
     nombre_tienda: string;
+    hora_ultimo_surtido?: string;
   };
   estadisticas: {
     total_productos: number;
@@ -56,6 +60,17 @@ interface NeveraCompletaData {
   };
   productos: ProductoNevera[];
   para_cambio_5?: ParaCambio5;
+  resumen_logistica?: {
+    id_logistica: number;
+    total_empaques_estado_2: number;
+    total_empaques_prioritarios_estado_6: number;
+    neveras_competidoras_consideradas: number;
+    neveras_excluidas_por_surtido_reciente: number;
+    parametros: {
+      dias_excluir: number;
+      modo: string;
+    };
+  };
 }
 
 type SurtidoPhase = 'review' | 'removal' | 'scanning';

@@ -3,11 +3,13 @@ import {
   getLogistica,
   getNeverasSurtir,
   darDeBajaEmpaque,
+  getSurtidoPorNevera,
+  postValidacionEmpaques,
 } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSurtido } from "../../contexts/SurtidoContext";
 import SurtirNeveraModal from "../../components/SurtirNeveraModal";
-import DistribuirInventarioModal from "../../components/DistribuirInventarioModal";
+import ParametrosSurtirModal from "../../components/ParametrosSurtirModal";
 import "./LogisticaPage.css";
 
 // Interface para la respuesta de logística que incluye el inventario
@@ -132,10 +134,24 @@ const LogisticaInventarioPage: React.FC = () => {
   const [showNeverasSection, setShowNeverasSection] = useState(false);
   const [isSurtirModalOpen, setIsSurtirModalOpen] = useState(false);
   const [selectedNeveraId, setSelectedNeveraId] = useState<number | null>(null);
-  const [distributing] = useState(false);
-  const [isDistribuirInventarioModalOpen, setIsDistribuirInventarioModalOpen] =
+  const [isParametrosSurtirModalOpen, setIsParametrosSurtirModalOpen] =
     useState(false);
+  const [surtirParamsNevera, setSurtirParamsNevera] = useState<{
+    idNevera: number;
+    nombreTienda: string;
+  } | null>(null);
   const [lastDistributionTime, setLastDistributionTime] = useState<string | null>(null);
+
+  const esValidacionDelDia = (): boolean => {
+    if (!lastDistributionTime) return false;
+    const hoy = new Date();
+    const ultima = new Date(lastDistributionTime);
+    return (
+      ultima.getFullYear() === hoy.getFullYear() &&
+      ultima.getMonth() === hoy.getMonth() &&
+      ultima.getDate() === hoy.getDate()
+    );
+  };
 
   const esAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const [usuariosLogistica, setUsuariosLogistica] = useState<UsuarioLogistica[]>([]);
@@ -346,15 +362,38 @@ const LogisticaInventarioPage: React.FC = () => {
   };
 
   const handleSurtirFlujo = (idNevera: number, nombreTienda: string) => {
-    iniciarSurtido({
-      idNevera,
-      nombreTienda,
-      stockData: [],
-      phase: 'review',
-      neveraData: null,
-      scannedEpcs: [],
-      confirmations: {},
-    });
+    setSurtirParamsNevera({ idNevera, nombreTienda });
+    setIsParametrosSurtirModalOpen(true);
+  };
+
+  const handleConfirmParametrosSurtir = async (idCiudades: number[], diasExcluir: number) => {
+    if (!surtirParamsNevera) return;
+
+    const { idNevera, nombreTienda } = surtirParamsNevera;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getSurtidoPorNevera(idNevera, idCiudades, diasExcluir);
+
+      setIsParametrosSurtirModalOpen(false);
+      setSurtirParamsNevera(null);
+
+      iniciarSurtido({
+        idNevera,
+        nombreTienda,
+        stockData: [],
+        phase: 'review',
+        neveraData: response,
+        scannedEpcs: [],
+        confirmations: {},
+      });
+    } catch (err: any) {
+      console.error('Error al obtener datos de surtido:', err);
+      alert(err.response?.data?.message || '❌ Error al obtener los datos de surtido. Inténtelo de nuevo.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseSurtirModal = () => {
@@ -367,21 +406,42 @@ const LogisticaInventarioPage: React.FC = () => {
     // Aquí podríamos agregar lógica adicional si es necesario
   };
 
-  const handleDistribuir = async () => {
-    setIsDistribuirInventarioModalOpen(true);
-  };
+  const [validandoEmpaques, setValidandoEmpaques] = useState(false);
 
-  const handleCloseDistribuirInventarioModal = () => {
-    setIsDistribuirInventarioModalOpen(false);
-  };
-
-  const handleDistribuirInventario = () => {
-    // Recargar datos de neveras después de la distribución
-    if (showNeverasSection) {
-      handleConsultarNeveras();
+  const handleValidarEmpaques = async () => {
+    if (!window.confirm('⚠️ ¿Ejecutar validación global de empaques?\n\nEsto realizará un escaneo general en busca de empaques vencidos y actualizará las calificaciones de todos los productos. Asegúrese de estar fuera del frigorífico.')) {
+      return;
     }
-    // Recargar datos de logística para actualizar ultima_hora_calificacion
-    fetchLogisticaData();
+
+    try {
+      setValidandoEmpaques(true);
+      setError(null);
+      const response = await postValidacionEmpaques();
+
+      const { resumen } = response;
+      let mensaje = `✅ ${response.message || 'Validación completada'}\n\n`;
+      mensaje += `📅 Hora: ${new Date(response.hora_calificacion).toLocaleString('es-CO')}\n`;
+      mensaje += `📍 Ciudad: ${resumen.ciudad_procesada?.nombre_ciudad || 'N/A'}\n`;
+      mensaje += `🧊 Neveras procesadas: ${resumen.neveras_procesadas}\n`;
+      mensaje += `📦 Productos procesados: ${resumen.productos_procesados}\n`;
+      mensaje += `⚠️ Empaques en para_cambio: ${resumen.empaques_en_para_cambio}`;
+
+      alert(mensaje);
+
+      // Actualizar lastDistributionTime con la hora de calificación
+      setLastDistributionTime(response.hora_calificacion);
+
+      // Recargar datos
+      if (showNeverasSection) {
+        handleConsultarNeveras();
+      }
+      fetchLogisticaData();
+    } catch (err: any) {
+      console.error('Error al validar empaques:', err);
+      alert(err.response?.data?.message || '❌ Error al ejecutar la validación de empaques.');
+    } finally {
+      setValidandoEmpaques(false);
+    }
   };
 
   if (loading && !esAdmin) {
@@ -955,34 +1015,34 @@ const LogisticaInventarioPage: React.FC = () => {
         );
       })()}
 
-      {/* Sección del botón de distribuir — solo logística */}
+      {/* Sección del botón de validar empaques — solo logística */}
       {!esAdmin && (
       <div style={{ marginTop: "2rem", textAlign: "center", padding: "1rem" }}>
         {lastDistributionTime && (
           <div style={{ marginBottom: "1rem", color: "white", fontSize: "0.9rem" }}>
-            Última distribución: {new Date(lastDistributionTime).toLocaleString('es-CO')}
+            Última validación: {new Date(lastDistributionTime).toLocaleString('es-CO')}
           </div>
         )}
         <button
-          onClick={handleDistribuir}
-          disabled={distributing}
+          onClick={handleValidarEmpaques}
+          disabled={validandoEmpaques}
           style={{
             padding: "1.5rem 4rem",
-            background: "linear-gradient(135deg, #fb923c 0%, #ea580c 100%)", // Orange gradient
+            background: "linear-gradient(135deg, #fb923c 0%, #ea580c 100%)",
             color: "white",
             border: "none",
             borderRadius: "12px",
-            cursor: distributing ? "not-allowed" : "pointer",
+            cursor: validandoEmpaques ? "not-allowed" : "pointer",
             fontSize: "1.5rem",
             fontWeight: "bold",
             boxShadow: "0 6px 12px rgba(234, 88, 12, 0.3)",
             transition: "all 0.2s ease",
-            opacity: distributing ? 0.7 : 1,
+            opacity: validandoEmpaques ? 0.7 : 1,
             width: "100%",
             maxWidth: "500px"
           }}
         >
-          {distributing ? "PROCESANDO..." : "DISTRIBUIR INVENTARIO"}
+          {validandoEmpaques ? "PROCESANDO..." : "VALIDAR EMPAQUES"}
         </button>
         <p style={{ marginTop: "1rem", color: "red", fontSize: "0.9rem", fontWeight: "bold" }}>
           ⚠️ Solo presionar al salir del frigorífico
@@ -1635,17 +1695,19 @@ const LogisticaInventarioPage: React.FC = () => {
                                             nevera.id_nevera, nevera.nombre_tienda
                                           )
                                         }
+                                        disabled={!esValidacionDelDia()}
+                                        title={!esValidacionDelDia() ? 'Debes ejecutar "Validar Empaques" hoy antes de surtir' : ''}
                                         style={{
                                           padding: "0.5rem 1rem",
-                                          backgroundColor: "#667eea",
+                                          backgroundColor: esValidacionDelDia() ? "#667eea" : "#9ca3af",
                                           color: "white",
                                           border: "none",
                                           borderRadius: "6px",
-                                          cursor: "pointer",
+                                          cursor: esValidacionDelDia() ? "pointer" : "not-allowed",
                                           minWidth: "80px",
                                           fontSize: "0.9rem",
                                           fontWeight: "bold",
-                                          opacity: 1,
+                                          opacity: esValidacionDelDia() ? 1 : 0.6,
                                         }}
                                       >
                                         Surtir
@@ -1678,13 +1740,16 @@ const LogisticaInventarioPage: React.FC = () => {
         </>
       )}
 
-      {/* Modal de distribuir inventario — solo logística */}
-      {!esAdmin && (
-      <DistribuirInventarioModal
-        isOpen={isDistribuirInventarioModalOpen}
-        onClose={handleCloseDistribuirInventarioModal}
-        onDistribuir={handleDistribuirInventario}
-        lastDistributionTime={lastDistributionTime}
+      {/* Modal de parámetros de surtido — solo logística */}
+      {!esAdmin && surtirParamsNevera && (
+      <ParametrosSurtirModal
+        isOpen={isParametrosSurtirModalOpen}
+        onClose={() => {
+          setIsParametrosSurtirModalOpen(false);
+          setSurtirParamsNevera(null);
+        }}
+        onConfirm={handleConfirmParametrosSurtir}
+        idNevera={surtirParamsNevera.idNevera}
       />
       )}
     </div>
