@@ -8,7 +8,6 @@ import SignUpPage from './pages/SignUpPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
-import StoreManagementPage from './pages/admin/StoreManagementPage';
 import FridgeManagementPage from './pages/admin/FridgeManagementPage';
 import GlobalAccountsPage from './pages/admin/GlobalAccountsPage';
 import FrigorificoPage from './pages/frigorifico/FrigorificoPage';
@@ -58,7 +57,6 @@ const AppContent: React.FC = () => {
               <Routes>
                 <Route path="dashboard" element={<AdminDashboardPage />} />
                 <Route path="users" element={<UserManagementPage />} />
-                <Route path="tiendas" element={<StoreManagementPage />} />
                 <Route path="logistica" element={<LogisticaInventarioPage />} />
                 <Route path="productos" element={<FrigorificoProductosPage />} />
                 <Route path="neveras" element={<FridgeManagementPage />} />

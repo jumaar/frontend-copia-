@@ -42,7 +42,6 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   const routeTitles: { [key: string]: string } = {
     '/admin/dashboard': 'Dashboard Admin',
     '/admin/users': 'Gestión de Usuarios',
-    '/admin/tiendas': 'Gestión de Tiendas',
     '/admin/frigorificos': 'Gestión de Frigoríficos',
     '/admin/logistica': 'Gestión de Logística',
     '/admin/productos': 'Gestión de Productos',

@@ -47,12 +47,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         </NavLink>
       </li>
       <li>
-        <NavLink to="/admin/tiendas" className="nav-item">
-          <NavIcon />
-          <span>Gestión de Tiendas</span>
-        </NavLink>
-      </li>
-      <li>
         <NavLink to="/admin/productos" className="nav-item">
           <NavIcon />
           <span>Gestión de Productos</span>
