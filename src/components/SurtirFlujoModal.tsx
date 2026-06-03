@@ -108,6 +108,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
   const [retirando, setRetirando] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmInput, setConfirmInput] = useState("");
+  const [expandedAlerts, setExpandedAlerts] = useState<Set<number>>(new Set());
 
 
   const isFromContext = !!(surtidoEnCurso && surtidoEnCurso.idNevera === idNevera);
@@ -178,6 +179,52 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
     }
   };
 
+  interface AlertaBadge {
+    count: number;
+    color: string;
+    bg: string;
+    tooltip: string[];
+    label: string;
+  }
+
+  const getAlertaBadge = (producto: ProductoNevera): AlertaBadge | null => {
+    const tooltips: string[] = [];
+    let maxSeverity = 0;
+    let color = '#dc2626';
+    let bg = '#fef2f2';
+    let label = 'VENCIDO';
+
+    const vencidos = neveraData?.para_cambio_5?.vencidos?.filter(
+      (e) => e.id_producto === producto.id_producto
+    ) || [];
+    vencidos.forEach((e) => {
+      tooltips.push(`VENCIDO — Retirar #${e.id_empaque}: ${e.epc}`);
+      if (4 > maxSeverity) { maxSeverity = 4; color = '#dc2626'; bg = '#fef2f2'; label = 'VENCIDO'; }
+    });
+
+    const paraCambio = neveraData?.para_cambio_5?.para_cambio?.filter(
+      (e) => e.id_producto === producto.id_producto
+    ) || [];
+    paraCambio.forEach((e) => {
+      tooltips.push(`PRIORITARIO — Retirar #${e.id_empaque}: ${e.epc}`);
+      if (3 > maxSeverity) { maxSeverity = 3; color = '#f59e0b'; bg = '#fef3c7'; label = 'PRIORITARIO'; }
+    });
+
+    if (producto.empaques_prioritarios_asignados > 0) {
+      tooltips.push(`RESURTIDO — Recibir ${producto.empaques_prioritarios_asignados} prioritario(s)`);
+      if (2 > maxSeverity) { maxSeverity = 2; color = '#3b82f6'; bg = '#eff6ff'; label = 'RESURTIDO'; }
+    }
+
+    if (producto.mensaje_sistema) {
+      tooltips.push(`AVISO — ${producto.mensaje_sistema}`);
+      if (2 > maxSeverity) { maxSeverity = 2; color = '#f59e0b'; bg = '#fef3c7'; label = 'AVISO'; }
+    }
+
+    if (tooltips.length === 0) return null;
+
+    return { count: tooltips.length, color, bg, tooltip: tooltips, label };
+  };
+
   const sortedProductos = productosASurtir.slice().sort((a, b) => {
     return getCalificacionOrder(a.calificacion_surtido) - getCalificacionOrder(b.calificacion_surtido);
   });
@@ -187,6 +234,25 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       const updated = { ...prev, [idProducto]: !prev[idProducto] };
       actualizarConfirmations(updated);
       return updated;
+    });
+    if (!confirmations[idProducto]) {
+      setExpandedAlerts((prev) => {
+        const next = new Set(prev);
+        next.delete(idProducto);
+        return next;
+      });
+    }
+  };
+
+  const handleToggleAlertExpand = (idProducto: number) => {
+    setExpandedAlerts((prev) => {
+      const next = new Set(prev);
+      if (next.has(idProducto)) {
+        next.delete(idProducto);
+      } else {
+        next.add(idProducto);
+      }
+      return next;
     });
   };
 
@@ -589,14 +655,20 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedProductos.map((producto) => (
-                        <tr key={producto.id_producto}>
+                    {sortedProductos.map((producto) => {
+                      const badge = getAlertaBadge(producto);
+                      const estaConfirmado = !!confirmations[producto.id_producto];
+                      const mostrarBadge = badge && !estaConfirmado;
+                      const estaExpandido = expandedAlerts.has(producto.id_producto);
+                      return (
+                        <React.Fragment key={producto.id_producto}>
+                          <tr>
                           <td style={tdStyleCenter}>
                             <div style={{
                               position: 'relative',
                               width: '50px',
                               height: '24px',
-                              backgroundColor: confirmations[producto.id_producto] ? '#10b981' : '#e5e7eb',
+                              backgroundColor: estaConfirmado ? '#10b981' : '#e5e7eb',
                               borderRadius: '12px',
                               cursor: 'pointer',
                               margin: '0 auto',
@@ -604,7 +676,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                               <div style={{
                                 position: 'absolute',
                                 top: '2px',
-                                left: confirmations[producto.id_producto] ? '26px' : '2px',
+                                left: estaConfirmado ? '26px' : '2px',
                                 width: '20px',
                                 height: '20px',
                                 backgroundColor: 'white',
@@ -612,13 +684,48 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                               }} />
                             </div>
-                            <div style={{ fontSize: '10px', marginTop: '2px', color: confirmations[producto.id_producto] ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
-                              {confirmations[producto.id_producto] ? 'CONFIRMADO' : 'PENDIENTE'}
+                            <div style={{ fontSize: '10px', marginTop: '2px', color: estaConfirmado ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
+                              {estaConfirmado ? 'CONFIRMADO' : 'PENDIENTE'}
                             </div>
                           </td>
                           <td style={tdStyle}>
-                            <div style={{ fontWeight: 'bold' }}>{producto.nombre_producto}</div>
-                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{producto.peso_nominal_g}g</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <div>
+                                <div style={{ fontWeight: 'bold' }}>{producto.nombre_producto}</div>
+                                <div style={{ fontSize: '12px', color: '#6b7280' }}>{producto.peso_nominal_g}g</div>
+                              </div>
+                              {mostrarBadge && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleAlertExpand(producto.id_producto);
+                                  }}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '5px 12px',
+                                    backgroundColor: badge.bg,
+                                    border: `2px solid ${badge.color}`,
+                                    borderRadius: '14px',
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    color: badge.color,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0,
+                                    WebkitTapHighlightColor: 'transparent',
+                                    minWidth: '44px',
+                                    minHeight: '34px',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                  }}
+                                >
+                                  <span>{badge.label}</span>
+                                  <span style={{ fontSize: '10px', marginLeft: '2px' }}>{estaExpandido ? '▲' : '▼'}</span>
+                                </button>
+                              )}
+                            </div>
                           </td>
                           <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '18px', color: '#059669' }}>
                             {producto.cantidad_a_surtir}
@@ -648,7 +755,31 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                             </span>
                           </td>
                         </tr>
-                      ))}
+                        {estaExpandido && mostrarBadge && badge && (
+                          <tr>
+                            <td colSpan={8} style={{ padding: '4px 12px 8px', border: 0, backgroundColor: '#f9fafb' }}>
+                              {badge.tooltip.map((linea, idx) => (
+                                <div key={idx} style={{
+                                  padding: '6px 10px',
+                                  margin: '3px 0',
+                                  backgroundColor: idx === 0 ? badge.bg : '#ffffff',
+                                  border: `1px solid ${badge.color}`,
+                                  borderLeft: `5px solid ${badge.color}`,
+                                  borderRadius: '6px',
+                                  fontSize: '13px',
+                                  color: badge.color,
+                                  fontWeight: 'bold',
+                                  wordBreak: 'break-word',
+                                }}>
+                                  {linea}
+                                </div>
+                              ))}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
