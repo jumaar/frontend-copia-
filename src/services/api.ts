@@ -1015,4 +1015,19 @@ export const getSurtidoPorNevera = async (idNevera: number, idCiudades: number[]
   }
 };
 
+/**
+ * Obtiene los datos de trazabilidad de un empaque por ID o código EPC.
+ * @param idOrEpc El id_empaque (número) o EPC_id (string) del empaque.
+ * @returns Objeto con los datos completos de trazabilidad del empaque.
+ */
+export const getEmpaque = async (idOrEpc: string | number) => {
+  try {
+    const response = await api.get(`/empaques/${encodeURIComponent(idOrEpc)}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener empaque ${idOrEpc}:`, error);
+    throw error;
+  }
+};
+
 export default api;

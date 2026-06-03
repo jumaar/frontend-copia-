@@ -76,6 +76,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Historial Tienda</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/trazabilidad" className="nav-item">
+          <NavIcon />
+          <span>Trazabilidad</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -106,6 +112,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         <NavLink to="/frigorifico/cuentas" className="nav-item">
           <NavIcon />
           <span>Cuentas Globales</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/trazabilidad" className="nav-item">
+          <NavIcon />
+          <span>Trazabilidad</span>
         </NavLink>
       </li>
     </>
@@ -152,6 +164,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Historial Tienda</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/trazabilidad" className="nav-item">
+          <NavIcon />
+          <span>Trazabilidad</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -182,6 +200,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         <NavLink to="/tienda/historial" className="nav-item">
           <NavIcon />
           <span>Historial</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/trazabilidad" className="nav-item">
+          <NavIcon />
+          <span>Trazabilidad</span>
         </NavLink>
       </li>
     </>

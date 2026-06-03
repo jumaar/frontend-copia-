@@ -21,6 +21,7 @@ import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
 import TiendaInventarioPage from './pages/tienda/TiendaInventarioPage';
 import CuentasTiendaPage from './pages/tienda/CuentasTiendaPage';
 import HistorialTiendaPage from './pages/tienda/HistorialTiendaPage';
+import TrazabilidadEmpaquePage from './pages/trazabilidad/TrazabilidadEmpaquePage';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 export const getDashboardPath = (role: string): string => {
@@ -116,6 +117,18 @@ const AppContent: React.FC = () => {
                 <Route path="cuentas" element={<CuentasTiendaPage />} />
                 <Route path="historial" element={<HistorialTiendaPage />} />
               </Routes>
+            </RootLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Trazabilidad de empaques - accesible por todos los roles */}
+      <Route
+        path="/trazabilidad"
+        element={
+          <ProtectedRoute allowedRoles={['superadmin', 'admin', 'frigorifico', 'logistica', 'tienda']}>
+            <RootLayout>
+              <TrazabilidadEmpaquePage />
             </RootLayout>
           </ProtectedRoute>
         }
