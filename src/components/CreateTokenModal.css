@@ -13,7 +13,7 @@
 }
 
 .modal-content {
-  background-color: var(--color-card-bg);
+  background-color: var(--color-modal-bg);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   width: 90%;

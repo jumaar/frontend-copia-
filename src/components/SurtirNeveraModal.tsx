@@ -281,7 +281,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'white',
+      backgroundColor: 'var(--color-modal-bg)',
       zIndex: 1000,
       display: 'flex',
       flexDirection: 'column'
@@ -289,13 +289,13 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       {/* Header */}
       <div style={{
         padding: '30px',
-        borderBottom: '2px solid #e5e7eb',
-        backgroundColor: '#f9fafb'
+        borderBottom: '2px solid var(--color-table-border)',
+        backgroundColor: 'var(--color-modal-header-bg)'
       }}>
         <div style={{ textAlign: 'center' }}>
           <h1 style={{
             margin: '0 0 10px 0',
-            color: '#111827',
+            color: 'var(--color-text-primary)',
             fontSize: '28px',
             fontWeight: 'bold'
           }}>
@@ -303,7 +303,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
           </h1>
           <h2 style={{
             margin: '0 0 15px 0',
-            color: '#374151',
+            color: 'var(--color-text-primary)',
             fontSize: '20px',
             fontWeight: '600'
           }}>
@@ -316,15 +316,15 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
               gap: '20px',
               marginTop: '15px',
               padding: '15px',
-              backgroundColor: '#f8fafc',
+              backgroundColor: 'var(--color-modal-header-bg)',
               borderRadius: '10px',
-              border: '2px solid #e2e8f0'
+              border: '2px solid var(--color-border-strong)'
             }}>
               <div style={{
                 textAlign: 'center',
                 fontSize: '18px',
                 fontWeight: 'bold',
-                color: '#1f2937'
+                color: 'var(--color-text-primary)'
               }}>
                 📦 Total productos: <span style={{ color: '#3b82f6' }}>{neveraData.productos.filter(p => p.calificacion_surtido !== 'Sin configurar').length}</span>
               </div>
@@ -332,7 +332,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                 textAlign: 'center',
                 fontSize: '18px',
                 fontWeight: 'bold',
-                color: '#1f2937'
+                color: 'var(--color-text-primary)'
               }}>
                 ✅ Con stock: <span style={{ color: '#10b981' }}>{neveraData.productos.filter(p => p.calificacion_surtido !== 'Sin configurar' && p.stock_en_tiempo_real > 0).length}</span>
               </div>
@@ -340,7 +340,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                 textAlign: 'center',
                 fontSize: '18px',
                 fontWeight: 'bold',
-                color: '#1f2937'
+                color: 'var(--color-text-primary)'
               }}>
                 ❌ Sin stock: <span style={{ color: '#ef4444' }}>{neveraData.productos.filter(p => p.calificacion_surtido !== 'Sin configurar' && p.stock_en_tiempo_real === 0).length}</span>
               </div>
@@ -363,8 +363,8 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
             padding: '40px',
             fontSize: '18px',
             color: '#ef4444',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
+            backgroundColor: 'var(--color-alert-error-bg)',
+            border: '1px solid var(--color-alert-error-border)',
             borderRadius: '8px'
           }}>
             {error}
@@ -377,85 +377,85 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
               width: '100%',
               borderCollapse: 'collapse',
               fontSize: '14px',
-              backgroundColor: 'white'
+              backgroundColor: 'var(--color-modal-bg)'
             }}>
               <thead style={{
                 position: 'sticky',
                 top: 0,
-                backgroundColor: '#f9fafb',
+                backgroundColor: 'var(--color-modal-header-bg)',
                 zIndex: 10
               }}>
                 <tr>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'left',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '200px'
                   }}>Producto</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '120px'
                   }}>Stock Actual</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '140px'
                   }}>Stock Mínimo</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '140px'
                   }}>Stock Máximo</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '100px'
                   }}>Venta Semanal</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '120px'
                   }}>Stock Ideal</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '120px'
                   }}>Calificación</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'center',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '100px'
                   }}>Activo</th>
                   <th style={{
                     padding: '12px 8px',
                     textAlign: 'left',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--color-table-border)',
                     fontWeight: 'bold',
-                    backgroundColor: '#f3f4f6',
+                    backgroundColor: 'var(--color-table-header-bg)',
                     minWidth: '200px'
                   }}>Mensaje del Sistema</th>
                 </tr>
@@ -463,24 +463,24 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
               <tbody>
                 {sortedProductos.map((producto) => (
                   <tr key={producto.id_producto} style={{
-                    backgroundColor: producto.tiene_stock ? 'white' : '#fafafa'
+                    backgroundColor: producto.tiene_stock ? 'var(--color-modal-bg)' : 'var(--color-modal-header-bg)'
                   }}>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)' }}>
                       <div>
                         <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
                           {producto.nombre_producto}
                         </div>
-                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                           {producto.descripcion_producto}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
                           {producto.peso_nominal_g}g
                         </div>
                       </div>
                     </td>
                     <td style={{
                       padding: '12px 8px',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid var(--color-table-border)',
                       textAlign: 'center',
                       fontWeight: 'bold',
                       fontSize: '16px',
@@ -489,7 +489,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                     }}>
                       {producto.stock_en_tiempo_real}
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center', minWidth: '140px' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center', minWidth: '140px' }}>
                       <input
                         type="number"
                         value={editedStocks[producto.id_producto]?.stock_minimo ?? producto.stock_minimo}
@@ -497,7 +497,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         style={{
                           width: '100px',
                           padding: '8px',
-                          border: '1px solid #d1d5db',
+                          border: '1px solid var(--color-border-strong)',
                           borderRadius: '4px',
                           textAlign: 'center',
                           fontSize: '16px',
@@ -505,7 +505,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         }}
                       />
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center', minWidth: '140px' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center', minWidth: '140px' }}>
                       <input
                         type="number"
                         value={editedStocks[producto.id_producto]?.stock_maximo ?? producto.stock_maximo}
@@ -513,7 +513,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         style={{
                           width: '100px',
                           padding: '8px',
-                          border: '1px solid #d1d5db',
+                          border: '1px solid var(--color-border-strong)',
                           borderRadius: '4px',
                           textAlign: 'center',
                           fontSize: '16px',
@@ -521,13 +521,13 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         }}
                       />
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center' }}>
                       {producto.venta_semanal}
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center' }}>
                       {producto.stock_ideal_final}
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center' }}>
                       <span style={{
                         backgroundColor: getCalificacionColor(producto.calificacion_surtido),
                         color: 'white',
@@ -540,13 +540,13 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         {producto.calificacion_surtido}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center' }}>
                       {/* Botón Slide Toggle */}
                       <div style={{
                         position: 'relative',
                         width: '50px',
                         height: '24px',
-                        backgroundColor: editedActivos[producto.id_producto] ?? producto.activo ? '#10b981' : '#e5e7eb',
+                        backgroundColor: editedActivos[producto.id_producto] ?? producto.activo ? '#10b981' : 'var(--color-badge-inactive)',
                         borderRadius: '12px',
                         cursor: 'pointer',
                         transition: 'background-color 0.3s ease'
@@ -561,7 +561,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                           left: editedActivos[producto.id_producto] ?? producto.activo ? '26px' : '2px',
                           width: '20px',
                           height: '20px',
-                          backgroundColor: 'white',
+                          backgroundColor: 'var(--color-modal-bg)',
                           borderRadius: '50%',
                           transition: 'left 0.3s ease',
                           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
@@ -576,7 +576,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                         {editedActivos[producto.id_producto] ?? producto.activo ? 'ACTIVO' : 'INACTIVO'}
                       </div>
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', fontSize: '13px' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', fontSize: '13px' }}>
                       {producto.mensaje_sistema}
                     </td>
                   </tr>
@@ -590,8 +590,8 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
       {/* Footer con botones */}
       <div style={{
         padding: '20px',
-        borderTop: '2px solid #e5e7eb',
-        backgroundColor: '#f9fafb',
+        borderTop: '2px solid var(--color-table-border)',
+        backgroundColor: 'var(--color-modal-header-bg)',
         display: 'flex',
         justifyContent: 'center',
         gap: '15px'
@@ -644,7 +644,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
           justifyContent: 'center'
         }}>
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--color-modal-bg)',
             borderRadius: '12px',
             padding: '30px',
             maxWidth: '480px',
@@ -667,7 +667,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
               ADVERTENCIA
             </h2>
             <p style={{
-              color: '#374151',
+              color: 'var(--color-text-primary)',
               fontSize: '16px',
               marginBottom: '10px',
               lineHeight: '1.5'
@@ -675,14 +675,14 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
               Asegúrese de estar <strong>parado al frente de la nevera</strong> antes de confirmar los cambios.
             </p>
             <p style={{
-              color: '#6b7280',
+              color: 'var(--color-text-secondary)',
               fontSize: '14px',
               marginBottom: '20px'
             }}>
               Verifique que el número de nevera que aparece en la etiqueta del equipo coincida con el mostrado aquí.
             </p>
             <div style={{
-              backgroundColor: '#fef3c7',
+              backgroundColor: 'var(--color-alert-warning-bg)',
               border: '2px solid #f59e0b',
               borderRadius: '8px',
               padding: '15px',
@@ -691,14 +691,14 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
               <div style={{
                 fontSize: '36px',
                 fontWeight: 'bold',
-                color: '#b45309',
+                color: 'var(--color-alert-warning-text)',
                 letterSpacing: '3px'
               }}>
                 #{idNevera}
               </div>
               <p style={{
                 fontSize: '12px',
-                color: '#92400e',
+                color: 'var(--color-alert-warning-text)',
                 marginTop: '5px',
                 marginBottom: 0
               }}>
@@ -710,7 +710,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
+                color: 'var(--color-text-primary)',
                 marginBottom: '8px',
                 textAlign: 'left'
               }}>
@@ -731,7 +731,7 @@ const SurtirNeveraModal: React.FC<SurtirNeveraModalProps> = ({ isOpen, onClose, 
                   width: '100%',
                   padding: '12px 15px',
                   fontSize: '18px',
-                  border: '2px solid #d1d5db',
+                  border: '2px solid var(--color-border-strong)',
                   borderRadius: '8px',
                   textAlign: 'center',
                   fontWeight: 'bold',

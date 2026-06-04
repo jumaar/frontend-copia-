@@ -39,11 +39,11 @@
 .logo {
   font-size: 1.8rem;
   font-weight: var(--font-weight-bold);
-  background: var(--color-background);
+  background: var(--color-logo);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0; /* Eliminamos el margen para un mejor centrado */
+  margin: 0;
 }
 
 
@@ -103,6 +103,15 @@
 
 .nav-item.active .nav-icon {
   background-color: #fff;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: calc(var(--spacing-unit) * 2);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* En móvil, la barra lateral está fuera de la pantalla por defecto */

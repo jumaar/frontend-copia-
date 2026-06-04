@@ -1129,7 +1129,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                     justifyContent: "space-between",
                                     alignItems: "center",
                                     padding: "0.75rem",
-                                    backgroundColor: "white",
+                                    backgroundColor: "var(--color-modal-bg)",
                                     border: "none",
                                     borderBottom: isNeveraExpanded ? "1px solid var(--color-border)" : "none",
                                     cursor: "pointer",
@@ -1333,7 +1333,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                     justifyContent: "space-between",
                                     alignItems: "center",
                                     padding: "0.75rem",
-                                    backgroundColor: "white",
+                                    backgroundColor: "var(--color-modal-bg)",
                                     border: "none",
                                     borderBottom: isNeveraExpanded ? "1px solid var(--color-border)" : "none",
                                     cursor: "pointer",
@@ -1643,7 +1643,7 @@ const LogisticaInventarioPage: React.FC = () => {
                                       padding: "1rem",
                                       border: "1px solid var(--color-border)",
                                       borderRadius: "var(--border-radius-md)",
-                                      backgroundColor: "white",
+                                      backgroundColor: "var(--color-modal-bg)",
                                     }}
                                   >
                                     <div>

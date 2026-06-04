@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from 'next-themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SurtidoProvider } from './contexts/SurtidoContext';
 import RootLayout from './layouts/RootLayout';
@@ -177,12 +178,14 @@ const AppRouter: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <SurtidoProvider>
-        <Router>
-          <AppRouter />
-        </Router>
-      </SurtidoProvider>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <AuthProvider>
+        <SurtidoProvider>
+          <Router>
+            <AppRouter />
+          </Router>
+        </SurtidoProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

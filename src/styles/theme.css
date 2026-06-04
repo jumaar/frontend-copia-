@@ -1,30 +1,7 @@
 :root {
-  /* Palette */
-  --color-primary: linear-gradient(135deg, #667eea 0%, #0508ac 100%); /* Same as background gradient */
-  --color-primary-start: #667eea;
-  --color-primary-end: #0508ac;
-  --color-background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
-  --color-sidebar-bg: rgba(255, 255, 255, 0.95);
-  --color-card-bg: rgba(255, 255, 255, 0.95);
-  --color-text-primary: #1e293b; /* Slate 800 */
-  --color-text-secondary: #64748b; /* Fixed: was same as primary, now proper secondary color */
-  --color-border: rgba(255, 255, 255, 0.3);
-  --color-hover-bg: rgba(102, 126, 234, 0.1);
-  --color-primary-dark: #3730a3; /* Darker Indigo for hovers */
-  --color-text-inverse: #ffffff; /* White text for dark backgrounds */
-  --shadow-color-primary-light: rgba(102, 126, 234, 0.3);
-  --shadow-color-primary-medium: rgba(102, 126, 234, 0.4);
-  --color-success: #10b981; /* Emerald */
-  --color-error: #ef4444; /* Red */
-
-  /* Input backgrounds */
-  --color-input-bg: rgba(255, 255, 255, 0.9);
-  --color-input-bg-focus: rgba(255, 255, 255, 1);
-
-  /* Shadow colors */
-  --shadow-color-hover: rgba(102, 126, 234, 0.4);
-
-  /* Typography */
+  /* ==========================================
+     1. VARIABLES ESTÁTICAS (No cambian entre día/noche)
+     ========================================== */
   --font-family-sans: 'Inter', sans-serif;
   --font-size-base: 16px;
   --font-weight-normal: 400;
@@ -32,16 +9,179 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* Spacing & Sizing */
   --spacing-unit: 8px;
   --border-radius-sm: 4px;
   --border-radius-md: 6px;
   --border-radius-lg: 8px;
   --max-width-container: 1400px;
 
-  /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Logo VORAK - gradiente rojo fijo, no cambia entre temas */
+  --color-logo-start: #7f1d1d;
+  --color-logo-end: #ef4444;
+  --color-logo: linear-gradient(135deg, var(--color-logo-start) 0%, var(--color-logo-end) 100%);
+
+  /* ==========================================
+     2. MODO DÍA (Valores por defecto)
+     ========================================== */
+  --color-primary-start: #667eea;
+  --color-primary-end: #0508ac;
+  --color-primary: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+  --color-background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+
+  /* Componentes con Glassmorphism claro */
+  --color-sidebar-bg: rgba(255, 255, 255, 0.95);
+  --color-card-bg: rgba(255, 255, 255, 0.95);
+  --color-input-bg: rgba(255, 255, 255, 0.9);
+  --color-input-bg-focus: rgba(255, 255, 255, 1);
+  --color-border: rgba(255, 255, 255, 0.3);
+  --color-hover-bg: rgba(102, 126, 234, 0.1);
+
+  /* Textos */
+  --color-text-primary: #1e293b; /* Slate 800 */
+  --color-text-secondary: #64748b; /* Slate 500 */
+  --color-text-inverse: #ffffff;
+
+  /* Interactivos y Sombras */
+  --color-primary-dark: #3730a3;
+  --shadow-color-primary-light: rgba(102, 126, 234, 0.3);
+  --shadow-color-primary-medium: rgba(102, 126, 234, 0.4);
+  --shadow-color-hover: rgba(102, 126, 234, 0.4);
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* Estados globales */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+
+  /* Modales y Tablas (modo claro) */
+  --color-modal-bg: #ffffff;
+  --color-modal-header-bg: #f9fafb;
+  --color-table-header-bg: #f3f4f6;
+  --color-table-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-badge-inactive: #e5e7eb;
+
+  /* Alertas y avisos (modo claro) */
+  --color-alert-error-bg: #fef2f2;
+  --color-alert-error-border: #fecaca;
+  --color-alert-error-text: #dc2626;
+  --color-alert-error-heading: #7f1d1d;
+  --color-alert-warning-bg: #fef3c7;
+  --color-alert-warning-border: #f59e0b;
+  --color-alert-warning-text: #92400e;
+  --color-alert-info-bg: #f0f9ff;
+  --color-alert-info-text: #075985;
+  --color-alert-success-bg: #dcfce7;
+  --color-alert-success-text: #166534;
+}
+
+/* ==========================================
+   3. MODO NOCHE (Se activa automáticamente con la clase .dark)
+   ========================================== */
+.dark {
+  /* Gradiente de fondo oscuro (Midnight/Slate profundo) para que sea cómodo de noche */
+  --color-background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+
+  /* Mantenemos tu identidad de marca en los botones primarios, pero puedes ajustar los tonos */
+  --color-primary-start: #818cf8; /* Un índigo ligeramente más brillante para contraste en fondo oscuro */
+  --color-primary-end: #4f46e5;
+  --color-primary: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+
+  /* Componentes con Glassmorphism oscuro */
+  --color-sidebar-bg: rgba(15, 23, 42, 0.85); /* Fondo Slate 900 translúcido */
+  --color-card-bg: rgba(30, 41, 59, 0.7);     /* Fondo Slate 800 translúcido */
+  --color-input-bg: rgba(15, 23, 42, 0.6);
+  --color-input-bg-focus: rgba(15, 23, 42, 0.9);
+  --color-border: rgba(255, 255, 255, 0.1);   /* Borde sutil claro sobre fondo oscuro */
+  --color-hover-bg: rgba(129, 140, 248, 0.15);
+
+  /* Inversión de Textos */
+  --color-text-primary: #f8fafc; /* Slate 50 */
+  --color-text-secondary: #94a3b8; /* Slate 400 */
+  --color-text-inverse: #94a3b8;
+
+  /* Ajuste de sombras para fondos oscuros (necesitan más opacidad para ser visibles) */
+  --color-primary-dark: #6366f1;
+  --shadow-color-primary-light: rgba(129, 140, 248, 0.15);
+  --shadow-color-primary-medium: rgba(129, 140, 248, 0.25);
+  --shadow-color-hover: rgba(129, 140, 248, 0.3);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5); /* Sombra más pesada para que resalte */
+
+  /* Modales y Tablas (modo oscuro) */
+  --color-modal-bg: #1e293b;
+  --color-modal-header-bg: #0f172a;
+  --color-table-header-bg: #334155;
+  --color-table-border: #475569;
+  --color-border-strong: #475569;
+  --color-badge-inactive: #475569;
+
+  /* Alertas y avisos (modo oscuro - tonos atenuados para no cansar la vista) */
+  --color-alert-error-bg: rgba(239, 68, 68, 0.15);
+  --color-alert-error-border: rgba(239, 68, 68, 0.4);
+  --color-alert-error-text: #fca5a5;
+  --color-alert-error-heading: #fecaca;
+  --color-alert-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-alert-warning-border: rgba(245, 158, 11, 0.4);
+  --color-alert-warning-text: #fcd34d;
+  --color-alert-info-bg: rgba(59, 130, 246, 0.15);
+  --color-alert-info-text: #93c5fd;
+  --color-alert-success-bg: rgba(16, 185, 129, 0.15);
+  --color-alert-success-text: #6ee7b7;
+}
+
+/* ==========================================
+   4. THEME TOGGLE (Light/Dark switch)
+   ========================================== */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: #1e293b;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle.dark .theme-toggle-track {
+  background-color: #e2e8f0;
+}
+
+.theme-toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle.dark .theme-toggle-track .theme-toggle-thumb {
+  transform: translateX(20px);
+  background-color: #1e293b;
+}
+
+.theme-toggle-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+  color: var(--color-text-primary);
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
 import { useAuth } from '../contexts/AuthContext';
+import ThemeToggle from '../components/ThemeToggle';
 
 // A simple icon placeholder component
 const NavIcon = () => (
@@ -221,23 +222,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
            <span className="icon-bar"></span>
          </button>
        </div>
-       <nav className="sidebar-nav" onClick={onClose}>
-         <ul>
-           {isLoading ? (
-             <li><span className="nav-item">Cargando...</span></li>
-           ) : user ? (
-             <>
-               {(user.role === 'admin' || user.role === 'superadmin') && renderAdminMenu()}
-               {user.role === 'frigorifico' && renderFrigorificoMenu()}
-               {user.role === 'logistica' && renderLogisticaMenu()}
-               {user.role === 'tienda' && renderTiendaMenu()}
-             </>
-           ) : (
-             <li><span className="nav-item">No autenticado</span></li>
-           )}
-         </ul>
-       </nav>
-     </aside>
+      <nav className="sidebar-nav" onClick={onClose}>
+          <ul>
+            {isLoading ? (
+              <li><span className="nav-item">Cargando...</span></li>
+            ) : user ? (
+              <>
+                {(user.role === 'admin' || user.role === 'superadmin') && renderAdminMenu()}
+                {user.role === 'frigorifico' && renderFrigorificoMenu()}
+                {user.role === 'logistica' && renderLogisticaMenu()}
+                {user.role === 'tienda' && renderTiendaMenu()}
+              </>
+            ) : (
+              <li><span className="nav-item">No autenticado</span></li>
+            )}
+          </ul>
+        </nav>
+        <div className="sidebar-footer">
+          <ThemeToggle />
+        </div>
+      </aside>
    );
 };
 

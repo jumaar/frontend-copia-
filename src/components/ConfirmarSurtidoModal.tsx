@@ -47,7 +47,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--color-modal-bg)',
         borderRadius: '12px',
         maxWidth: '700px',
         width: '100%',
@@ -58,9 +58,9 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
       }}>
         {/* Header */}
         <div style={{
-          backgroundColor: '#fef2f2',
+          backgroundColor: 'var(--color-alert-error-bg)',
           padding: '30px',
-          borderBottom: '2px solid #fecaca',
+          borderBottom: '2px solid var(--color-alert-error-border)',
           borderRadius: '12px 12px 0 0',
           textAlign: 'center'
         }}>
@@ -72,7 +72,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
           </div>
           <h1 style={{
             margin: '0 0 10px 0',
-            color: '#dc2626',
+            color: 'var(--color-alert-error-text)',
             fontSize: '32px',
             fontWeight: 'bold'
           }}>
@@ -80,7 +80,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
           </h1>
           <h2 style={{
             margin: '0',
-            color: '#374151',
+            color: 'var(--color-text-primary)',
             fontSize: '20px',
             fontWeight: '600'
           }}>
@@ -95,7 +95,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
         }}>
           {/* ID Nevera muy grande y explícito */}
           <div style={{
-            backgroundColor: '#fef2f2',
+            backgroundColor: 'var(--color-alert-error-bg)',
             border: '3px solid #ef4444',
             borderRadius: '12px',
             padding: '30px',
@@ -103,7 +103,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
           }}>
             <h3 style={{
               margin: '0 0 15px 0',
-              color: '#7f1d1d',
+              color: 'var(--color-alert-error-heading)',
               fontSize: '24px',
               fontWeight: 'bold'
             }}>
@@ -112,7 +112,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
             <div style={{
               fontSize: '72px',
               fontWeight: 'bold',
-              color: '#dc2626',
+              color: 'var(--color-alert-error-text)',
               marginBottom: '10px',
               textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
             }}>
@@ -120,7 +120,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
             </div>
             <div style={{
               fontSize: '18px',
-              color: '#374151',
+              color: 'var(--color-text-primary)',
               fontWeight: '600'
             }}>
               {nombreTienda}
@@ -129,7 +129,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
 
           {/* Mensaje importante */}
           <div style={{
-            backgroundColor: '#fef3c7',
+            backgroundColor: 'var(--color-alert-warning-bg)',
             border: '2px solid #f59e0b',
             borderRadius: '8px',
             padding: '25px',
@@ -143,7 +143,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
             </div>
             <h3 style={{
               margin: '0 0 15px 0',
-              color: '#92400e',
+              color: 'var(--color-alert-warning-text)',
               fontSize: '22px',
               fontWeight: 'bold'
             }}>
@@ -151,7 +151,7 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
             </h3>
             <p style={{
               margin: '0',
-              color: '#92400e',
+              color: 'var(--color-alert-warning-text)',
               fontSize: '18px',
               lineHeight: '1.6',
               fontWeight: '600'
@@ -162,14 +162,14 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
 
           {/* Mensaje de advertencia */}
           <div style={{
-            backgroundColor: '#f3f4f6',
+            backgroundColor: 'var(--color-table-header-bg)',
             borderRadius: '8px',
             padding: '20px',
-            border: '1px solid #d1d5db'
+            border: '1px solid var(--color-border-strong)'
           }}>
             <p style={{
               margin: '0',
-              color: '#374151',
+              color: 'var(--color-text-primary)',
               fontSize: '16px',
               lineHeight: '1.5'
             }}>
@@ -182,8 +182,8 @@ const ConfirmarSurtidoModal: React.FC<ConfirmarSurtidoModalProps> = ({
         {/* Footer con botones */}
         <div style={{
           padding: '30px',
-          borderTop: '2px solid #e5e7eb',
-          backgroundColor: '#f9fafb',
+          borderTop: '2px solid var(--color-table-border)',
+          backgroundColor: 'var(--color-modal-header-bg)',
           display: 'flex',
           justifyContent: 'center',
           gap: '20px',

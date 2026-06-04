@@ -544,7 +544,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'white',
+      backgroundColor: 'var(--color-modal-bg)',
       zIndex: 1000,
       display: 'flex',
       flexDirection: 'column',
@@ -552,11 +552,11 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       {/* Header */}
       <div style={{
         padding: '20px 30px',
-        borderBottom: '2px solid #e5e7eb',
-        backgroundColor: '#f9fafb',
+        borderBottom: '2px solid var(--color-table-border)',
+        backgroundColor: 'var(--color-modal-header-bg)',
       }}>
         <div style={{ textAlign: 'center' }}>
-          <h1 style={{ margin: '0 0 5px 0', color: '#111827', fontSize: '24px', fontWeight: 'bold' }}>
+          <h1 style={{ margin: '0 0 5px 0', color: 'var(--color-text-primary)', fontSize: '24px', fontWeight: 'bold' }}>
             🏪 Nevera ID: {idNevera} — {neveraData?.nevera.nombre_tienda || nombreTienda}
           </h1>
           <div style={{
@@ -578,8 +578,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                   gap: '6px',
                   padding: '6px 14px',
                   borderRadius: '20px',
-                  backgroundColor: isActive ? '#667eea' : isDone ? '#10b981' : '#e5e7eb',
-                  color: isActive || isDone ? 'white' : '#6b7280',
+                  backgroundColor: isActive ? '#667eea' : isDone ? '#10b981' : 'var(--color-badge-inactive)',
+                  color: isActive || isDone ? 'white' : 'var(--color-text-secondary)',
                   fontWeight: 'bold',
                   fontSize: '13px',
                 }}>
@@ -604,8 +604,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
             textAlign: 'center',
             padding: '40px',
             color: '#ef4444',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
+            backgroundColor: 'var(--color-alert-error-bg)',
+            border: '1px solid var(--color-alert-error-border)',
             borderRadius: '8px',
           }}>
             {error}
@@ -616,22 +616,22 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
         {fase === 'review' && neveraData && (
           <>
             <div style={{
-              backgroundColor: '#fef3c7',
+              backgroundColor: 'var(--color-alert-warning-bg)',
               border: '2px solid #f59e0b',
               borderRadius: '10px',
               padding: '15px',
               marginBottom: '20px',
             }}>
-              <h3 style={{ margin: '0 0 8px 0', color: '#92400e', fontSize: '16px', fontWeight: 'bold' }}>
+              <h3 style={{ margin: '0 0 8px 0', color: 'var(--color-alert-warning-text)', fontSize: '16px', fontWeight: 'bold' }}>
                 📋 Revisión de Inventario Sugerido
               </h3>
-              <p style={{ margin: 0, color: '#92400e', fontSize: '14px' }}>
+              <p style={{ margin: 0, color: 'var(--color-alert-warning-text)', fontSize: '14px' }}>
                 Revisa los productos a surtir. Activa los toggles para cada producto que vas a cargar.
               </p>
             </div>
 
             {productosASurtir.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', fontSize: '16px' }}>
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-secondary)', fontSize: '16px' }}>
                 🎉 Todos los productos están al nivel ideal. No hay nada que surtir.
               </div>
             ) : (
@@ -640,10 +640,10 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                   width: '100%',
                   borderCollapse: 'collapse',
                   fontSize: '14px',
-                  backgroundColor: 'white',
+                  backgroundColor: 'var(--color-modal-bg)',
                 }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f3f4f6' }}>
+                    <tr style={{ backgroundColor: 'var(--color-table-header-bg)' }}>
                       <th style={thStyle}>Confirmación</th>
                       <th style={thStyle}>Producto</th>
                       <th style={thStyle}>Total a Surtir</th>
@@ -679,7 +679,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                 left: estaConfirmado ? '26px' : '2px',
                                 width: '20px',
                                 height: '20px',
-                                backgroundColor: 'white',
+                                backgroundColor: 'var(--color-modal-bg)',
                                 borderRadius: '50%',
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                               }} />
@@ -692,7 +692,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <div>
                                 <div style={{ fontWeight: 'bold' }}>{producto.nombre_producto}</div>
-                                <div style={{ fontSize: '12px', color: '#6b7280' }}>{producto.peso_nominal_g}g</div>
+                                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{producto.peso_nominal_g}g</div>
                               </div>
                               {mostrarBadge && (
                                 <button
@@ -757,7 +757,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                         </tr>
                         {estaExpandido && mostrarBadge && badge && (
                           <tr>
-                            <td colSpan={8} style={{ padding: '4px 12px 8px', border: 0, backgroundColor: '#f9fafb' }}>
+                            <td colSpan={8} style={{ padding: '4px 12px 8px', border: 0, backgroundColor: 'var(--color-modal-header-bg)' }}>
                               {badge.tooltip.map((linea, idx) => (
                                 <div key={idx} style={{
                                   padding: '6px 10px',
@@ -791,16 +791,16 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
         {fase === 'removal' && neveraData && (
           <>
             <div style={{
-              backgroundColor: '#dcfce7',
+              backgroundColor: 'var(--color-alert-success-bg)',
               border: '2px solid #10b981',
               borderRadius: '10px',
               padding: '15px',
               marginBottom: '20px',
             }}>
-              <h3 style={{ margin: '0 0 8px 0', color: '#166534', fontSize: '16px', fontWeight: 'bold' }}>
+              <h3 style={{ margin: '0 0 8px 0', color: 'var(--color-alert-success-text)', fontSize: '16px', fontWeight: 'bold' }}>
                 ✅ Surtido Iniciado — Ahora retire los empaques para cambio o vencidos
               </h3>
-              <p style={{ margin: 0, color: '#166534', fontSize: '14px' }}>
+              <p style={{ margin: 0, color: 'var(--color-alert-success-text)', fontSize: '14px' }}>
                 Escanee el EPC o ingrese el ID de cada empaque a retirar y presione Enter. Los empaques confirmados se marcarán en gris.
               </p>
             </div>
@@ -812,7 +812,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               gap: '12px',
               marginBottom: '20px',
               padding: '15px',
-              backgroundColor: '#f0f9ff',
+              backgroundColor: 'var(--color-alert-info-bg)',
               border: '2px solid #3b82f6',
               borderRadius: '10px',
             }}>
@@ -827,15 +827,15 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                 style={{
                   flex: 1,
                   padding: '12px 16px',
-                  border: '2px solid #d1d5db',
+                  border: '2px solid var(--color-border-strong)',
                   borderRadius: '8px',
                   fontSize: '18px',
                   outline: 'none',
                 }}
                 onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; }}
-                onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; }}
+                onBlur={(e) => { e.target.style.borderColor = 'var(--color-border-strong)'; }}
               />
-              <span style={{ fontSize: '13px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
                 Escaneados: <strong style={{ color: '#3b82f6' }}>{removalScanned.size}</strong>
                 {hasCambio5 ? <> / {(paraCambio5!.para_cambio.length + paraCambio5!.vencidos.length)}</> : ''}
               </span>
@@ -850,18 +850,18 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                     overflow: 'hidden',
                   }}>
                     <div style={{
-                      backgroundColor: '#fef3c7',
+                      backgroundColor: 'var(--color-alert-warning-bg)',
                       padding: '12px 20px',
                       borderBottom: '1px solid #f59e0b',
                     }}>
-                      <h3 style={{ margin: 0, color: '#92400e', fontSize: '18px', fontWeight: 'bold' }}>
+                      <h3 style={{ margin: 0, color: 'var(--color-alert-warning-text)', fontSize: '18px', fontWeight: 'bold' }}>
                         🔄 Empaques para Cambio ({paraCambio5!.para_cambio.length})
                       </h3>
                     </div>
                     <div style={{ overflowX: 'auto', padding: '10px' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
-                          <tr style={{ backgroundColor: '#f9fafb' }}>
+                          <tr style={{ backgroundColor: 'var(--color-modal-header-bg)' }}>
                             <th style={thStyle}>ID Emp.</th>
                             <th style={thStyle}>EPC</th>
                             <th style={thStyle}>Producto</th>
@@ -878,7 +878,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                 key={`pc-${empaque.id_empaque}`}
                                 style={{
                                   backgroundColor: isScanned ? '#4b5563' : 'transparent',
-                                  color: isScanned ? '#d1d5db' : undefined,
+                                  color: isScanned ? 'var(--color-text-secondary)' : undefined,
                                   transition: 'background-color 0.3s ease',
                                 }}
                               >
@@ -891,8 +891,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                   <span style={{
                                     padding: '3px 8px',
                                     borderRadius: '6px',
-                                    backgroundColor: isScanned ? '#6b7280' : '#fef3c7',
-                                    color: isScanned ? '#e5e7eb' : '#92400e',
+                                    backgroundColor: isScanned ? 'var(--color-text-secondary)' : 'var(--color-alert-warning-bg)',
+                                    color: isScanned ? 'var(--color-text-secondary)' : 'var(--color-alert-warning-text)',
                                     fontWeight: 'bold',
                                     fontSize: '13px',
                                   }}>
@@ -915,18 +915,18 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                     overflow: 'hidden',
                   }}>
                     <div style={{
-                      backgroundColor: '#fef2f2',
+                      backgroundColor: 'var(--color-alert-error-bg)',
                       padding: '12px 20px',
                       borderBottom: '1px solid #ef4444',
                     }}>
-                      <h3 style={{ margin: 0, color: '#dc2626', fontSize: '18px', fontWeight: 'bold' }}>
+                      <h3 style={{ margin: 0, color: 'var(--color-alert-error-text)', fontSize: '18px', fontWeight: 'bold' }}>
                         ⛔ Empaques Vencidos ({paraCambio5!.vencidos.length})
                       </h3>
                     </div>
                     <div style={{ overflowX: 'auto', padding: '10px' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
-                          <tr style={{ backgroundColor: '#fef2f2' }}>
+                          <tr style={{ backgroundColor: 'var(--color-alert-error-bg)' }}>
                             <th style={thStyle}>ID Emp.</th>
                             <th style={thStyle}>EPC</th>
                             <th style={thStyle}>Producto</th>
@@ -942,8 +942,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                               <tr
                                 key={`ven-${empaque.id_empaque}`}
                                 style={{
-                                  backgroundColor: isScanned ? '#4b5563' : '#fef2f2',
-                                  color: isScanned ? '#d1d5db' : undefined,
+                                  backgroundColor: isScanned ? '#4b5563' : 'var(--color-alert-error-bg)',
+                                  color: isScanned ? 'var(--color-text-secondary)' : undefined,
                                   transition: 'background-color 0.3s ease',
                                 }}
                               >
@@ -956,7 +956,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                   <span style={{
                                     padding: '3px 8px',
                                     borderRadius: '6px',
-                                    backgroundColor: isScanned ? '#6b7280' : '#fecaca',
+                                    backgroundColor: isScanned ? 'var(--color-text-secondary)' : 'var(--color-alert-error-border)',
                                     color: isScanned ? '#e5e7eb' : '#991b1b',
                                     fontWeight: 'bold',
                                     fontSize: '13px',
@@ -974,23 +974,23 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                 )}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', fontSize: '16px' }}>
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--color-text-secondary)', fontSize: '16px' }}>
                 ✅ No hay empaques para cambio ni vencidos en esta nevera.
               </div>
             )}
 
             {retiroResult && (
               <div style={{
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--color-table-border)',
                 borderRadius: '12px',
                 overflow: 'hidden',
                 marginTop: '20px',
               }}>
-                <div style={{ backgroundColor: '#f3f4f6', padding: '12px 20px', borderBottom: '1px solid #e5e7eb' }}>
-                  <h3 style={{ margin: 0, color: '#374151', fontSize: '16px', fontWeight: 'bold' }}>
+                <div style={{ backgroundColor: 'var(--color-table-header-bg)', padding: '12px 20px', borderBottom: '1px solid var(--color-table-border)' }}>
+                  <h3 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '16px', fontWeight: 'bold' }}>
                     📊 Resultados del Retiro de Empaques
                   </h3>
-                  <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '13px' }}>{retiroResult.message}</p>
+                  <p style={{ margin: '4px 0 0 0', color: 'var(--color-text-secondary)', fontSize: '13px' }}>{retiroResult.message}</p>
                 </div>
                 <div style={{ padding: '15px' }}>
                   {retiroResult.empaques_procesados.length > 0 && (
@@ -1019,8 +1019,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                 <span style={{
                                   padding: '2px 8px',
                                   borderRadius: '6px',
-                                  backgroundColor: '#dcfce7',
-                                  color: '#166534',
+                                  backgroundColor: 'var(--color-alert-success-bg)',
+                                  color: 'var(--color-alert-success-text)',
                                   fontWeight: 'bold',
                                   fontSize: '12px',
                                 }}>
@@ -1040,7 +1040,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       </h4>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
-                          <tr style={{ backgroundColor: '#fef2f2' }}>
+                          <tr style={{ backgroundColor: 'var(--color-alert-error-bg)' }}>
                             <th style={thStyle}>ID Emp.</th>
                             <th style={thStyle}>EPC</th>
                             <th style={thStyle}>Error</th>
@@ -1050,8 +1050,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                           {retiroResult.empaques_no_procesados.map((emp: any, i: number) => (
                             <tr key={i}>
                               <td style={tdStyleCenter}>{emp.id_empaque || '-'}</td>
-                              <td style={{ ...tdStyle, color: '#dc2626' }}>{emp.epc || '-'}</td>
-                              <td style={{ ...tdStyle, color: '#dc2626' }}>{emp.error}</td>
+                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.epc || '-'}</td>
+                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.error}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1089,7 +1089,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               gap: '12px',
               marginBottom: '20px',
               padding: '15px',
-              backgroundColor: '#f0f9ff',
+              backgroundColor: 'var(--color-alert-info-bg)',
               border: '2px solid #3b82f6',
               borderRadius: '10px',
             }}>
@@ -1104,15 +1104,15 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                 style={{
                   flex: 1,
                   padding: '12px 16px',
-                  border: '2px solid #d1d5db',
+                  border: '2px solid var(--color-border-strong)',
                   borderRadius: '8px',
                   fontSize: '18px',
                   outline: 'none',
                 }}
                 onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; }}
-                onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; }}
+                onBlur={(e) => { e.target.style.borderColor = 'var(--color-border-strong)'; }}
               />
-              <span style={{ fontSize: '13px', color: '#6b7280', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
                 Escaneados: <strong style={{ color: '#3b82f6' }}>{scannedItems.length}</strong>
               </span>
             </div>
@@ -1122,7 +1122,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               <div style={{ marginBottom: '20px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f3f4f6' }}>
+                    <tr style={{ backgroundColor: 'var(--color-table-header-bg)' }}>
                       <th style={thStyle}>#</th>
                       <th style={thStyle}>EPC / ID</th>
                     </tr>
@@ -1145,13 +1145,13 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
             {/* Validación Results */}
             {validacionResult && (
               <div style={{
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--color-table-border)',
                 borderRadius: '12px',
                 overflow: 'hidden',
                 marginBottom: '20px',
               }}>
-                <div style={{ backgroundColor: '#f3f4f6', padding: '12px 20px', borderBottom: '1px solid #e5e7eb' }}>
-                  <h3 style={{ margin: 0, color: '#374151', fontSize: '16px', fontWeight: 'bold' }}>
+                <div style={{ backgroundColor: 'var(--color-table-header-bg)', padding: '12px 20px', borderBottom: '1px solid var(--color-table-border)' }}>
+                  <h3 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '16px', fontWeight: 'bold' }}>
                     📊 Resultados de Validación
                   </h3>
                 </div>
@@ -1191,7 +1191,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       </h4>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
-                          <tr style={{ backgroundColor: '#fef2f2' }}>
+                          <tr style={{ backgroundColor: 'var(--color-alert-error-bg)' }}>
                             <th style={thStyle}>ID Emp.</th>
                             <th style={thStyle}>EPC</th>
                             <th style={thStyle}>Error</th>
@@ -1201,8 +1201,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                           {validacionResult.empaques_no_procesados.map((emp: any, i: number) => (
                             <tr key={i}>
                               <td style={tdStyleCenter}>{emp.id_empaque || '-'}</td>
-                              <td style={{ ...tdStyle, color: '#dc2626' }}>{emp.epc || '-'}</td>
-                              <td style={{ ...tdStyle, color: '#dc2626' }}>{emp.error}</td>
+                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.epc || '-'}</td>
+                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.error}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1219,8 +1219,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       {/* Footer */}
       <div style={{
         padding: '20px',
-        borderTop: '2px solid #e5e7eb',
-        backgroundColor: '#f9fafb',
+        borderTop: '2px solid var(--color-table-border)',
+        backgroundColor: 'var(--color-modal-header-bg)',
         display: 'flex',
         justifyContent: 'center',
         gap: '15px',
@@ -1317,7 +1317,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
           justifyContent: 'center'
         }}>
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--color-modal-bg)',
             borderRadius: '12px',
             padding: '30px',
             maxWidth: '480px',
@@ -1332,7 +1332,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               ⚠️
             </div>
             <h2 style={{
-              color: '#dc2626',
+              color: 'var(--color-alert-error-text)',
               marginBottom: '15px',
               fontSize: '22px',
               fontWeight: 'bold'
@@ -1340,7 +1340,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               ADVERTENCIA
             </h2>
             <p style={{
-              color: '#374151',
+              color: 'var(--color-text-primary)',
               fontSize: '16px',
               marginBottom: '10px',
               lineHeight: '1.5'
@@ -1348,14 +1348,14 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               Asegúrese de estar <strong>parado al frente de la nevera</strong> antes de confirmar el surtido.
             </p>
             <p style={{
-              color: '#6b7280',
+              color: 'var(--color-text-secondary)',
               fontSize: '14px',
               marginBottom: '20px'
             }}>
               Verifique que el número de nevera que aparece en la etiqueta del equipo coincida con el mostrado aquí.
             </p>
             <div style={{
-              backgroundColor: '#fef3c7',
+              backgroundColor: 'var(--color-alert-warning-bg)',
               border: '2px solid #f59e0b',
               borderRadius: '8px',
               padding: '15px',
@@ -1364,14 +1364,14 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               <div style={{
                 fontSize: '36px',
                 fontWeight: 'bold',
-                color: '#b45309',
+                color: 'var(--color-alert-warning-text)',
                 letterSpacing: '3px'
               }}>
                 #{idNevera}
               </div>
               <p style={{
                 fontSize: '12px',
-                color: '#92400e',
+                color: 'var(--color-alert-warning-text)',
                 marginTop: '5px',
                 marginBottom: 0
               }}>
@@ -1383,7 +1383,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                 display: 'block',
                 fontSize: '14px',
                 fontWeight: 'bold',
-                color: '#374151',
+                color: 'var(--color-text-primary)',
                 marginBottom: '8px',
                 textAlign: 'left'
               }}>
@@ -1404,7 +1404,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                   width: '100%',
                   padding: '12px 15px',
                   fontSize: '18px',
-                  border: '2px solid #d1d5db',
+                  border: '2px solid var(--color-border-strong)',
                   borderRadius: '8px',
                   textAlign: 'center',
                   fontWeight: 'bold',
@@ -1461,20 +1461,20 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
 const thStyle: React.CSSProperties = {
   padding: '12px 8px',
   textAlign: 'center',
-  border: '1px solid #e5e7eb',
+  border: '1px solid var(--color-table-border)',
   fontWeight: 'bold',
-  backgroundColor: '#f3f4f6',
+  backgroundColor: 'var(--color-table-header-bg)',
   minWidth: '100px',
 };
 
 const tdStyle: React.CSSProperties = {
   padding: '12px 8px',
-  border: '1px solid #e5e7eb',
+  border: '1px solid var(--color-table-border)',
 };
 
 const tdStyleCenter: React.CSSProperties = {
   padding: '12px 8px',
-  border: '1px solid #e5e7eb',
+  border: '1px solid var(--color-table-border)',
   textAlign: 'center',
 };
 

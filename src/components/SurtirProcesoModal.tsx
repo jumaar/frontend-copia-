@@ -105,7 +105,7 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'white',
+      backgroundColor: 'var(--color-modal-bg)',
       zIndex: 1000,
       display: 'flex',
       flexDirection: 'column'
@@ -113,13 +113,13 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
       {/* Header */}
       <div style={{
         padding: '30px',
-        borderBottom: '2px solid #e5e7eb',
-        backgroundColor: '#f9fafb'
+        borderBottom: '2px solid var(--color-table-border)',
+        backgroundColor: 'var(--color-modal-header-bg)'
       }}>
         <div style={{ textAlign: 'center' }}>
           <h1 style={{
             margin: '0 0 10px 0',
-            color: '#111827',
+            color: 'var(--color-text-primary)',
             fontSize: '28px',
             fontWeight: 'bold'
           }}>
@@ -127,14 +127,14 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
           </h1>
           <h2 style={{
             margin: '0 0 15px 0',
-            color: '#374151',
+            color: 'var(--color-text-primary)',
             fontSize: '20px',
             fontWeight: '600'
           }}>
             {nombreTienda || 'Cargando...'}
           </h2>
           <div style={{
-            backgroundColor: '#fef3c7',
+            backgroundColor: 'var(--color-alert-warning-bg)',
             border: '2px solid #f59e0b',
             borderRadius: '10px',
             padding: '15px',
@@ -176,61 +176,61 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
             width: '100%',
             borderCollapse: 'collapse',
             fontSize: '14px',
-            backgroundColor: 'white'
+            backgroundColor: 'var(--color-modal-bg)'
           }}>
             <thead style={{
               position: 'sticky',
               top: 0,
-              backgroundColor: '#f9fafb',
+              backgroundColor: 'var(--color-modal-header-bg)',
               zIndex: 10
             }}>
               <tr>
                 <th style={{
                   padding: '12px 8px',
                   textAlign: 'center',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-table-border)',
                   fontWeight: 'bold',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: 'var(--color-table-header-bg)',
                   minWidth: '120px'
                 }}>Confirmación</th>
                 <th style={{
                   padding: '12px 8px',
                   textAlign: 'left',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-table-border)',
                   fontWeight: 'bold',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: 'var(--color-table-header-bg)',
                   minWidth: '200px'
                 }}>Producto</th>
                 <th style={{
                   padding: '12px 8px',
                   textAlign: 'center',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-table-border)',
                   fontWeight: 'bold',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: 'var(--color-table-header-bg)',
                   minWidth: '140px'
                 }}>Total a Surtir</th>
                 <th style={{
                   padding: '12px 8px',
                   textAlign: 'center',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-table-border)',
                   fontWeight: 'bold',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: 'var(--color-table-header-bg)',
                   minWidth: '120px'
                 }}>Stock Actual</th>
                 <th style={{
                   padding: '12px 8px',
                   textAlign: 'center',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-table-border)',
                   fontWeight: 'bold',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: 'var(--color-table-header-bg)',
                   minWidth: '140px'
                 }}>Stock Ideal</th>
                 <th style={{
                   padding: '12px 8px',
                   textAlign: 'center',
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--color-table-border)',
                   fontWeight: 'bold',
-                  backgroundColor: '#f3f4f6',
+                  backgroundColor: 'var(--color-table-header-bg)',
                   minWidth: '120px'
                 }}>Calificación</th>
               </tr>
@@ -241,7 +241,7 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
                   <td colSpan={6} style={{
                     textAlign: 'center',
                     padding: '40px',
-                    color: '#6b7280',
+                    color: 'var(--color-text-secondary)',
                     fontSize: '16px',
                     fontStyle: 'italic'
                   }}>
@@ -254,9 +254,9 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
 
                 return (
                   <tr key={producto.id_producto} style={{
-                    backgroundColor: totalASurtir === 0 ? '#fef2f2' : '#f0fdf4'
+                    backgroundColor: totalASurtir === 0 ? 'var(--color-alert-error-bg)' : 'var(--color-alert-success-bg)'
                   }}>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb', textAlign: 'center' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)', textAlign: 'center' }}>
                       {/* Toggle de confirmación */}
                       <div style={{
                         position: 'relative',
@@ -275,7 +275,7 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
                           left: confirmations[producto.id_producto] ? '26px' : '2px',
                           width: '20px',
                           height: '20px',
-                          backgroundColor: 'white',
+                          backgroundColor: 'var(--color-modal-bg)',
                           borderRadius: '50%',
                           transition: 'left 0.3s ease',
                           boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
@@ -290,19 +290,19 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
                         {confirmations[producto.id_producto] ? 'CONFIRMADO' : 'PENDIENTE'}
                       </div>
                     </td>
-                    <td style={{ padding: '12px 8px', border: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '12px 8px', border: '1px solid var(--color-table-border)' }}>
                       <div>
                         <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
                           {producto.nombre_producto}
                         </div>
-                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                           {producto.peso_nominal_g}g
                         </div>
                       </div>
                     </td>
                     <td style={{
                       padding: '12px 8px',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid var(--color-table-border)',
                       textAlign: 'center',
                       fontWeight: 'bold',
                       fontSize: '18px',
@@ -312,7 +312,7 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
                     </td>
                     <td style={{
                       padding: '12px 8px',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid var(--color-table-border)',
                       textAlign: 'center',
                       fontWeight: 'bold',
                       fontSize: '16px',
@@ -322,7 +322,7 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
                     </td>
                     <td style={{
                       padding: '12px 8px',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid var(--color-table-border)',
                       textAlign: 'center',
                       fontWeight: 'bold',
                       fontSize: '16px'
@@ -331,14 +331,14 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
                     </td>
                     <td style={{
                       padding: '12px 8px',
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid var(--color-table-border)',
                       textAlign: 'center'
                     }}>
                       <span style={{
                         backgroundColor: producto.calificacion_surtido === 'crítica' ? '#ef4444' :
                                        producto.calificacion_surtido === 'baja' ? '#f97316' :
                                        producto.calificacion_surtido === 'media' ? '#f59e0b' :
-                                       producto.calificacion_surtido === 'alta' ? '#10b981' : '#6b7280',
+                                       producto.calificacion_surtido === 'alta' ? '#10b981' : 'var(--color-text-secondary)',
                         color: 'white',
                         padding: '4px 8px',
                         borderRadius: '12px',
@@ -361,8 +361,8 @@ const SurtirProcesoModal: React.FC<SurtirProcesoModalProps> = ({
       {/* Footer con botón de confirmar */}
       <div style={{
         padding: '20px',
-        borderTop: '2px solid #e5e7eb',
-        backgroundColor: '#f9fafb',
+        borderTop: '2px solid var(--color-table-border)',
+        backgroundColor: 'var(--color-modal-header-bg)',
         display: 'flex',
         justifyContent: 'center'
       }}>
