@@ -1,0 +1,226 @@
+.surtir-proceso-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-modal-bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.surtir-proceso-header {
+  padding: 30px;
+  border-bottom: 2px solid var(--color-table-border);
+  background-color: var(--color-modal-header-bg);
+}
+
+.surtir-proceso-header-center {
+  text-align: center;
+}
+
+.surtir-proceso-title {
+  margin: 0 0 10px 0;
+  color: var(--color-text-primary);
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.surtir-proceso-subtitle {
+  margin: 0 0 15px 0;
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.surtir-proceso-alert {
+  background-color: var(--color-alert-warning-bg);
+  border: 2px solid #f59e0b;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.surtir-proceso-alert h3 {
+  margin: 0 0 10px 0;
+  color: var(--color-alert-warning-text);
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.surtir-proceso-alert p {
+  margin: 0 0 10px 0;
+  color: var(--color-alert-warning-text);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.surtir-proceso-alert p:last-child {
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.surtir-proceso-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+
+.surtir-proceso-table-wrapper {
+  height: 100%;
+  overflow: auto;
+}
+
+.surtir-proceso-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: var(--color-modal-bg);
+}
+
+.surtir-proceso-table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-modal-header-bg);
+  z-index: 10;
+}
+
+.surtir-proceso-th {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid var(--color-table-border);
+  font-weight: bold;
+  background-color: var(--color-table-header-bg);
+  min-width: 120px;
+}
+
+.surtir-proceso-th.left {
+  text-align: left;
+}
+
+.surtir-proceso-th.wide {
+  min-width: 200px;
+}
+
+.surtir-proceso-th.med {
+  min-width: 140px;
+}
+
+.surtir-proceso-td {
+  padding: 12px 8px;
+  border: 1px solid var(--color-table-border);
+  text-align: center;
+}
+
+.surtir-proceso-td.left {
+  text-align: left;
+}
+
+.surtir-proceso-td.bold {
+  font-weight: bold;
+}
+
+.surtir-proceso-td.large {
+  font-size: 18px;
+}
+
+.surtir-proceso-td.medium {
+  font-size: 16px;
+}
+
+.surtir-proceso-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.surtir-proceso-toggle {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 auto;
+}
+
+.surtir-proceso-toggle.off {
+  background-color: var(--color-badge-inactive);
+}
+
+.surtir-proceso-toggle.on {
+  background-color: #10b981;
+}
+
+.surtir-proceso-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-modal-bg);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease;
+}
+
+.surtir-proceso-toggle-thumb.off {
+  left: 2px;
+}
+
+.surtir-proceso-toggle-thumb.on {
+  left: 26px;
+}
+
+.surtir-proceso-toggle-label {
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.surtir-proceso-product-name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.surtir-proceso-product-weight {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.surtir-proceso-calificacion-badge {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.surtir-proceso-footer {
+  padding: 20px;
+  border-top: 2px solid var(--color-table-border);
+  background-color: var(--color-modal-header-bg);
+  display: flex;
+  justify-content: center;
+}
+
+.surtir-proceso-btn {
+  padding: 15px 40px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+}
+
+.surtir-proceso-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

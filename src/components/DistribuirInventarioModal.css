@@ -1,0 +1,35 @@
+.distribuir-modal {
+  max-width: 600px;
+}
+
+.ciudad-detail {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.distribucion-resumen {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-hover-bg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.distribucion-timestamp {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.ciudad-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.ciudad-row input[type="checkbox"] {
+  margin-right: 1rem;
+  accent-color: var(--color-primary-start);
+}

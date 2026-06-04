@@ -193,14 +193,13 @@ const EditLogisticaModal: React.FC<EditLogisticaModalProps> = ({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
-        className="modal-content"
+        className="modal-content modal-scrollable"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '80vh', overflowY: 'auto' }}
       >
         <header className="modal-header">
           <h2>Editar Usuario: {userData.nombre_usuario} {userData.apellido_usuario}</h2>
         </header>
-        <div className="modal-body" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
+        <div className="modal-body modal-body-scrollable">
           <div className="edit-user-form">
             <div className="form-group">
               <label htmlFor="nombre_usuario">Nombre</label>

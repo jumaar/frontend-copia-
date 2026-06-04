@@ -7,6 +7,7 @@ import {
   validacionDosaTres,
 } from '../services/api';
 import { useSurtido } from '../contexts/SurtidoContext';
+import './SurtirFlujoModal.css';
 
 interface EmpaqueCambio {
   id_empaque: number;
@@ -538,33 +539,13 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
   const hasCambio5 = !!(paraCambio5 && (paraCambio5.para_cambio.length > 0 || paraCambio5.vencidos.length > 0));
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'var(--color-modal-bg)',
-      zIndex: 1000,
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '20px 30px',
-        borderBottom: '2px solid var(--color-table-border)',
-        backgroundColor: 'var(--color-modal-header-bg)',
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{ margin: '0 0 5px 0', color: 'var(--color-text-primary)', fontSize: '24px', fontWeight: 'bold' }}>
+    <div className="surtir-flujo-overlay">
+      <div className="surtir-flujo-header">
+        <div className="surtir-flujo-header-center">
+          <h1 className="surtir-flujo-title">
             🏪 Nevera ID: {idNevera} — {neveraData?.nevera.nombre_tienda || nombreTienda}
           </h1>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '12px',
-            marginTop: '12px',
-          }}>
+          <div className="surtir-flujo-steps">
             {['review', 'removal', 'scanning'].map((f, _i) => {
               const stepLabels = ['1. Revisión Inventario', '2. Retirar Cambio/Vencidos', '3. Escaneo EPCs'];
               const currentIdx = f === 'review' ? 0 : f === 'removal' ? 1 : 2;
@@ -572,17 +553,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
               const isActive = currentIdx === activeIdx;
               const isDone = currentIdx < activeIdx;
               return (
-                <div key={f} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 14px',
-                  borderRadius: '20px',
-                  backgroundColor: isActive ? '#667eea' : isDone ? '#10b981' : 'var(--color-badge-inactive)',
-                  color: isActive || isDone ? 'white' : 'var(--color-text-secondary)',
-                  fontWeight: 'bold',
-                  fontSize: '13px',
-                }}>
+                <div key={f} className={`surtir-flujo-step ${isActive ? 'active' : isDone ? 'done' : 'inactive'}`}>
                   {isDone ? '✓' : ''} {stepLabels[currentIdx]}
                 </div>
               );
@@ -592,7 +563,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
+      <div className="surtir-flujo-content">
         {loading && (
           <div style={{ textAlign: 'center', padding: '40px', fontSize: '18px' }}>
             Cargando datos de la nevera...
@@ -644,14 +615,14 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                 }}>
                   <thead>
                     <tr style={{ backgroundColor: 'var(--color-table-header-bg)' }}>
-                      <th style={thStyle}>Confirmación</th>
-                      <th style={thStyle}>Producto</th>
-                      <th style={thStyle}>Total a Surtir</th>
-                      <th style={thStyle}>Stock Actual</th>
-                      <th style={thStyle}>Stock Ideal</th>
-                      <th style={thStyle}>Disp. Logística</th>
-                      <th style={thStyle}>Prioritarios</th>
-                      <th style={thStyle}>Calificación</th>
+                      <th className="surtir-flujo-th">Confirmación</th>
+                      <th className="surtir-flujo-th">Producto</th>
+                      <th className="surtir-flujo-th">Total a Surtir</th>
+                      <th className="surtir-flujo-th">Stock Actual</th>
+                      <th className="surtir-flujo-th">Stock Ideal</th>
+                      <th className="surtir-flujo-th">Disp. Logística</th>
+                      <th className="surtir-flujo-th">Prioritarios</th>
+                      <th className="surtir-flujo-th">Calificación</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -663,7 +634,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       return (
                         <React.Fragment key={producto.id_producto}>
                           <tr>
-                          <td style={tdStyleCenter}>
+                          <td className="surtir-flujo-td-center">
                             <div style={{
                               position: 'relative',
                               width: '50px',
@@ -688,7 +659,7 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                               {estaConfirmado ? 'CONFIRMADO' : 'PENDIENTE'}
                             </div>
                           </td>
-                          <td style={tdStyle}>
+                          <td className="surtir-flujo-td">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <div>
                                 <div style={{ fontWeight: 'bold' }}>{producto.nombre_producto}</div>
@@ -727,22 +698,22 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                               )}
                             </div>
                           </td>
-                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '18px', color: '#059669' }}>
+                          <td className="surtir-flujo-td-center" style={{ fontWeight: 'bold', fontSize: '18px', color: '#059669' }}>
                             {producto.cantidad_a_surtir}
                           </td>
-                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px', color: producto.stock_en_tiempo_real === 0 ? '#ef4444' : '#10b981' }}>
+                          <td className="surtir-flujo-td-center" style={{ fontWeight: 'bold', fontSize: '16px', color: producto.stock_en_tiempo_real === 0 ? '#ef4444' : '#10b981' }}>
                             {producto.stock_en_tiempo_real}
                           </td>
-                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px' }}>
+                          <td className="surtir-flujo-td-center" style={{ fontWeight: 'bold', fontSize: '16px' }}>
                             {producto.stock_ideal_final}
                           </td>
-                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px', color: producto.empaques_disponibles_logistica > 0 ? '#059669' : '#ef4444' }}>
+                          <td className="surtir-flujo-td-center" style={{ fontWeight: 'bold', fontSize: '16px', color: producto.empaques_disponibles_logistica > 0 ? '#059669' : '#ef4444' }}>
                             {producto.empaques_disponibles_logistica}
                           </td>
-                          <td style={{ ...tdStyleCenter, fontWeight: 'bold', fontSize: '16px', color: producto.empaques_prioritarios_asignados > 0 ? '#f59e0b' : '#6b7280' }}>
+                          <td className="surtir-flujo-td-center" style={{ fontWeight: 'bold', fontSize: '16px', color: producto.empaques_prioritarios_asignados > 0 ? '#f59e0b' : '#6b7280' }}>
                             {producto.empaques_prioritarios_asignados}
                           </td>
-                          <td style={tdStyleCenter}>
+                          <td className="surtir-flujo-td-center">
                             <span style={{
                               backgroundColor: getCalificacionColor(producto.calificacion_surtido),
                               color: 'white',
@@ -862,12 +833,12 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
                           <tr style={{ backgroundColor: 'var(--color-modal-header-bg)' }}>
-                            <th style={thStyle}>ID Emp.</th>
-                            <th style={thStyle}>EPC</th>
-                            <th style={thStyle}>Producto</th>
-                            <th style={thStyle}>Peso (g)</th>
-                            <th style={thStyle}>F. Vencimiento</th>
-                            <th style={thStyle}>% Vida</th>
+                            <th className="surtir-flujo-th">ID Emp.</th>
+                            <th className="surtir-flujo-th">EPC</th>
+                            <th className="surtir-flujo-th">Producto</th>
+                            <th className="surtir-flujo-th">Peso (g)</th>
+                            <th className="surtir-flujo-th">F. Vencimiento</th>
+                            <th className="surtir-flujo-th">% Vida</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -882,12 +853,12 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                   transition: 'background-color 0.3s ease',
                                 }}
                               >
-                                <td style={tdStyleCenter}>{empaque.id_empaque}</td>
-                                <td style={{ ...tdStyle, fontWeight: 'bold', color: isScanned ? '#9ca3af' : '#d97706' }}>{empaque.epc}</td>
-                                <td style={tdStyle}>{getProductoNombre(empaque.id_producto) || empaque.id_producto}</td>
-                                <td style={tdStyleCenter}>{empaque.peso_exacto_g}</td>
-                                <td style={tdStyleCenter}>{new Date(empaque.fecha_vencimiento).toLocaleDateString('es-CO')}</td>
-                                <td style={tdStyleCenter}>
+                                <td className="surtir-flujo-td-center">{empaque.id_empaque}</td>
+                                <td className="surtir-flujo-td" style={{ fontWeight: 'bold', color: isScanned ? '#9ca3af' : '#d97706' }}>{empaque.epc}</td>
+                                <td className="surtir-flujo-td">{getProductoNombre(empaque.id_producto) || empaque.id_producto}</td>
+                                <td className="surtir-flujo-td-center">{empaque.peso_exacto_g}</td>
+                                <td className="surtir-flujo-td-center">{new Date(empaque.fecha_vencimiento).toLocaleDateString('es-CO')}</td>
+                                <td className="surtir-flujo-td-center">
                                   <span style={{
                                     padding: '3px 8px',
                                     borderRadius: '6px',
@@ -927,12 +898,12 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                         <thead>
                           <tr style={{ backgroundColor: 'var(--color-alert-error-bg)' }}>
-                            <th style={thStyle}>ID Emp.</th>
-                            <th style={thStyle}>EPC</th>
-                            <th style={thStyle}>Producto</th>
-                            <th style={thStyle}>Peso (g)</th>
-                            <th style={thStyle}>F. Vencimiento</th>
-                            <th style={thStyle}>% Vida</th>
+                            <th className="surtir-flujo-th">ID Emp.</th>
+                            <th className="surtir-flujo-th">EPC</th>
+                            <th className="surtir-flujo-th">Producto</th>
+                            <th className="surtir-flujo-th">Peso (g)</th>
+                            <th className="surtir-flujo-th">F. Vencimiento</th>
+                            <th className="surtir-flujo-th">% Vida</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -947,12 +918,12 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                                   transition: 'background-color 0.3s ease',
                                 }}
                               >
-                                <td style={tdStyleCenter}>{empaque.id_empaque}</td>
-                                <td style={{ ...tdStyle, fontWeight: 'bold', color: isScanned ? '#9ca3af' : '#dc2626' }}>{empaque.epc}</td>
-                                <td style={tdStyle}>{getProductoNombre(empaque.id_producto) || empaque.id_producto}</td>
-                                <td style={tdStyleCenter}>{empaque.peso_exacto_g}</td>
-                                <td style={tdStyleCenter}>{new Date(empaque.fecha_vencimiento).toLocaleDateString('es-CO')}</td>
-                                <td style={tdStyleCenter}>
+                                <td className="surtir-flujo-td-center">{empaque.id_empaque}</td>
+                                <td className="surtir-flujo-td" style={{ fontWeight: 'bold', color: isScanned ? '#9ca3af' : '#dc2626' }}>{empaque.epc}</td>
+                                <td className="surtir-flujo-td">{getProductoNombre(empaque.id_producto) || empaque.id_producto}</td>
+                                <td className="surtir-flujo-td-center">{empaque.peso_exacto_g}</td>
+                                <td className="surtir-flujo-td-center">{new Date(empaque.fecha_vencimiento).toLocaleDateString('es-CO')}</td>
+                                <td className="surtir-flujo-td-center">
                                   <span style={{
                                     padding: '3px 8px',
                                     borderRadius: '6px',
@@ -1001,21 +972,21 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
                           <tr style={{ backgroundColor: '#f0fdf4' }}>
-                            <th style={thStyle}>ID Emp.</th>
-                            <th style={thStyle}>EPC</th>
-                            <th style={thStyle}>Producto</th>
-                            <th style={thStyle}>Peso (g)</th>
-                            <th style={thStyle}>Nuevo Estado</th>
+                            <th className="surtir-flujo-th">ID Emp.</th>
+                            <th className="surtir-flujo-th">EPC</th>
+                            <th className="surtir-flujo-th">Producto</th>
+                            <th className="surtir-flujo-th">Peso (g)</th>
+                            <th className="surtir-flujo-th">Nuevo Estado</th>
                           </tr>
                         </thead>
                         <tbody>
                           {retiroResult.empaques_procesados.map((emp: any, i: number) => (
                             <tr key={i}>
-                              <td style={tdStyleCenter}>{emp.id_empaque}</td>
-                              <td style={{ ...tdStyle, fontWeight: 'bold', color: '#059669' }}>{emp.epc}</td>
-                              <td style={tdStyle}>{emp.nombre_producto || '-'}</td>
-                              <td style={tdStyleCenter}>{emp.peso_exacto_g || '-'}</td>
-                              <td style={tdStyleCenter}>
+                              <td className="surtir-flujo-td-center">{emp.id_empaque}</td>
+                              <td className="surtir-flujo-td" style={{ fontWeight: 'bold', color: '#059669' }}>{emp.epc}</td>
+                              <td className="surtir-flujo-td">{emp.nombre_producto || '-'}</td>
+                              <td className="surtir-flujo-td-center">{emp.peso_exacto_g || '-'}</td>
+                              <td className="surtir-flujo-td-center">
                                 <span style={{
                                   padding: '2px 8px',
                                   borderRadius: '6px',
@@ -1041,17 +1012,17 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
                           <tr style={{ backgroundColor: 'var(--color-alert-error-bg)' }}>
-                            <th style={thStyle}>ID Emp.</th>
-                            <th style={thStyle}>EPC</th>
-                            <th style={thStyle}>Error</th>
+                            <th className="surtir-flujo-th">ID Emp.</th>
+                            <th className="surtir-flujo-th">EPC</th>
+                            <th className="surtir-flujo-th">Error</th>
                           </tr>
                         </thead>
                         <tbody>
                           {retiroResult.empaques_no_procesados.map((emp: any, i: number) => (
                             <tr key={i}>
-                              <td style={tdStyleCenter}>{emp.id_empaque || '-'}</td>
-                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.epc || '-'}</td>
-                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.error}</td>
+                              <td className="surtir-flujo-td-center">{emp.id_empaque || '-'}</td>
+                              <td className="surtir-flujo-td" style={{ color: 'var(--color-alert-error-text)' }}>{emp.epc || '-'}</td>
+                              <td className="surtir-flujo-td" style={{ color: 'var(--color-alert-error-text)' }}>{emp.error}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1123,15 +1094,15 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
                   <thead>
                     <tr style={{ backgroundColor: 'var(--color-table-header-bg)' }}>
-                      <th style={thStyle}>#</th>
-                      <th style={thStyle}>EPC / ID</th>
+                      <th className="surtir-flujo-th">#</th>
+                      <th className="surtir-flujo-th">EPC / ID</th>
                     </tr>
                   </thead>
                   <tbody>
                     {scannedItems.map((item, i) => (
                       <tr key={i}>
-                        <td style={{ ...tdStyleCenter, width: '60px' }}>{i + 1}</td>
-                        <td style={{ ...tdStyle, fontWeight: 'bold', color: '#3b82f6' }}>
+                        <td className="surtir-flujo-td-center" style={{ width: '60px' }}>{i + 1}</td>
+                        <td className="surtir-flujo-td" style={{ fontWeight: 'bold', color: '#3b82f6' }}>
                           {item.epc}
                           {item.id_empaque && !/^\d+$/.test(item.epc) && ` (ID: ${item.id_empaque})`}
                         </td>
@@ -1164,19 +1135,19 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
                           <tr style={{ backgroundColor: '#f0fdf4' }}>
-                            <th style={thStyle}>ID Emp.</th>
-                            <th style={thStyle}>EPC</th>
-                            <th style={thStyle}>Producto</th>
-                            <th style={thStyle}>Peso (g)</th>
+                            <th className="surtir-flujo-th">ID Emp.</th>
+                            <th className="surtir-flujo-th">EPC</th>
+                            <th className="surtir-flujo-th">Producto</th>
+                            <th className="surtir-flujo-th">Peso (g)</th>
                           </tr>
                         </thead>
                         <tbody>
                           {validacionResult.empaques_procesados.map((emp: any, i: number) => (
                             <tr key={i}>
-                              <td style={tdStyleCenter}>{emp.id_empaque}</td>
-                              <td style={{ ...tdStyle, fontWeight: 'bold', color: '#059669' }}>{emp.epc}</td>
-                              <td style={tdStyle}>{emp.nombre_producto || '-'}</td>
-                              <td style={tdStyleCenter}>{emp.peso_exacto_g || '-'}</td>
+                              <td className="surtir-flujo-td-center">{emp.id_empaque}</td>
+                              <td className="surtir-flujo-td" style={{ fontWeight: 'bold', color: '#059669' }}>{emp.epc}</td>
+                              <td className="surtir-flujo-td">{emp.nombre_producto || '-'}</td>
+                              <td className="surtir-flujo-td-center">{emp.peso_exacto_g || '-'}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1192,17 +1163,17 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
                           <tr style={{ backgroundColor: 'var(--color-alert-error-bg)' }}>
-                            <th style={thStyle}>ID Emp.</th>
-                            <th style={thStyle}>EPC</th>
-                            <th style={thStyle}>Error</th>
+                            <th className="surtir-flujo-th">ID Emp.</th>
+                            <th className="surtir-flujo-th">EPC</th>
+                            <th className="surtir-flujo-th">Error</th>
                           </tr>
                         </thead>
                         <tbody>
                           {validacionResult.empaques_no_procesados.map((emp: any, i: number) => (
                             <tr key={i}>
-                              <td style={tdStyleCenter}>{emp.id_empaque || '-'}</td>
-                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.epc || '-'}</td>
-                              <td style={{ ...tdStyle, color: 'var(--color-alert-error-text)' }}>{emp.error}</td>
+                              <td className="surtir-flujo-td-center">{emp.id_empaque || '-'}</td>
+                              <td className="surtir-flujo-td" style={{ color: 'var(--color-alert-error-text)' }}>{emp.epc || '-'}</td>
+                              <td className="surtir-flujo-td" style={{ color: 'var(--color-alert-error-text)' }}>{emp.error}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1227,15 +1198,14 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       }}>
         {fase === 'review' && (
           <>
-            <button onClick={onClose} disabled={loading} style={cancelBtnStyle}>
+            <button onClick={onClose} disabled={loading} className="surtir-flujo-btn-cancel">
               Cancelar
             </button>
             <button
               onClick={handleConfirmarInicio}
               disabled={loading || !allConfirmed}
-              style={{
-                ...confirmBtnStyle,
-                backgroundColor: allConfirmed ? '#059669' : '#6b7280',
+              className="surtir-flujo-btn-confirm"
+              style={{backgroundColor: allConfirmed ? '#059669' : '#6b7280',
                 cursor: loading || !allConfirmed ? 'not-allowed' : 'pointer',
                 opacity: loading || !allConfirmed ? 0.6 : 1,
               }}
@@ -1247,15 +1217,14 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
 
         {fase === 'removal' && (
           <>
-            <button onClick={handleCancelarRemoval} disabled={retirando} style={cancelBtnStyle}>
+            <button onClick={handleCancelarRemoval} disabled={retirando} className="surtir-flujo-btn-cancel">
               Cancelar
             </button>
             <button
               onClick={handleRetirarEmpaques}
               disabled={retirando}
-              style={{
-                ...confirmBtnStyle,
-                backgroundColor: hasCambio5 ? '#f97316' : '#059669',
+              className="surtir-flujo-btn-confirm"
+              style={{backgroundColor: hasCambio5 ? '#f97316' : '#059669',
                 cursor: retirando ? 'not-allowed' : 'pointer',
                 opacity: retirando ? 0.6 : 1,
               }}
@@ -1270,16 +1239,15 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
             <button
               onClick={handleCancelarRemoval}
               disabled={validando || finalizando}
-              style={cancelBtnStyle}
+              className="surtir-flujo-btn-cancel"
             >
               Cancelar
             </button>
             <button
               onClick={handleValidarEmpaques}
               disabled={validando || scannedItems.length === 0}
-              style={{
-                ...confirmBtnStyle,
-                backgroundColor: '#3b82f6',
+              className="surtir-flujo-btn-confirm"
+              style={{backgroundColor: '#3b82f6',
                 cursor: validando || scannedItems.length === 0 ? 'not-allowed' : 'pointer',
                 opacity: validando || scannedItems.length === 0 ? 0.6 : 1,
               }}
@@ -1289,9 +1257,8 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
             <button
               onClick={handleFinalizarSurtido}
               disabled={finalizando || !validacionResult}
-              style={{
-                ...confirmBtnStyle,
-                backgroundColor: validacionResult ? '#dc2626' : '#6b7280',
+              className="surtir-flujo-btn-confirm"
+              style={{backgroundColor: validacionResult ? '#dc2626' : '#6b7280',
                 cursor: finalizando || !validacionResult ? 'not-allowed' : 'pointer',
                 opacity: finalizando || !validacionResult ? 0.6 : 1,
               }}
@@ -1456,49 +1423,6 @@ const SurtirFlujoModal: React.FC<SurtirFlujoModalProps> = ({ isOpen, onClose, id
       )}
     </div>
   );
-};
-
-const thStyle: React.CSSProperties = {
-  padding: '12px 8px',
-  textAlign: 'center',
-  border: '1px solid var(--color-table-border)',
-  fontWeight: 'bold',
-  backgroundColor: 'var(--color-table-header-bg)',
-  minWidth: '100px',
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: '12px 8px',
-  border: '1px solid var(--color-table-border)',
-};
-
-const tdStyleCenter: React.CSSProperties = {
-  padding: '12px 8px',
-  border: '1px solid var(--color-table-border)',
-  textAlign: 'center',
-};
-
-const cancelBtnStyle: React.CSSProperties = {
-  padding: '12px 30px',
-  backgroundColor: '#6b7280',
-  color: 'white',
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '16px',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-};
-
-const confirmBtnStyle: React.CSSProperties = {
-  padding: '12px 30px',
-  color: 'white',
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '16px',
-  fontWeight: 'bold',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  minWidth: '200px',
 };
 
 export default SurtirFlujoModal;

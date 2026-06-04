@@ -310,3 +310,9 @@
     padding: 0.2rem 0.4rem;
   }
 }
+
+.user-phone svg,
+.whatsapp-link svg {
+  margin-right: 4px;
+  vertical-align: middle;
+}

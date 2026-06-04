@@ -153,3 +153,13 @@
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
+
+.modal-scrollable {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-body-scrollable {
+  max-height: 50vh;
+  overflow-y: auto;
+}

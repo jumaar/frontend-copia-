@@ -1,0 +1,312 @@
+.surtir-flujo-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-modal-bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.surtir-flujo-header {
+  padding: 20px 30px;
+  border-bottom: 2px solid var(--color-table-border);
+  background-color: var(--color-modal-header-bg);
+}
+
+.surtir-flujo-header-center {
+  text-align: center;
+}
+
+.surtir-flujo-title {
+  margin: 0 0 5px 0;
+  color: var(--color-text-primary);
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.surtir-flujo-steps {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.surtir-flujo-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.surtir-flujo-step.active {
+  background-color: #667eea;
+  color: white;
+}
+
+.surtir-flujo-step.done {
+  background-color: #10b981;
+  color: white;
+}
+
+.surtir-flujo-step.inactive {
+  background-color: var(--color-badge-inactive);
+  color: var(--color-text-secondary);
+}
+
+.surtir-flujo-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+
+/* Shared table styles */
+.surtir-flujo-th {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid var(--color-table-border);
+  font-weight: bold;
+  background-color: var(--color-table-header-bg);
+  min-width: 100px;
+}
+
+.surtir-flujo-td {
+  padding: 12px 8px;
+  border: 1px solid var(--color-table-border);
+}
+
+.surtir-flujo-td-center {
+  padding: 12px 8px;
+  border: 1px solid var(--color-table-border);
+  text-align: center;
+}
+
+/* Section headers inside content */
+.surtir-flujo-section-header {
+  background-color: var(--color-table-header-bg);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-table-border);
+}
+
+.surtir-flujo-table-section {
+  overflow-x: auto;
+  padding: 10px;
+}
+
+/* Buttons */
+.surtir-flujo-btn-cancel {
+  padding: 12px 30px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.surtir-flujo-btn-confirm {
+  padding: 12px 30px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+}
+
+.surtir-flujo-footer {
+  padding: 20px 30px;
+  border-top: 2px solid var(--color-table-border);
+  background-color: var(--color-modal-header-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Warning/alert boxes */
+.surtir-flujo-alert {
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.surtir-flujo-alert.warning {
+  background-color: var(--color-alert-warning-bg);
+  border: 1px solid var(--color-alert-warning-border);
+}
+
+.surtir-flujo-alert.error {
+  background-color: var(--color-alert-error-bg);
+  border: 1px solid var(--color-alert-error-border);
+}
+
+.surtir-flujo-alert.success {
+  background-color: var(--color-alert-success-bg);
+  border: 1px solid var(--color-alert-success-bg);
+}
+
+.surtir-flujo-alert.info {
+  background-color: var(--color-alert-info-bg);
+  border: 1px solid var(--color-alert-info-bg);
+}
+
+.surtir-flujo-alert-heading {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.surtir-flujo-alert-text {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Scanning input highlight */
+.surtir-flujo-input-scanner {
+  border: 2px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 18px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.surtir-flujo-input-scanner:focus {
+  border-color: var(--color-primary-start);
+}
+
+/* Row scanned state */
+.surtir-flujo-row-scanned {
+  background-color: #4b5563;
+  color: var(--color-text-secondary);
+  transition: background-color 0.3s ease;
+}
+
+.surtir-flujo-row-unscanned {
+  background-color: transparent;
+}
+
+/* Badge styles */
+.surtir-flujo-badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* Empty state */
+.surtir-flujo-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+}
+
+.surtir-flujo-empty-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* Confirm sub-modal */
+.surtir-flujo-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.surtir-flujo-confirm-card {
+  background-color: var(--color-modal-bg);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.surtir-flujo-confirm-header {
+  padding: 30px;
+  text-align: center;
+}
+
+.surtir-flujo-confirm-body {
+  padding: 20px 30px;
+}
+
+.surtir-flujo-confirm-footer {
+  padding: 20px 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* Product toggle switch */
+.surtir-flujo-product-toggle {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 auto;
+}
+
+.surtir-flujo-product-toggle.on {
+  background-color: #10b981;
+}
+
+.surtir-flujo-product-toggle.off {
+  background-color: var(--color-badge-inactive);
+}
+
+.surtir-flujo-product-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-modal-bg);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease;
+}
+
+.surtir-flujo-product-toggle-thumb.on {
+  left: 26px;
+}
+
+.surtir-flujo-product-toggle-thumb.off {
+  left: 2px;
+}
+
+/* EPC scanned status in table */
+.surtir-flujo-epc-scanned {
+  font-weight: bold;
+  color: #9ca3af;
+}
+
+/* Validation result rows */
+.surtir-flujo-validation-error {
+  color: var(--color-alert-error-text);
+}
+
+/* Sub-section heading in removal/scanning */
+.surtir-flujo-subsection-heading {
+  padding: 12px 20px;
+  border-bottom: 1px solid;
+}

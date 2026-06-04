@@ -1,0 +1,66 @@
+.parametros-surtir-modal {
+  max-width: 600px;
+}
+
+.dias-excluir-section {
+  padding: 1rem;
+  background-color: var(--color-hover-bg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  margin-top: 1rem;
+}
+
+.dias-excluir-section label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.dias-excluir-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dias-input {
+  width: 80px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.dias-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.resumen-panel {
+  margin: 0 1.5rem 1rem;
+  padding: 0.75rem;
+  background-color: var(--color-hover-bg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+}
+
+.modal-inline-error {
+  color: var(--color-error);
+  padding: 1rem;
+  border: 1px solid var(--color-error);
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.modal-loading {
+  text-align: center;
+  padding: 2rem;
+}

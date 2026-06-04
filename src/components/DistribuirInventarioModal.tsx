@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getLogisticaSurtir, distribuirNeveras } from '../services/api';
 import './CreateTokenModal.css';
+import './DistribuirInventarioModal.css';
 
 interface Nevera {
   id_nevera: number;
@@ -133,30 +134,21 @@ const DistribuirInventarioModal: React.FC<DistribuirInventarioModalProps> = ({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
-        className="modal-content"
+        className="modal-content distribuir-modal modal-scrollable"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '80vh', overflowY: 'auto', maxWidth: '600px' }}
       >
         <header className="modal-header">
           <h2>Distribuir Inventario por Ciudades</h2>
           <button onClick={onClose} className="modal-close-button" disabled={distributing}>&times;</button>
         </header>
 
-        <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <div className="modal-body modal-body-scrollable">
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <div className="modal-loading">
               Cargando datos de distribución...
             </div>
           ) : error ? (
-            <div
-              style={{
-                color: "red",
-                padding: "1rem",
-                border: "1px solid red",
-                borderRadius: "4px",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className="modal-inline-error">
               {error}
             </div>
           ) : neverasData ? (
@@ -196,19 +188,18 @@ const DistribuirInventarioModal: React.FC<DistribuirInventarioModalProps> = ({
                         backgroundColor: isSelected ? 'var(--color-hover-bg)' : 'var(--color-card-bg)'
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleCityToggle(id_ciudad)}
-                          disabled={distributing}
-                          style={{ marginRight: '1rem', accentColor: 'var(--color-primary-start)' }}
-                        />
+<div className="ciudad-row">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleCityToggle(id_ciudad)}
+                        disabled={distributing}
+                      />
                         <div style={{ flex: 1 }}>
                           <div className="role-name">
                             {ciudad} ({neveras.length} neveras)
                           </div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                          <div className="ciudad-detail">
                             {neveras.map(nevera => `${nevera.nombre_tienda}`).join(', ')}
                           </div>
                         </div>
@@ -219,15 +210,7 @@ const DistribuirInventarioModal: React.FC<DistribuirInventarioModalProps> = ({
               </div>
 
               {selectedCities.size > 0 && (
-                <div
-                  style={{
-                    marginTop: '1.5rem',
-                    padding: '1rem',
-                    backgroundColor: 'var(--color-hover-bg)',
-                    borderRadius: 'var(--border-radius-md)',
-                    border: '1px solid var(--color-border)',
-                  }}
-                >
+                <div className="distribucion-resumen">
                   <strong>
                     Total de neveras seleccionadas: {totalNeverasSeleccionadas}
                   </strong>
@@ -244,7 +227,7 @@ const DistribuirInventarioModal: React.FC<DistribuirInventarioModalProps> = ({
         </div>
 
         {lastDistributionTime && (
-          <div style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
+          <div className="distribucion-timestamp">
             Última distribución: {new Date(lastDistributionTime).toLocaleString('es-CO')}
           </div>
         )}

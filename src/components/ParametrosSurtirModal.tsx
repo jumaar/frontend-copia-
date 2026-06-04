@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getLogisticaSurtir } from '../services/api';
 import './CreateTokenModal.css';
+import './ParametrosSurtirModal.css';
 
 interface Nevera {
   id_nevera: number;
@@ -121,30 +122,21 @@ const ParametrosSurtirModal: React.FC<ParametrosSurtirModalProps> = ({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
-        className="modal-content"
+        className="modal-content parametros-surtir-modal modal-scrollable"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxHeight: '80vh', overflowY: 'auto', maxWidth: '600px' }}
       >
         <header className="modal-header">
           <h2>Parámetros de Surtido</h2>
           <button onClick={onClose} className="modal-close-button">&times;</button>
         </header>
 
-        <div className="modal-body" style={{ maxHeight: '55vh', overflowY: 'auto' }}>
+        <div className="modal-body modal-body-scrollable">
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <div className="modal-loading">
               Cargando ciudades disponibles...
             </div>
           ) : error ? (
-            <div
-              style={{
-                color: 'red',
-                padding: '1rem',
-                border: '1px solid red',
-                borderRadius: '4px',
-                marginBottom: '1rem',
-              }}
-            >
+            <div className="modal-inline-error">
               {error}
             </div>
           ) : neverasData ? (
@@ -209,49 +201,26 @@ const ParametrosSurtirModal: React.FC<ParametrosSurtirModalProps> = ({
               </div>
 
               {/* Días a excluir */}
-              <div style={{
-                padding: '1rem',
-                backgroundColor: 'var(--color-hover-bg)',
-                borderRadius: 'var(--border-radius-md)',
-                border: '1px solid var(--color-border)',
-                marginTop: '1rem',
-              }}>
-                <label style={{
-                  display: 'block',
-                  fontWeight: 'bold',
-                  marginBottom: '0.5rem',
-                  color: 'var(--color-text-primary)',
-                  fontSize: '0.95rem',
-                }}>
-                  Días a excluir:
+              <div
+              className="dias-excluir-section"
+            >
+              <label>
+                Días a excluir:
                 </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input
-                    type="number"
-                    min={0}
-                    max={30}
-                    value={diasExcluir}
-                    onChange={(e) => setDiasExcluir(Math.max(0, parseInt(e.target.value) || 0))}
-                    style={{
-                      width: '80px',
-                      padding: '0.5rem',
-                      fontSize: '1rem',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: '4px',
-                      textAlign: 'center',
-                      fontWeight: 'bold',
-                    }}
-                  />
+<div className="dias-excluir-row">
+                <input
+                  type="number"
+                  min={0}
+                  max={30}
+                  value={diasExcluir}
+                  onChange={(e) => setDiasExcluir(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="dias-input"
+                />
                   <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
                     día(s) — Excluir neveras surtidas recientemente
                   </span>
                 </div>
-                <p style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--color-text-secondary)',
-                  marginTop: '0.5rem',
-                  marginBottom: 0,
-                }}>
+                <p className="dias-hint">
                   0 = incluir todas las neveras, incluso las surtidas hoy.
                   1 = excluir neveras surtidas en las últimas 24h (recomendado).
                 </p>
@@ -263,16 +232,7 @@ const ParametrosSurtirModal: React.FC<ParametrosSurtirModalProps> = ({
         </div>
 
         {selectedCities.size > 0 && (
-          <div
-            style={{
-              margin: '0 1.5rem 1rem',
-              padding: '0.75rem',
-              backgroundColor: 'var(--color-hover-bg)',
-              borderRadius: 'var(--border-radius-md)',
-              border: '1px solid var(--color-border)',
-              fontSize: '0.9rem',
-            }}
-          >
+          <div className="resumen-panel">
             <strong>Resumen:</strong> Surtir nevera #{idNevera} —{' '}
             {selectedCities.size} ciudad(es) seleccionada(s), {totalNeverasSeleccionadas} nevera(s) (días excluir: {diasExcluir})
           </div>

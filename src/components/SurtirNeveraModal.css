@@ -1,0 +1,393 @@
+.surtir-nevera-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-modal-bg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.surtir-nevera-header {
+  padding: 30px;
+  border-bottom: 2px solid var(--color-table-border);
+  background-color: var(--color-modal-header-bg);
+}
+
+.surtir-nevera-header-center {
+  text-align: center;
+}
+
+.surtir-nevera-title {
+  margin: 0 0 10px 0;
+  color: var(--color-text-primary);
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.surtir-nevera-subtitle {
+  margin: 0 0 15px 0;
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.surtir-nevera-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+  padding: 15px;
+  background-color: var(--color-modal-header-bg);
+  border-radius: 10px;
+  border: 2px solid var(--color-border-strong);
+}
+
+.surtir-nevera-stat {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.surtir-nevera-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
+
+.surtir-nevera-table-wrapper {
+  height: 100%;
+  overflow: auto;
+}
+
+.surtir-nevera-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: var(--color-modal-bg);
+}
+
+.surtir-nevera-table thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-modal-header-bg);
+  z-index: 10;
+}
+
+.surtir-nevera-th {
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid var(--color-table-border);
+  font-weight: bold;
+  background-color: var(--color-table-header-bg);
+}
+
+.surtir-nevera-th.left {
+  text-align: left;
+}
+
+.surtir-nevera-th.min-w-200 {
+  min-width: 200px;
+}
+
+.surtir-nevera-th.min-w-140 {
+  min-width: 140px;
+}
+
+.surtir-nevera-th.min-w-120 {
+  min-width: 120px;
+}
+
+.surtir-nevera-th.min-w-100 {
+  min-width: 100px;
+}
+
+.surtir-nevera-td {
+  padding: 12px 8px;
+  border: 1px solid var(--color-table-border);
+  text-align: center;
+}
+
+.surtir-nevera-td.left {
+  text-align: left;
+}
+
+.surtir-nevera-td.bold {
+  font-weight: bold;
+}
+
+.surtir-nevera-td.large {
+  font-size: 16px;
+}
+
+.surtir-nevera-td.small {
+  font-size: 13px;
+}
+
+.surtir-nevera-td.min-w-120 {
+  min-width: 120px;
+}
+
+.surtir-nevera-td.min-w-140 {
+  min-width: 140px;
+}
+
+.surtir-nevera-product-name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.surtir-nevera-product-desc {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.surtir-nevera-product-weight {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.surtir-nevera-stock-input {
+  width: 100px;
+  padding: 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.surtir-nevera-calificacion-badge {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.surtir-nevera-toggle {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 auto;
+}
+
+.surtir-nevera-toggle.on {
+  background-color: #10b981;
+}
+
+.surtir-nevera-toggle.off {
+  background-color: var(--color-badge-inactive);
+}
+
+.surtir-nevera-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-modal-bg);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease;
+}
+
+.surtir-nevera-toggle-thumb.on {
+  left: 26px;
+}
+
+.surtir-nevera-toggle-thumb.off {
+  left: 2px;
+}
+
+.surtir-nevera-toggle-label {
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: bold;
+}
+
+.surtir-nevera-footer {
+  padding: 20px;
+  border-top: 2px solid var(--color-table-border);
+  background-color: var(--color-modal-header-bg);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.surtir-nevera-btn-guardar {
+  padding: 12px 30px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.surtir-nevera-btn-cerrar {
+  padding: 12px 30px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.surtir-nevera-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+}
+
+.surtir-nevera-error {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #ef4444;
+  background-color: var(--color-alert-error-bg);
+  border: 1px solid var(--color-alert-error-border);
+  border-radius: 8px;
+}
+
+/* Modal de confirmación */
+.surtir-nevera-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.surtir-nevera-confirm-card {
+  background-color: var(--color-modal-bg);
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.surtir-nevera-confirm-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.surtir-nevera-confirm-title {
+  color: var(--color-alert-error-text);
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.surtir-nevera-confirm-text {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.surtir-nevera-confirm-hint {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.surtir-nevera-confirm-id-box {
+  background-color: var(--color-alert-warning-bg);
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.surtir-nevera-confirm-id {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--color-alert-warning-text);
+  letter-spacing: 3px;
+}
+
+.surtir-nevera-confirm-id-label {
+  font-size: 12px;
+  color: var(--color-alert-warning-text);
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+
+.surtir-nevera-confirm-input-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.surtir-nevera-confirm-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 18px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+  box-sizing: border-box;
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.surtir-nevera-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.surtir-nevera-confirm-btn-cancel {
+  padding: 10px 24px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.surtir-nevera-confirm-btn-submit {
+  padding: 10px 24px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.surtir-nevera-confirm-btn-submit:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
