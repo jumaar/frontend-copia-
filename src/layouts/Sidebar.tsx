@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
       <li>
         <NavLink to="/admin/dashboard" className="nav-item">
           <NavIcon />
-          <span>Dashboard Admin</span>
+          <span>Dashboard</span>
         </NavLink>
       </li>
       <li>
@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
        <li>
         <NavLink to="/admin/logistica" className="nav-item">
           <NavIcon />
-          <span>Gestión de Logística</span>
+          <span>Gestión Frigoríficos</span>
         </NavLink>
       </li>
       <li>
@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
       <li>
         <NavLink to="/admin/historial-tienda" className="nav-item">
           <NavIcon />
-          <span>Historial Tienda</span>
+          <span>Historial Tiendas</span>
         </NavLink>
       </li>
       <li>
@@ -94,13 +94,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
       <li>
         <NavLink to="/frigorifico" className="nav-item" end>
           <NavIcon />
-          <span>Dashboard Frigorífico</span>
+          <span>Dashboard</span>
         </NavLink>
       </li>
       <li>
         <NavLink to="/frigorifico/logistica" className="nav-item">
           <NavIcon />
-          <span>Gestión de Logística</span>
+          <span>Gestión Frigoríficos</span>
         </NavLink>
       </li>
       <li>
@@ -132,19 +132,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
       <li>
         <NavLink to="/logistica" className="nav-item" end>
           <NavIcon />
-          <span>Dashboard Logística</span>
-        </NavLink>
-      </li>
-      <li>
-        <NavLink to="/logistica/gestion" className="nav-item">
-          <NavIcon />
-          <span>Gestión de Logística</span>
+          <span>Dashboard</span>
         </NavLink>
       </li>
       <li>
         <NavLink to="/logistica/inventario" className="nav-item">
           <NavIcon />
-          <span>Gestión de Inventario</span>
+          <span>Gestión Inventario</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/logistica/gestion" className="nav-item">
+          <NavIcon />
+          <span>Gestión Frigoríficos</span>
         </NavLink>
       </li>
       <li>
@@ -162,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
       <li>
         <NavLink to="/logistica/historial-tienda" className="nav-item">
           <NavIcon />
-          <span>Historial Tienda</span>
+          <span>Historial Tiendas</span>
         </NavLink>
       </li>
       <li>
@@ -182,7 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
       <li>
         <NavLink to="/tienda" className="nav-item" end>
           <NavIcon />
-          <span>Dashboard Tienda</span>
+          <span>Dashboard</span>
         </NavLink>
       </li>
       <li>

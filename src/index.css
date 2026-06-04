@@ -124,7 +124,6 @@ ul, ol {
 .button-secondary {
   background-color: transparent;
   border-color: var(--color-border);
-  color: var(--color-text-primary);
 }
 
 .button-secondary:hover {

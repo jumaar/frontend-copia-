@@ -10,7 +10,7 @@ const LogisticaManagementPage: React.FC = () => {
   return (
     <div className="management-page">
       <header className="management-header">
-        <h1>Gestión de Logística</h1>
+        <h1>Gestión Frigoríficos</h1>
         <p>Administrar todas las empresas de logística del sistema.</p>
         <button className="button button-primary">Añadir Empresa</button>
       </header>

@@ -22,7 +22,7 @@ const AdminDashboardPage: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <div className="cuentas-header">
-        <h1>Dashboard de Administración</h1>
+        <h1>Dashboard</h1>
         <p>Bienvenido al panel de administración del sistema.</p>
       </div>
 

@@ -17,7 +17,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: var(--color-background);
+  background: var(--color-primary);
 }
 
 .summary-card:hover {
@@ -37,7 +37,7 @@
 .card-value {
   font-size: 3rem;
   font-weight: var(--font-weight-bold);
-  background: var(--color-background);
+  background: var(--color-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

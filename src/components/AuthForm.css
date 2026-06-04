@@ -23,16 +23,13 @@
   font-size: 2rem;
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--spacing-unit);
-  background: var(--color-background);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-inverse);
 }
 
 .auth-subtitle {
   text-align: center;
   margin-bottom: calc(var(--spacing-unit) * 4);
-  color: #6b7280;
+  color: var(--color-text-primary);
   font-size: 1.1rem;
 }
 
@@ -97,25 +94,18 @@
 }
 
 .auth-footer p {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .auth-footer a {
-  background: var(--color-background);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-inverse);
   text-decoration: none;
   font-weight: var(--font-weight-medium);
   transition: all 0.3s ease;
 }
 
 .auth-footer a:hover {
-  background: var(--color-background);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   text-decoration: underline;
   opacity: 0.8;
 }

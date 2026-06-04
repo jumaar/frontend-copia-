@@ -40,15 +40,15 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   };
 
   const routeTitles: { [key: string]: string } = {
-    '/admin/dashboard': 'Dashboard Admin',
+    '/admin/dashboard': 'Dashboard',
     '/admin/users': 'Gestión de Usuarios',
     '/admin/frigorificos': 'Gestión de Frigoríficos',
-    '/admin/logistica': 'Gestión de Logística',
+    '/admin/logistica': 'Gestión Frigoríficos',
     '/admin/productos': 'Gestión de Productos',
     '/admin/neveras': 'Gestión de Neveras',
     '/admin/accounts': 'Cuentas Globales',
-    '/frigorifico': 'Dashboard Frigorífico',
-    '/logistica': 'Dashboard Logística',
+    '/frigorifico': 'Dashboard',
+    '/logistica': 'Dashboard',
     '/tienda': 'Inventario de Tienda',
   };
 

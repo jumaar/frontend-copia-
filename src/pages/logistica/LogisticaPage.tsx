@@ -244,7 +244,7 @@ const LogisticaPage: React.FC = () => {
     <>
       <div className="management-page">
         <div className="cuentas-header">
-          <h1>Gestión de Logística</h1>
+          <h1>Gestión Frigoríficos</h1>
           <p>Administrar usuarios de logística y sus tiendas asignadas.</p>
         </div>
 

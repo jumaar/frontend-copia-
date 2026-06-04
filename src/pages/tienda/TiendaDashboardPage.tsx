@@ -337,7 +337,7 @@ const TiendaDashboardPage: React.FC = () => {
     <>
        <div className="frigorifico-page">
         <div className="cuentas-header">
-          <h1>Portal de la Tienda</h1>
+          <h1>Dashboard</h1>
           <p>Registro y gestión de tiendas.</p>
         </div>
 

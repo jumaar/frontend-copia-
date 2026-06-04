@@ -299,7 +299,7 @@ const FrigorificoPage: React.FC = () => {
     <>
       <div className="frigorifico-page">
         <div className="cuentas-header">
-          <h1>Portal del Frigorífico</h1>
+          <h1>Dashboard</h1>
           <p>Registro y gestión de lotes de producción.</p>
         </div>
 

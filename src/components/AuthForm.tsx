@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { useTheme } from 'next-themes';
+import ThemeToggle from './ThemeToggle';
 import './AuthForm.css';
 
 interface AuthFormProps {
@@ -9,6 +11,7 @@ interface AuthFormProps {
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -347,13 +350,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
             ref={turnstileRef}
             siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             onSuccess={(token) => setFormData(prev => ({ ...prev, turnstileToken: token }))}
-            options={{ theme: 'light' }}
+            options={{ theme: theme === 'dark' ? 'dark' : 'light' }}
           />
           <button type="submit" className="button button-primary auth-button">
             {isSignUp ? 'Registrarse' : 'Continuar'}
           </button>
         </form>
         <div className="auth-footer">
+          <ThemeToggle />
           {isSignUp ? (
             <p>
               ¿Ya tienes una cuenta?{' '}
