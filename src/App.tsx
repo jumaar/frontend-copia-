@@ -18,6 +18,7 @@ import FrigorificoCuentasPage from './pages/frigorifico/CuentasPage';
 import LogisticaPage from './pages/logistica/LogisticaPage';
 import LogisticaGestionPage from './pages/logistica/LogisticaGestionPage';
 import LogisticaInventarioPage from './pages/logistica/LogisticaInventarioPage';
+import LogisticaFinanzasPage from './pages/logistica/LogisticaFinanzasPage';
 import TiendaDashboardPage from './pages/tienda/TiendaDashboardPage';
 import TiendaInventarioPage from './pages/tienda/TiendaInventarioPage';
 import CuentasTiendaPage from './pages/tienda/CuentasTiendaPage';
@@ -65,6 +66,7 @@ const AppContent: React.FC = () => {
                 <Route path="accounts" element={<GlobalAccountsPage />} />
                 <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
                 <Route path="historial-tienda" element={<HistorialTiendaPage />} />
+                <Route path="finanzas-logistica" element={<LogisticaFinanzasPage />} />
               </Routes>
             </RootLayout>
           </ProtectedRoute>
@@ -98,6 +100,7 @@ const AppContent: React.FC = () => {
                 <Route index element={<LogisticaPage />} />
                 <Route path="gestion" element={<LogisticaGestionPage />} />
                 <Route path="inventario" element={<LogisticaInventarioPage />} />
+                <Route path="finanzas" element={<LogisticaFinanzasPage />} />
                 <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
                 <Route path="historial-tienda" element={<HistorialTiendaPage />} />
               </Routes>

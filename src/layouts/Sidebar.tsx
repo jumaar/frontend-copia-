@@ -83,6 +83,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
           <span>Trazabilidad</span>
         </NavLink>
       </li>
+      <li>
+        <NavLink to="/admin/finanzas-logistica" className="nav-item">
+          <NavIcon />
+          <span>Finanzas Logísticas</span>
+        </NavLink>
+      </li>
     </>
   );
 
@@ -169,6 +175,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggleSidebar }) =
         <NavLink to="/trazabilidad" className="nav-item">
           <NavIcon />
           <span>Trazabilidad</span>
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/logistica/finanzas" className="nav-item">
+          <NavIcon />
+          <span>Finanzas</span>
         </NavLink>
       </li>
     </>

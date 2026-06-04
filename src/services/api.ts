@@ -1030,4 +1030,35 @@ export const getEmpaque = async (idOrEpc: string | number) => {
   }
 };
 
+export const getResumenFinanciero = async (mes?: number, ano?: number, id_logistica?: number) => {
+  const params = new URLSearchParams();
+  if (mes) params.append('mes', String(mes));
+  if (ano) params.append('ano', String(ano));
+  if (id_logistica) params.append('id_logistica', String(id_logistica));
+  const response = await api.get(`/logistica/resumen-financiero?${params.toString()}`);
+  return response.data;
+};
+
+export const registrarMovimientoAdmin = async (
+  monto: number,
+  tipo_movimiento: 'ingreso' | 'consolidacion',
+  nota_opcional?: string,
+  id_logistica?: number
+) => {
+  const body: any = { monto, tipo_movimiento, nota_opcional };
+  if (id_logistica) body.id_logistica = id_logistica;
+  const response = await api.post('/logistica/consolidar-admin', body);
+  return response.data;
+};
+
+export const getLogisticaHermanos = async () => {
+  try {
+    const response = await api.get('/logistica/hermanos');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener la lista de logísticos:', error);
+    throw error;
+  }
+};
+
 export default api;

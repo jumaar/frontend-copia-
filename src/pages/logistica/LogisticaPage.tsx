@@ -29,6 +29,7 @@ const LogisticaPage: React.FC = () => {
   const [activeTokens, setActiveTokens] = useState<TokenData[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [tiendasData, setTiendasData] = useState<any[]>([]);
+  const [sobrinasData, setSobrinasData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
   const [userProfileData, setUserProfileData] = useState<any>(null);
@@ -44,6 +45,7 @@ const LogisticaPage: React.FC = () => {
 
         // Set tiendas data for individual components
         setTiendasData(data.tiendas_creadas || []);
+        setSobrinasData(data.sobrinas || []);
         setActiveTokens(data.tokens || []);
 
         // Verificar si el usuario actual de logística necesita completar perfil
@@ -240,11 +242,17 @@ const LogisticaPage: React.FC = () => {
     }
   };
 
+  const nombreUsuarioActual = users[0]?.nombre_completo || '';
+  const todasLasTiendas = [
+    ...tiendasData.map((t: any) => ({ ...t, creado_por: nombreUsuarioActual })),
+    ...sobrinasData,
+  ];
+
   return (
     <>
       <div className="management-page">
         <div className="cuentas-header">
-          <h1>Gestión Frigoríficos</h1>
+          <h1>Gestión de Usuarios</h1>
           <p>Administrar usuarios de logística y sus tiendas asignadas.</p>
         </div>
 
@@ -282,8 +290,8 @@ const LogisticaPage: React.FC = () => {
         <div className="tiendas-section">
           {isLoading ? (
             <p>Cargando datos...</p>
-          ) : tiendasData.length > 0 ? (
-            tiendasData.map((tiendaUser: any) => {
+          ) : todasLasTiendas.length > 0 ? (
+            todasLasTiendas.map((tiendaUser: any) => {
               const tiendaHierarchy: User[] = [{
                 id: tiendaUser.id_usuario,
                 nombre_completo: tiendaUser.nombre_completo,
@@ -318,6 +326,9 @@ const LogisticaPage: React.FC = () => {
                     onDeleteUser={handleDeleteUser}
                     onSurtir={() => navigate('/logistica/inventario')}
                   />
+                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '8px', paddingLeft: '8px' }}>
+                    Creado por: {tiendaUser.creado_por}
+                  </div>
                 </div>
               );
             })
