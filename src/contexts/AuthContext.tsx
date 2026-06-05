@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
-import api from '../services/api';
+import { getRoleName } from '../shared/config/roles';
+import { login as loginService, refreshSession, logout as logoutService } from '../services/domains/auth.service';
 
 interface User {
   id: string;
@@ -51,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/auth/logout');
+      await logoutService();
       // Las cookies se eliminan automáticamente por el backend
     } catch (error) {
       console.error('Error en logout:', error);
@@ -78,20 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       try {
         // Verificar si hay una sesión activa haciendo una solicitud al backend
-        const response = await api.post('/auth/refresh', {}, { withCredentials: true });
-        const userData = response.data;
-
-        // Mapear el ID de rol numérico al nombre del rol
-        const getRoleName = (roleId: number): User['role'] => {
-          switch (roleId) {
-            case 1: return 'superadmin';
-            case 2: return 'admin';
-            case 3: return 'frigorifico';
-            case 4: return 'logistica';
-            case 5: return 'tienda';
-            default: return 'tienda';
-          }
-        };
+        const userData = await refreshSession();
 
         const restoredUser: User = {
           id: String(userData.id_usuario || userData.id || userData.sub || 'unknown'),
@@ -126,34 +114,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      // Crear el payload de login
-      const loginPayload = {
-        email: email.trim(),
-        password: password.trim(),
-        ...(turnstileToken && { turnstileToken })
-      };
-
-      const response = await api.post('/auth/login', loginPayload);
-      // Los tokens están ahora en cookies HttpOnly, no necesitamos guardarlos
-
-      // El backend debe devolver la información completa del usuario incluyendo el rol
-      const userData = response.data;
-
-      // Mapear el ID de rol numérico al nombre del rol
-      const getRoleName = (roleId: number): User['role'] => {
-        switch (roleId) {
-          case 1: return 'superadmin';
-          case 2: return 'admin';
-          case 3: return 'frigorifico';
-          case 4: return 'logistica';
-          case 5: return 'tienda';
-          default: return 'tienda';
-        }
-      };
+      const userData = await loginService(email, password, turnstileToken);
 
       const newUser: User = {
         id: String(userData.id_usuario || userData.id || userData.sub || 'unknown'),
-        email: userData.email || loginPayload.email,
+        email: userData.email || email.trim(),
         role: getRoleName(userData.id_rol || userData.role || 5),
         name: `${userData.nombre_usuario || ''} ${userData.apellido_usuario || ''}`.trim() || 'Usuario'
       };

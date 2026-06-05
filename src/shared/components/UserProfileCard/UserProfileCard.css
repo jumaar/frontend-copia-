@@ -1,0 +1,98 @@
+.user-profile-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.user-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-profile-role {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  text-transform: capitalize;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(102, 126, 234, 0.1);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+}
+
+.user-profile-name {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  flex: 1;
+  font-size: 0.95rem;
+  white-space: normal;
+  line-height: 1.2;
+  width: 100%;
+  min-width: 10rem;
+}
+
+.user-profile-phone {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.user-profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Autosuficiente: define su propio botón, no depende de CSS externo */
+.user-profile-card .action-button {
+  background: var(--color-background);
+  border: none;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--color-hover-bg);
+}
+
+.user-profile-card .action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Header común para todos los dashboards */
+.cuentas-header {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.cuentas-header h1 {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+  margin: 0 0 calc(var(--spacing-unit) * 1) 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.cuentas-header p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 calc(var(--spacing-unit) * 2) 0;
+}
+
