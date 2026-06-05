@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCuentasTienda, filtrarUsuariosPorNevera } from '../../shared/hooks/useCuentasTienda';
 import CuentasTiendaView from '../../shared/components/CuentasTiendaView/CuentasTiendaView';
-import PagoForm from '../../shared/components/PagoForm/PagoForm';
+import GestionCobro from '../../shared/components/GestionCobro';
 import '../../shared/components/TablaTransacciones/TablaTransacciones.css';
 import type { UsuarioTienda } from '../../shared/types/cuentas-tienda.types';
 
@@ -297,19 +297,19 @@ const CuentasTiendaAdminPage: React.FC = () => {
       )}
 
       {tiendaSeleccionada && neveraSeleccionada && transacciones && (
-        <PagoForm
+        <GestionCobro
           tipoPago={tipoPago}
+          setTipoPago={setTipoPago}
           montoPago={montoPago}
+          setMontoPago={setMontoPago}
           notaPago={notaPago}
-          saldoTotalLiquidar={saldoTotalLiquidar}
+          setNotaPago={setNotaPago}
           procesandoPago={procesandoPago}
           showTipoMenu={showTipoMenu}
+          setShowTipoMenu={setShowTipoMenu}
+          onProcesarPago={manejarPago}
           userName={user?.name || ''}
-          onSelectTipo={setTipoPago}
-          onToggleTipoMenu={() => setShowTipoMenu(!showTipoMenu)}
-          onChangeMonto={setMontoPago}
-          onChangeNota={setNotaPago}
-          onPagar={manejarPago}
+          saldoTotalLiquidar={saldoTotalLiquidar}
         />
       )}
     </div>

@@ -213,6 +213,9 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
         setMontoPago(0);
         setNotaPago('');
 
+        const montoConsolidado = respuesta.resumen?.monto_consolidado;
+        const montoAbonado = respuesta.resumen?.monto_abonado ?? 0;
+
         let mensajeDetallado = '';
         if (esAdelantoSinDeuda) {
           mensajeDetallado = `
@@ -220,19 +223,22 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
 
 📋 RESUMEN DEL ABONO ADELANTADO:
 👤 Usuario: ID ${respuesta.resumen.usuario_consolidado}
-💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
+💸 Monto Abonado: $${montoAbonado.toLocaleString()}
 🏷️ Tipo: Abono Adelantado (Sin Deuda Pendiente)
           `.trim();
         } else {
-          mensajeDetallado = `
-✅ ${respuesta.message}
-
-📋 RESUMEN DE LA CONSOLIDACIÓN:
-👤 Usuario Consolidado: ID ${respuesta.resumen.usuario_consolidado}
-💰 Usuario Acreedor: ID ${respuesta.resumen.usuario_acreedor}
-💵 Monto Consolidado: $${respuesta.resumen.monto_consolidado.toLocaleString()}
-💸 Monto Abonado: $${respuesta.resumen.monto_abonado.toLocaleString()}
-          `.trim();
+          const lineas = [
+            `✅ ${respuesta.message}`,
+            '',
+            '📋 RESUMEN DE LA CONSOLIDACIÓN:',
+            `👤 Usuario Consolidado: ID ${respuesta.resumen.usuario_consolidado}`,
+            `💰 Usuario Acreedor: ID ${respuesta.resumen.usuario_acreedor}`,
+          ];
+          if (montoConsolidado != null) {
+            lineas.push(`💵 Monto Consolidado: $${montoConsolidado.toLocaleString()}`);
+          }
+          lineas.push(`💸 Monto Abonado: $${montoAbonado.toLocaleString()}`);
+          mensajeDetallado = lineas.join('\n');
         }
 
         alert(mensajeDetallado);
@@ -251,6 +257,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
           setError('Error al procesar el pago: ' + errorMessage);
         }
 
+        try { await recargarDatosUsuario(); } catch (_) { /* si falla, ya hay error mostrado */ }
         setTimeout(() => setError(null), 5000);
       } finally {
         setProcesandoPago(false);

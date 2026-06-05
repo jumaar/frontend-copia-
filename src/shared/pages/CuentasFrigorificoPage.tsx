@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCuentasFrigorifico } from '../hooks/useCuentasFrigorifico';
 import CuentasFrigorificoView from '../components/CuentasFrigorificoView/CuentasFrigorificoView';
+import GestionCobro from '../components/GestionCobro';
 import type { UsuarioHermano } from '../types/cuentas-frigorifico.types';
 import '../../apps/frigorifico/pages/CuentasPage.css';
 
@@ -51,6 +52,13 @@ const CuentasFrigorificoPage: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [setShowMesesMenu, setShowTipoMenu]);
+
+  const saldoPendientes = useMemo(() => {
+    if (!transacciones?.transacciones) return 0;
+    return transacciones.transacciones
+      .filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE')
+      .reduce((sum: number, t: any) => sum + t.monto, 0);
+  }, [transacciones]);
 
   if (loadingUsuarios && isAdmin) {
     return (
@@ -167,69 +175,21 @@ const CuentasFrigorificoPage: React.FC = () => {
       )}
 
       {isAdmin && usuarioSeleccionado && (
-        <div className="pago-abono-section" style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
-          <h3 style={{ marginBottom: '1rem' }}>💰 Gestión de Cobro</h3>
-
-          <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <label>Tipo de Transacción:</label>
-            <div className="meses-dropdown">
-              <button className="dropdown-toggle" onClick={() => setShowTipoMenu(!showTipoMenu)}>
-                <span>{tipoPago === 'pago' ? 'Cobro Total' : tipoPago === 'abono' ? 'Abono' : 'Seleccionar tipo...'}</span>
-                <span className="dropdown-arrow">▼</span>
-              </button>
-              {showTipoMenu && (
-                <div className="dropdown-menu">
-                  <div className="dropdown-item">
-                    <span className="mes-fecha">Cobro Total</span>
-                    <button className={`btn-consultar ${tipoPago === 'pago' ? 'activo' : ''}`} onClick={() => { setTipoPago('pago'); setShowTipoMenu(false); }}>Seleccionar</button>
-                  </div>
-                  <div className="dropdown-item">
-                    <span className="mes-fecha">Abono</span>
-                    <button className={`btn-consultar ${tipoPago === 'abono' ? 'activo' : ''}`} onClick={() => { setTipoPago('abono'); setShowTipoMenu(false); }}>Seleccionar</button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {tipoPago && (
-            <div style={{ marginTop: '1rem' }}>
-              {tipoPago === 'pago' ? (
-                <div style={{ marginBottom: '1rem' }}>
-                  <strong>Nota:</strong>
-                  <input type="text" value={notaPago} onChange={e => setNotaPago(e.target.value)}
-                    placeholder={`cobro total por ${user?.name || ''}`}
-                    style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}
-                  />
-                </div>
-              ) : (
-                <>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <strong>Monto del Abono:</strong>
-                    <input type="number" value={montoPago || ''} onChange={e => setMontoPago(parseFloat(e.target.value) || 0)}
-                      min="0" style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}
-                    />
-                  </div>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <strong>Nota:</strong>
-                    <input type="text" value={notaPago} onChange={e => setNotaPago(e.target.value)}
-                      placeholder="Nota opcional"
-                      style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}
-                    />
-                  </div>
-                </>
-              )}
-              <button
-                className="btn-consultar"
-                onClick={manejarPago}
-                disabled={procesandoPago}
-                style={{ padding: '0.5rem 1.5rem', fontSize: '1rem', marginTop: '0.5rem' }}
-              >
-                {procesandoPago ? 'Procesando...' : tipoPago === 'pago' ? 'Cobrar Total' : 'Realizar Abono'}
-              </button>
-            </div>
-          )}
-        </div>
+        <GestionCobro
+          mode="pago"
+          tipoPago={tipoPago}
+          setTipoPago={setTipoPago}
+          montoPago={montoPago}
+          setMontoPago={setMontoPago}
+          notaPago={notaPago}
+          setNotaPago={setNotaPago}
+          procesandoPago={procesandoPago}
+          showTipoMenu={showTipoMenu}
+          setShowTipoMenu={setShowTipoMenu}
+          onProcesarPago={manejarPago}
+          userName={user?.name || ''}
+          saldoTotalLiquidar={saldoPendientes}
+        />
       )}
     </div>
   );

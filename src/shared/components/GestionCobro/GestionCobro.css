@@ -1,0 +1,80 @@
+.gestion-cobro-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.gestion-cobro-title {
+  margin-bottom: 1rem;
+}
+
+.gestion-cobro-saldo {
+  margin-bottom: 1rem;
+}
+
+.gestion-cobro-saldo-monto {
+  font-size: 1.2em;
+  color: var(--color-success);
+}
+
+.gestion-cobro-saldo-monto--negativo {
+  color: var(--color-error);
+}
+
+.gestion-cobro-saldo-signo {
+  font-size: 1.4em;
+}
+
+.gestion-cobro-saldo-sin-deuda {
+  color: var(--color-success);
+  margin-left: 0.5rem;
+}
+
+.gestion-cobro-tipo {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.gestion-cobro-form {
+  margin-top: 1rem;
+}
+
+.gestion-cobro-field {
+  margin-bottom: 1rem;
+}
+
+.gestion-cobro-input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-text-primary);
+}
+
+.gestion-cobro-submit {
+  background: var(--color-success) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-size: 1rem !important;
+  margin-top: 0.5rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.gestion-cobro-submit:hover:not(:disabled) {
+  background: #059669 !important;
+}
+
+.gestion-cobro-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
