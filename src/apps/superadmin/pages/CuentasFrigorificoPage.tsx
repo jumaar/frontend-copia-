@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useCuentasFrigorifico } from '../hooks/useCuentasFrigorifico';
-import CuentasFrigorificoView from '../components/CuentasFrigorificoView/CuentasFrigorificoView';
-import GestionCobro from '../components/GestionCobro';
-import type { UsuarioHermano } from '../types/cuentas-frigorifico.types';
+import { useCuentasFrigorifico } from '../../../shared/hooks/useCuentasFrigorifico';
+import CuentasFrigorificoView from '../../../shared/components/CuentasFrigorificoView/CuentasFrigorificoView';
+import GestionCobro from '../../../shared/components/GestionCobro';
+import type { UsuarioHermano } from '../../../shared/types/cuentas-frigorifico.types';
 import '../../../apps/frigorifico/pages/CuentasPage.css';
 
 const CuentasFrigorificoPage: React.FC = () => {
