@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
 import { logisticaNavItems } from '../../shared/layouts/Sidebar/navigation/logistica.nav';
-import LogisticaPage from './pages/LogisticaPage';
+import LogisticaDashboardPage from './pages/LogisticaDashboardPage';
 import LogisticaGestionPage from './pages/LogisticaGestionPage';
 import LogisticaInventarioPage from '../../apps/logistica/pages/LogisticaInventarioSelfPage';
 import LogisticaFinanzasPage from './pages/LogisticaFinanzasPage';
@@ -28,7 +28,7 @@ const LogisticaApp: React.FC = () => {
       routeTitles={logisticaRouteTitles}
     >
       <Routes>
-        <Route index element={<LogisticaPage />} />
+        <Route index element={<LogisticaDashboardPage />} />
         <Route path="gestion" element={<LogisticaGestionPage />} />
         <Route path="inventario" element={<LogisticaInventarioPage />} />
         <Route path="finanzas" element={<LogisticaFinanzasPage />} />

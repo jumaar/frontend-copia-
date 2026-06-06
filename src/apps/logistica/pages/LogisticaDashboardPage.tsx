@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LogisticaPage.css';
+import './LogisticaDashboardPage.css';
 import CreateTokenModal from '../../../shared/components/CreateTokenModal/CreateTokenModal';
 import TokenDisplay, { type TokenData } from '../../../shared/components/TokenDisplay/TokenDisplay';
 import EditLogisticaModal from '../../../shared/components/EditLogisticaModal/EditLogisticaModal';
@@ -38,7 +38,7 @@ function buildTiendaHierarchy(item: any, creadoPor: string): User[] {
   }];
 }
 
-const LogisticaPage: React.FC = () => {
+const LogisticaDashboardPage: React.FC = () => {
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
@@ -220,4 +220,4 @@ const LogisticaPage: React.FC = () => {
   );
 };
 
-export default LogisticaPage;
+export default LogisticaDashboardPage;

@@ -2,7 +2,7 @@
 import React from 'react';
 import SurtirNeveraModal from '../SurtirNeveraModal/SurtirNeveraModal';
 import ParametrosSurtirModal from '../ParametrosSurtirModal/ParametrosSurtirModal';
-import '../../../apps/logistica/pages/LogisticaPage.css';
+import './InventarioView.css';
 import type {
   LogisticaInventarioResponse,
   NeverasSurtirResponse,

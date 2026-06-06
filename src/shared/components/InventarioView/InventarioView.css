@@ -1,0 +1,118 @@
+.management-page {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 4);
+  padding: calc(var(--spacing-unit) * 2);
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.products-table th,
+.products-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.products-table th {
+  background: var(--color-background);
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.product-header-row {
+  background-color: var(--color-hover-bg);
+}
+
+.empaque-header-row {
+  background-color: var(--color-card-bg);
+  font-weight: bold;
+  color: var(--color-text-secondary);
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .products-table {
+    min-width: 600px;
+    font-size: 0.85rem;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.85rem;
+  }
+
+  .products-table th {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .products-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .products-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .products-container::-webkit-scrollbar-track {
+    background: var(--color-border);
+    border-radius: 4px;
+  }
+
+  .products-container::-webkit-scrollbar-thumb {
+    background: var(--color-text-secondary);
+    border-radius: 4px;
+  }
+
+  .product-header-row {
+    min-width: 600px;
+  }
+
+  .product-header-row td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .action-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .management-page {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-table {
+    min-width: 500px;
+    font-size: 0.8rem;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 0.4rem 0.2rem;
+    font-size: 0.8rem;
+  }
+
+  .product-header-row td {
+    padding: 0.6rem 0.3rem;
+  }
+
+  .action-button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
