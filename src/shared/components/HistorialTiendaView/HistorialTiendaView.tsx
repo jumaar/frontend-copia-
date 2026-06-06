@@ -11,7 +11,7 @@ import {
   filtrarPendientes,
   calcularLiquidacion,
 } from '../../hooks/useHistorialTienda';
-import '../../../shared/components/TablaTransacciones/TablaTransacciones.css';
+import './HistorialTiendaView.css';
 
 interface HistorialTiendaViewProps {
   historial: HistorialTiendaResponse;
@@ -67,15 +67,11 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
       </div>
 
       {successMessage && (
-        <div className="success-message" style={{ backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success)', color: 'var(--color-success)' }}>
+        <div className="success-message">
           <div className="success-content">
             <span className="success-icon">✅</span>
             <p>{successMessage}</p>
-            <button
-              className="success-close-btn"
-              onClick={() => setSuccessMessage(null)}
-              style={{ background: 'none', border: 'none', color: 'var(--color-success)', cursor: 'pointer', marginTop: '0.5rem' }}
-            >
+            <button className="success-close-btn" onClick={() => setSuccessMessage(null)}>
               Cerrar
             </button>
           </div>
@@ -107,10 +103,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
               </p>
               {mesesHistoricos.length > 0 && (
                 <div className="meses-dropdown">
-                  <button
-                    className="dropdown-toggle"
-                    onClick={() => setShowMesesMenu(!showMesesMenu)}
-                  >
+                  <button className="dropdown-toggle" onClick={() => setShowMesesMenu(!showMesesMenu)}>
                     Consultar Meses Anteriores
                     <span className={`dropdown-arrow ${showMesesMenu ? 'open' : ''}`}>▼</span>
                   </button>
@@ -194,58 +187,35 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
               const totalPendientesTransacciones = pendientes.reduce((sum, t) => sum + (t.monto || 0), 0);
 
               return (
-                <div
-                  key={neveraData.nevera.id_nevera}
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    backgroundColor: 'var(--color-card-bg)',
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleNevera(neveraData.nevera.id_nevera)}
-                    style={{
-                      width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '1rem 1.5rem', border: 'none', cursor: 'pointer',
-                      backgroundColor: 'var(--color-hover-bg)',
-                      textAlign: 'left',
-                    }}
-                  >
+                <div key={neveraData.nevera.id_nevera} className="historial-nevera-card">
+                  <button type="button" className="historial-nevera-header-btn" onClick={() => toggleNevera(neveraData.nevera.id_nevera)}>
                     <div>
-                      <h3 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '1.1rem' }}>
+                      <h3 className="historial-nevera-title">
                         ❄️ Nevera #{neveraData.nevera.id_nevera} — {neveraData.nevera.nombre_tienda}
                       </h3>
-                      <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.35rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                      <div className="historial-nevera-stats">
                         <span>📦 {neveraData.empaques?.length || 0} empaques pendientes</span>
                         <span>✅ {consolidados.length} consolidados</span>
                         <span>⏳ {pendientes.length} transacciones pendientes</span>
                       </div>
                     </div>
-                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '1.2rem' }}>
-                      {isExpanded ? '▲' : '▼'}
-                    </span>
+                    <span className="historial-nevera-toggle">{isExpanded ? '▲' : '▼'}</span>
                   </button>
 
                   {isExpanded && (
-                    <div style={{ padding: '1.5rem' }}>
+                    <div className="historial-nevera-body">
                       <div style={{ marginBottom: '1.5rem' }}>
-                        <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)' }}>
-                          📦 Empaques Pendientes de Liquidación
-                        </h4>
+                        <h4 className="historial-section-title">📦 Empaques Pendientes de Liquidación</h4>
                         {!neveraData.empaques?.length ? (
-                          <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
-                            No hay empaques pendientes para liquidar.
-                          </p>
+                          <p className="historial-empty-text">No hay empaques pendientes para liquidar.</p>
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {neveraData.productos?.map(producto => {
-                              const empaquesProducto = neveraData.empaques?.filter(e => e.id_producto === producto.id_producto) || [];
+                            {neveraData.productos?.map((producto: any) => {
+                              const empaquesProducto = neveraData.empaques?.filter((e: any) => e.id_producto === producto.id_producto) || [];
                               if (empaquesProducto.length === 0) return null;
                               const precioTiendaPorcentaje = parseFloat(producto.precio_tienda) || 0;
-                              const totalPrecio = empaquesProducto.reduce((s, e) => s + e.precio_venta_total, 0);
-                              const { descuento: td, precioConDescuento: tpcd, tiendaComision: tcom, liquidar: tliq } = empaquesProducto.reduce((acc, e) => {
+                              const totalPrecio = empaquesProducto.reduce((s: number, e: any) => s + e.precio_venta_total, 0);
+                              const { descuento: td, precioConDescuento: tpcd, tiendaComision: tcom, liquidar: tliq } = empaquesProducto.reduce((acc: any, e: any) => {
                                 const r = calcularLiquidacion(e, precioTiendaPorcentaje, neveraData.promociones);
                                 return {
                                   descuento: acc.descuento + r.descuento,
@@ -258,21 +228,11 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                               const isProdExpanded = expandedProductos.has(key);
 
                               return (
-                                <div key={key} style={{ border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleProducto(key)}
-                                    style={{
-                                      width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                      padding: '0.75rem 1rem', backgroundColor: 'var(--color-bg)',
-                                      border: 'none', cursor: 'pointer', textAlign: 'left',
-                                    }}
-                                  >
+                                <div key={key} className="historial-producto-card">
+                                  <button type="button" className="historial-producto-header" onClick={() => toggleProducto(key)}>
                                     <div>
-                                      <span style={{ fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
-                                        {producto.nombre_producto} (ID: {producto.id_producto})
-                                      </span>
-                                      <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                                      <span className="historial-producto-name">{producto.nombre_producto} (ID: {producto.id_producto})</span>
+                                      <div className="historial-producto-meta">
                                         <span>{empaquesProducto.length} empaques</span>
                                         <span>Venta: {formatMoneda(totalPrecio)}</span>
                                         <span style={{ color: td > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
@@ -286,10 +246,10 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                     <span style={{ color: 'var(--color-text-secondary)' }}>{isProdExpanded ? '▲' : '▼'}</span>
                                   </button>
                                   {isProdExpanded && (
-                                    <div style={{ padding: '0.75rem 1rem', backgroundColor: 'var(--color-card-bg)' }}>
-                                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <div className="historial-producto-body">
+                                      <table className="historial-table">
                                         <thead>
-                                          <tr style={{ borderBottom: '2px solid var(--color-border)' }}>
+                                          <tr className="historial-table-header">
                                             <th style={{ textAlign: 'left', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>ID</th>
                                             <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Precio Venta</th>
                                             <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Desc</th>
@@ -299,7 +259,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          {empaquesProducto.map((empaque, idx) => {
+                                          {empaquesProducto.map((empaque: any, idx: number) => {
                                             const r = calcularLiquidacion(empaque, precioTiendaPorcentaje, neveraData.promociones);
                                             const promoAplicada = empaque.promocion ? neveraData.promociones?.find((p: any) => p.id_promocion === empaque.promocion) : null;
                                             return (
@@ -308,11 +268,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                                     <span>{empaque.id_empaque}</span>
                                                     {promoAplicada && (
-                                                      <span title={`${promoAplicada.nombre} (${promoAplicada.valor}%)`} style={{
-                                                        backgroundColor: 'var(--color-success)', color: 'white',
-                                                        padding: '0.1rem 0.3rem', borderRadius: '3px', fontSize: '0.65rem',
-                                                        fontWeight: 'bold', cursor: 'help',
-                                                      }}>
+                                                      <span title={`${promoAplicada.nombre} (${promoAplicada.valor}%)`} className="badge estado-consolidado" style={{ fontSize: '0.65rem' }}>
                                                         -{promoAplicada.valor}%
                                                       </span>
                                                     )}
@@ -330,7 +286,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                           })}
                                         </tbody>
                                         <tfoot>
-                                          <tr style={{ backgroundColor: 'var(--color-hover-bg)' }}>
+                                          <tr className="historial-table-footer">
                                             <td style={{ padding: '0.4rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>TOTAL</td>
                                             <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>{formatMoneda(totalPrecio)}</td>
                                             <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-warning)' }}>{formatMoneda(td)}</td>
@@ -341,7 +297,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                         </tfoot>
                                       </table>
                                       {precioTiendaPorcentaje > 0 && (
-                                        <div style={{ marginTop: '0.25rem', fontSize: '0.7rem', color: 'var(--color-text-secondary)', textAlign: 'right' }}>
+                                        <div className="historial-comision">
                                           * Comisión tienda: {precioTiendaPorcentaje}%
                                         </div>
                                       )}
@@ -355,13 +311,11 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                       </div>
 
                       <div style={{ marginBottom: '1.5rem' }}>
-                        <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)' }}>
+                        <h4 className="historial-section-title">
                           ✅ Transacciones Consolidadas ({consolidados.length})
                         </h4>
                         {consolidados.length === 0 ? (
-                          <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
-                            No hay transacciones consolidadas en este período.
-                          </p>
+                          <p className="historial-empty-text">No hay transacciones consolidadas en este período.</p>
                         ) : (
                           <div className="consolidados-lista">
                             {consolidados.map(({ ticket, productos }) => {
@@ -390,15 +344,11 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                     </div>
                                   </div>
                                   {ticket.info_pago && (
-                                    <div className="info-pago-section" style={{ margin: '0.5rem 0', padding: '0.5rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
-                                      <h6 style={{ margin: '0 0 0.5rem 0', color: 'var(--color-text-primary)' }}>Información del Pago</h6>
-                                      <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
-                                        <strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})
-                                      </p>
+                                    <div className="info-pago-section">
+                                      <h6>Información del Pago</h6>
+                                      <p><strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})</p>
                                       {ticket.info_pago.nota_opcional_pago && (
-                                        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--color-text-secondary)' }}>
-                                          <strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}
-                                        </p>
+                                        <p><strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}</p>
                                       )}
                                     </div>
                                   )}
@@ -425,9 +375,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                                 <td className="monto-cell">{formatMoneda(prod.monto)}</td>
                                                 <td className="monto-cell">{formatMoneda(prod.costo_tienda ?? 0)}</td>
                                                 <td>{prod.hora_transaccion ? formatFecha(prod.hora_transaccion) : '-'}</td>
-                                                <td className="nota-cell">
-                                                  <span className="nota-text">{prod.nota_opcional}</span>
-                                                </td>
+                                                <td className="nota-cell"><span className="nota-text">{prod.nota_opcional}</span></td>
                                               </tr>
                                             ))}
                                           </tbody>
@@ -444,9 +392,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
 
                       {pendientes.length > 0 && (
                         <div style={{ marginBottom: '1.5rem' }}>
-                          <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)' }}>
-                            ⏳ Transacciones Pendientes ({pendientes.length})
-                          </h4>
+                          <h4 className="historial-section-title">⏳ Transacciones Pendientes ({pendientes.length})</h4>
                           <div className="tabla-container">
                             <table className="transacciones-table">
                               <thead>
@@ -480,29 +426,26 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                         </div>
                       )}
 
-                      <div style={{
-                        padding: '1rem', backgroundColor: 'var(--color-bg)',
-                        borderRadius: '6px', border: '1px solid var(--color-border)',
-                      }}>
-                        <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--color-text-primary)' }}>
-                          📋 Resumen Nevera #{neveraData.nevera.id_nevera}
-                        </h4>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                          <div style={{ flex: '1 1 150px' }}>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>📦 Empaques Pendientes</span>
-                            <div style={{ fontWeight: 'bold', color: 'var(--color-text-primary)' }}>{neveraData.empaques?.length || 0} ({formatMoneda(totalEmpaques)})</div>
+                      <div className="historial-resumen-nevera">
+                        <h4 className="historial-section-title">📋 Resumen Nevera #{neveraData.nevera.id_nevera}</h4>
+                        <div className="historial-resumen-grid">
+                          <div className="historial-resumen-item">
+                            <span className="historial-resumen-label">📦 Empaques Pendientes</span>
+                            <div className="historial-resumen-value">{neveraData.empaques?.length || 0} ({formatMoneda(totalEmpaques)})</div>
                           </div>
-                          <div style={{ flex: '1 1 150px' }}>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>✅ Consolidados</span>
-                            <div style={{ fontWeight: 'bold', color: 'var(--color-text-primary)' }}>{consolidados.length} ({formatMoneda(totalConsolidados)})</div>
+                          <div className="historial-resumen-item">
+                            <span className="historial-resumen-label">✅ Consolidados</span>
+                            <div className="historial-resumen-value">{consolidados.length} ({formatMoneda(totalConsolidados)})</div>
                           </div>
-                          <div style={{ flex: '1 1 150px' }}>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>⏳ Pendientes</span>
-                            <div style={{ fontWeight: 'bold', color: 'var(--color-text-primary)' }}>{pendientes.length} ({formatMoneda(totalPendientesTransacciones)})</div>
+                          <div className="historial-resumen-item">
+                            <span className="historial-resumen-label">⏳ Pendientes</span>
+                            <div className="historial-resumen-value">{pendientes.length} ({formatMoneda(totalPendientesTransacciones)})</div>
                           </div>
-                          <div style={{ flex: '1 1 150px' }}>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>💰 Total</span>
-                            <div style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>{formatMoneda(totalEmpaques + totalConsolidados + totalPendientesTransacciones)}</div>
+                          <div className="historial-resumen-item">
+                            <span className="historial-resumen-label">💰 Total</span>
+                            <div className="historial-resumen-value" style={{ color: 'var(--color-primary)' }}>
+                              {formatMoneda(totalEmpaques + totalConsolidados + totalPendientesTransacciones)}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -518,4 +461,5 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
   );
 };
 
+export type { HistorialTiendaViewProps };
 export default HistorialTiendaView;

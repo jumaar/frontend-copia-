@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useHistorialTienda } from '../hooks/useHistorialTienda';
-import HistorialTiendaView from '../../shared/components/HistorialTiendaView/HistorialTiendaView';
-import TiendaSelector from '../../shared/components/TiendaSelector';
-import '../../shared/components/TablaTransacciones/TablaTransacciones.css';
+import HistorialTiendaView from '../../../shared/components/HistorialTiendaView/HistorialTiendaView';
+import TiendaSelector from '../../../shared/components/TiendaSelector';
+import '../../../shared/components/TablaTransacciones/TablaTransacciones.css';
 
 const HistorialTiendaAdminPage: React.FC = () => {
   const {

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useCuentasTienda, filtrarUsuariosPorNevera } from '../../shared/hooks/useCuentasTienda';
-import CuentasTiendaView from '../../shared/components/CuentasTiendaView/CuentasTiendaView';
-import GestionCobro from '../../shared/components/GestionCobro';
-import TiendaSelector from '../../shared/components/TiendaSelector';
-import '../../shared/components/TablaTransacciones/TablaTransacciones.css';
-import type { UsuarioTienda } from '../../shared/types/cuentas-tienda.types';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useCuentasTienda, filtrarUsuariosPorNevera } from '../../../shared/hooks/useCuentasTienda';
+import CuentasTiendaView from '../../../shared/components/CuentasTiendaView/CuentasTiendaView';
+import GestionCobro from '../../../shared/components/GestionCobro';
+import TiendaSelector from '../../../shared/components/TiendaSelector';
+import '../../../shared/components/TablaTransacciones/TablaTransacciones.css';
+import type { UsuarioTienda } from '../../../shared/types/cuentas-tienda.types';
 
 const CuentasTiendaAdminPage: React.FC = () => {
   const { user } = useAuth();

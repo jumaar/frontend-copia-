@@ -2,16 +2,16 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
 import { superadminNavItems } from '../../shared/layouts/navigation/superadmin.nav';
-import AdminDashboardPage from '../admin/pages/AdminDashboardPage';
-import UserManagementPage from '../admin/pages/UserManagementPage';
-import FridgeManagementPage from '../admin/pages/FridgeManagementPage';
-import GlobalAccountsPage from '../admin/pages/GlobalAccountsPage';
-import LogisticaInventarioPage from '../../apps/admin/pages/InventarioAdminPage';
-import FrigorificoProductosPage from '../../apps/admin/pages/ProductosAdminPage';
-import CuentasTiendaPage from '../../shared/pages/CuentasTiendaAdminPage';
-import HistorialTiendaPage from '../../shared/pages/HistorialTiendaAdminPage';
-import CuentasFrigorificoPage from '../../shared/pages/CuentasFrigorificoPage';
-import LogisticaFinanzasPage from '../../apps/admin/pages/FinanzasAdminPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import UserManagementPage from './pages/UserManagementPage';
+import FridgeManagementPage from './pages/FridgeManagementPage';
+import GlobalAccountsPage from './pages/GlobalAccountsPage';
+import LogisticaInventarioPage from './pages/InventarioAdminPage';
+import FrigorificoProductosPage from './pages/ProductosAdminPage';
+import CuentasTiendaPage from './pages/CuentasTiendaAdminPage';
+import HistorialTiendaPage from './pages/HistorialTiendaAdminPage';
+import CuentasFrigorificoPage from './pages/CuentasFrigorificoPage';
+import LogisticaFinanzasPage from './pages/FinanzasAdminPage';
 
 const superadminRouteTitles: Record<string, string> = {
   '/superadmin/dashboard': 'Dashboard',
