@@ -17,6 +17,8 @@
   border-radius: var(--border-radius-lg);
   padding: calc(var(--spacing-unit) * 3);
   box-shadow: var(--shadow-card);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .tienda-selector-title {
@@ -81,6 +83,16 @@
 }
 
 .tienda-selector-children {
+  width: 100%;
+}
+
+.tienda-selector-ciudad .meses-dropdown,
+.tienda-selector-children .meses-dropdown {
+  display: block;
+}
+
+.tienda-selector-ciudad .dropdown-toggle,
+.tienda-selector-children .dropdown-toggle {
   width: 100%;
 }
 

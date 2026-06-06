@@ -1,7 +1,7 @@
 import React from 'react';
 import MesesDropdown from '../MesesDropdown/MesesDropdown';
 import type { MesItem } from '../MesesDropdown/MesesDropdown';
-import '../TablaTransacciones/TablaTransacciones.css';
+import './TransaccionesHeader.css';
 
 interface TransaccionesHeaderProps {
   title?: string;
@@ -32,14 +32,14 @@ const TransaccionesHeader: React.FC<TransaccionesHeaderProps> = ({
 }) => {
   return (
     <div className="transacciones-header">
-      <div className="user-info">
+      <div className="th-user-info">
         {neveraId && (
           <div className="nevera-id-header">
             Nevera #{neveraId}
           </div>
         )}
         {title && titleSize === 'large' && (
-          <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
+          <div className="th-title-large" style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
             {title}
           </div>
         )}
@@ -51,7 +51,7 @@ const TransaccionesHeader: React.FC<TransaccionesHeaderProps> = ({
           {esPeriodoActual && <span className="badge-actual">ACTUAL</span>}
         </p>
         {fechaCreacion && (
-          <p className="fecha-creacion">{fechaCreacion}</p>
+          <p className="th-fecha-creacion">{fechaCreacion}</p>
         )}
         {mesesHistoricos.length > 0 && (
           <MesesDropdown
