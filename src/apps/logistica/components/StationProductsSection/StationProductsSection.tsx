@@ -1,4 +1,5 @@
 import React from 'react';
+import './StationProductsSection.css';
 import type { Estacion } from '../../types/logistica.types';
 
 interface StationProductsSectionProps {

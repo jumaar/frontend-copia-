@@ -7,7 +7,6 @@ import EmpaqueSearchResult from '../components/EmpaqueSearchResult/EmpaqueSearch
 import StationProductsSection from '../components/StationProductsSection/StationProductsSection';
 import SummaryCard from '../../../shared/components/SummaryCard/SummaryCard';
 import Alert from '../../../shared/components/Alert/Alert';
-import './LogisticaGestionPage.css';
 
 const LogisticaGestionPage: React.FC = () => {
   const {

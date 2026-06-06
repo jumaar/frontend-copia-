@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './LogisticaDashboardPage.css';
 import CreateTokenModal from '../../../shared/components/CreateTokenModal/CreateTokenModal';
 import TokenDisplay, { type TokenData } from '../../../shared/components/TokenDisplay/TokenDisplay';
 import EditLogisticaModal from '../../../shared/components/EditLogisticaModal/EditLogisticaModal';

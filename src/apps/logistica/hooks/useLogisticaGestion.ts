@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getHermanos, getGestionLogisticaByUser, cambiarEstadoEmpaques } from '../../../../services/api';
-import { useAuth } from '../../../../contexts/AuthContext';
-import { numberToWords } from '../../../../shared/utils/numberToWords';
+import { getHermanos, getGestionLogisticaByUser, cambiarEstadoEmpaques } from '../../../services/api';
+import { useAuth } from '../../../contexts/AuthContext';
+import { numberToWords } from '../../../shared/utils/numberToWords';
 import type {
   Hermano,
   LogisticaData,
