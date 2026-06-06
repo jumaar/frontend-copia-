@@ -6,9 +6,9 @@ import LogisticaPage from './pages/LogisticaPage';
 import LogisticaGestionPage from './pages/LogisticaGestionPage';
 import LogisticaInventarioPage from '../../apps/logistica/pages/LogisticaInventarioSelfPage';
 import LogisticaFinanzasPage from './pages/LogisticaFinanzasPage';
-import CuentasTiendaPage from '../../shared/pages/CuentasTiendaAdminPage';
-import HistorialTiendaPage from '../../shared/pages/HistorialTiendaAdminPage';
-import CuentasFrigorificoPage from '../../shared/pages/CuentasFrigorificoPage';
+import CuentasTiendaPage from './pages/CuentasTiendaPage';
+import HistorialTiendaPage from './pages/HistorialTiendaPage';
+import CuentasFrigorificoPage from './pages/CuentasFrigorificoPage';
 
 const logisticaRouteTitles: Record<string, string> = {
   '/logistica': 'Dashboard',

@@ -8,9 +8,9 @@ import FridgeManagementPage from './pages/FridgeManagementPage';
 import GlobalAccountsPage from './pages/GlobalAccountsPage';
 import LogisticaInventarioPage from '../../apps/admin/pages/InventarioAdminPage';
 import FrigorificoProductosPage from '../../apps/admin/pages/ProductosAdminPage';
-import CuentasTiendaPage from '../../shared/pages/CuentasTiendaAdminPage';
-import HistorialTiendaPage from '../../shared/pages/HistorialTiendaAdminPage';
-import CuentasFrigorificoPage from '../../shared/pages/CuentasFrigorificoPage';
+import CuentasTiendaPage from './pages/CuentasTiendaAdminPage';
+import HistorialTiendaPage from './pages/HistorialTiendaAdminPage';
+import CuentasFrigorificoPage from './pages/CuentasFrigorificoPage';
 import LogisticaFinanzasPage from '../../apps/admin/pages/FinanzasAdminPage';
 
 const adminRouteTitles: Record<string, string> = {

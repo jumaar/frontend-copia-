@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SurtidoProvider } from './apps/logistica/contexts/SurtidoContext';
-import SignInPage from './shared/pages/SignInPage';
-import SignUpPage from './shared/pages/SignUpPage';
-import UnauthorizedPage from './shared/pages/UnauthorizedPage';
+import SignInPage from './shared/public/SignInPage';
+import SignUpPage from './shared/public/SignUpPage';
+import UnauthorizedPage from './shared/public/UnauthorizedPage';
 import RootLayout from './shared/layouts/RootLayout';
 import ProtectedRoute from './shared/layouts/ProtectedRoute';
 import { getDashboardPath } from './shared/config/roles';

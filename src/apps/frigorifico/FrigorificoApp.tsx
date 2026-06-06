@@ -5,7 +5,7 @@ import { frigorificoNavItems } from '../../shared/layouts/navigation/frigorifico
 import FrigorificoPage from './pages/FrigorificoPage';
 import FrigorificoLogisticaPage from './pages/LogisticaPage';
 import FrigorificoProductosPage from './pages/ProductosPage';
-import FrigorificoCuentasPage from '../../shared/pages/CuentasFrigorificoPage';
+import FrigorificoCuentasPage from './pages/CuentasFrigorificoPage';
 
 const frigorificoRouteTitles: Record<string, string> = {
   '/frigorifico': 'Dashboard',
