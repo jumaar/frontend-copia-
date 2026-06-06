@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
-import { logisticaNavItems } from '../../shared/layouts/navigation/logistica.nav';
+import { logisticaNavItems } from '../../shared/layouts/Sidebar/navigation/logistica.nav';
 import LogisticaPage from './pages/LogisticaPage';
 import LogisticaGestionPage from './pages/LogisticaGestionPage';
 import LogisticaInventarioPage from '../../apps/logistica/pages/LogisticaInventarioSelfPage';

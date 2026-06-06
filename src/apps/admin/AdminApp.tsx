@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
-import { adminNavItems } from '../../shared/layouts/navigation/admin.nav';
+import { adminNavItems } from '../../shared/layouts/Sidebar/navigation/admin.nav';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserManagementPage from './pages/UserManagementPage';
 import FridgeManagementPage from './pages/FridgeManagementPage';

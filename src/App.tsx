@@ -7,7 +7,7 @@ import SignInPage from './shared/public/SignInPage';
 import SignUpPage from './shared/public/SignUpPage';
 import UnauthorizedPage from './shared/public/UnauthorizedPage';
 import RootLayout from './shared/layouts/RootLayout';
-import ProtectedRoute from './shared/layouts/ProtectedRoute';
+import ProtectedRoute from './shared/public/ProtectedRoute';
 import { getDashboardPath } from './shared/config/roles';
 
 const AdminApp = React.lazy(() => import('./apps/admin/AdminApp'));

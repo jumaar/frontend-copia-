@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
-import { tiendaNavItems } from '../../shared/layouts/navigation/tienda.nav';
+import { tiendaNavItems } from '../../shared/layouts/Sidebar/navigation/tienda.nav';
 import TiendaDashboardPage from './pages/TiendaDashboardPage';
 import TiendaInventarioPage from './pages/TiendaInventarioPage';
 import CuentasTiendaPage from '../../apps/tienda/pages/TiendaCuentasPage';

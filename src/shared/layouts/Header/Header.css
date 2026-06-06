@@ -107,7 +107,7 @@
   }
 
   .logout-button {
-  color: var(--color-text-primary);
+  color: #ffffff;
   font-size: 0.8rem;
   padding: 0.4rem 0.8rem;
   white-space: nowrap;

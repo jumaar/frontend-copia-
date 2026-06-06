@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import ThemeToggle from '../components/ThemeToggle/ThemeToggle';
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import './Sidebar.css';
 
 export interface NavItem {

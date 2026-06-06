@@ -8,11 +8,11 @@ import SurtirFlujoModal from '../components/SurtirFlujoModal/SurtirFlujoModal';
 import './RootLayout.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSurtido } from '../../apps/logistica/contexts/SurtidoContext';
-import { adminNavItems } from './navigation/admin.nav';
-import { superadminNavItems } from './navigation/superadmin.nav';
-import { logisticaNavItems } from './navigation/logistica.nav';
-import { frigorificoNavItems } from './navigation/frigorifico.nav';
-import { tiendaNavItems } from './navigation/tienda.nav';
+import { adminNavItems } from './Sidebar/navigation/admin.nav';
+import { superadminNavItems } from './Sidebar/navigation/superadmin.nav';
+import { logisticaNavItems } from './Sidebar/navigation/logistica.nav';
+import { frigorificoNavItems } from './Sidebar/navigation/frigorifico.nav';
+import { tiendaNavItems } from './Sidebar/navigation/tienda.nav';
 import type { NavItem } from './Sidebar';
 
 const navItemsByRole: Record<string, NavItem[]> = {
