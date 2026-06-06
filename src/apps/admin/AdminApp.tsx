@@ -6,12 +6,12 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserManagementPage from './pages/UserManagementPage';
 import FridgeManagementPage from './pages/FridgeManagementPage';
 import GlobalAccountsPage from './pages/GlobalAccountsPage';
-import LogisticaInventarioPage from '../../apps/admin/pages/InventarioAdminPage';
-import FrigorificoProductosPage from '../../apps/admin/pages/ProductosAdminPage';
+import LogisticaInventarioPage from './pages/InventarioAdminPage';
+import FrigorificoProductosPage from './pages/ProductosAdminPage';
 import CuentasTiendaPage from './pages/CuentasTiendaAdminPage';
 import HistorialTiendaPage from './pages/HistorialTiendaAdminPage';
 import CuentasFrigorificoPage from './pages/CuentasFrigorificoPage';
-import LogisticaFinanzasPage from '../../apps/admin/pages/FinanzasAdminPage';
+import LogisticaFinanzasPage from './pages/FinanzasAdminPage';
 
 const adminRouteTitles: Record<string, string> = {
   '/admin/dashboard': 'Dashboard',
