@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React from 'react';
 import TablaTransacciones from '../TablaTransacciones/TablaTransacciones';
-import MesesDropdown from '../MesesDropdown/MesesDropdown';
 import type { TransaccionesData } from '../../types/cuentas-frigorifico.types';
 
 interface CuentasFrigorificoViewProps {
@@ -141,14 +140,9 @@ const CuentasFrigorificoView: React.FC<CuentasFrigorificoViewProps> = ({
             data={transacciones}
             loading={loading}
             error={error}
-            headerControls={
-              <MesesDropdown
-                meses={mesesHistoricos}
-                seleccionado={mesSeleccionado}
-                onSelect={consultarMesEspecifico}
-                loading={loading}
-              />
-            }
+            mesesHistoricos={mesesHistoricos}
+            mesSeleccionado={mesSeleccionado}
+            onConsultarMes={consultarMesEspecifico}
           />
         </div>
       )}

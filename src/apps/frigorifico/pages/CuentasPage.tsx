@@ -1,36 +1,9 @@
+// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getTransaccionesFrigorifico, getHermanos, procesarPago } from '../../../services/api';
 import TablaTransacciones from '../../../shared/components/TablaTransacciones/TablaTransacciones';
-import MesesDropdown from '../../../shared/components/MesesDropdown/MesesDropdown';
-import './CuentasPage.css';
-
-interface UsuarioHermano {
-  id_usuario: number;
-  nombre_usuario: string;
-  apellido_usuario: string;
-  email: string;
-  celular: string;
-  rol?: string;
-}
-
-interface TransaccionesData {
-  transacciones: any[];
-  fecha_creacion_usuario: string;
-  nombre_usuario: string;
-  apellido_usuario: string;
-  periodo: { mes: number; año: number };
-  total_transacciones: number;
-  fecha_inicio_periodo?: string;
-  fecha_fin_periodo?: string;
-  parametros_usados: {
-    mes_pedido: number | null;
-    año_pedido: number | null;
-    mes_devuelto: number | null;
-    año_devuelto: number | null;
-    es_periodo_actual: boolean;
-  };
-}
+import '../../../shared/components/TablaTransacciones/TablaTransacciones.css';
 
 const CuentasPage: React.FC = () => {
   const { user } = useAuth();
@@ -577,16 +550,9 @@ const CuentasPage: React.FC = () => {
             data={transacciones}
             loading={loading}
             error={error}
-            headerControls={
-              mesesHistoricos.length > 0 ? (
-                <MesesDropdown
-                  meses={mesesHistoricos}
-                  seleccionado={mesSeleccionado}
-                  onSelect={(mes, año) => consultarMesEspecifico(mes, año)}
-                  loading={loading}
-                />
-              ) : null
-            }
+            mesesHistoricos={mesesHistoricos}
+            mesSeleccionado={mesSeleccionado}
+            onConsultarMes={(mes: number, año: number) => consultarMesEspecifico(mes, año)}
           />
         </div>
       )}

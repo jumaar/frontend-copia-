@@ -316,3 +316,10 @@
   margin-right: 4px;
   vertical-align: middle;
 }
+
+.user-creado-por {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+  font-style: italic;
+}

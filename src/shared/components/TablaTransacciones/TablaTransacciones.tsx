@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { formatMoneda, formatFecha } from '../../config/format';
+import TransaccionesHeader from '../TransaccionesHeader/TransaccionesHeader';
+import type { MesItem } from '../MesesDropdown/MesesDropdown';
 import './TablaTransacciones.css';
 
 interface Transaccion {
@@ -46,14 +48,18 @@ interface TablaTransaccionesProps {
   data: TransaccionesData;
   loading?: boolean;
   error?: string | null;
-  headerControls?: React.ReactNode;
+  mesesHistoricos?: MesItem[];
+  mesSeleccionado?: { mes: number; año: number } | null;
+  onConsultarMes?: (mes: number, año: number) => void;
 }
 
 const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
   data,
   loading = false,
   error = null,
-  headerControls,
+  mesesHistoricos = [],
+  mesSeleccionado = null,
+  onConsultarMes,
 }) => {
   const [expandedConsolidados, setExpandedConsolidados] = useState<Set<number>>(new Set());
   const [expandedNotas, setExpandedNotas] = useState<Set<number>>(new Set());
@@ -135,23 +141,17 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
 
   return (
     <div className="tabla-transacciones">
-      <div className="transacciones-header">
-        <div className="user-info">
-          {data.nevera && (
-            <div className="nevera-id-header">
-              Nevera #{data.nevera.id_nevera}
-            </div>
-          )}
-          <p className="periodo-info">
-            Período: {data.periodo.mes}/{data.periodo.año}
-            {data.parametros_usados.es_periodo_actual && <span className="badge-actual">ACTUAL</span>}
-          </p>
-          <p className="fecha-creacion">
-            Usuario desde: {formatFecha(data.fecha_creacion_usuario)}
-          </p>
-          {headerControls}
-        </div>
-      </div>
+      <TransaccionesHeader
+        title={`${data.nombre_usuario} ${data.apellido_usuario}`}
+        neveraId={data.nevera?.id_nevera}
+        periodo={data.periodo}
+        esPeriodoActual={data.parametros_usados.es_periodo_actual}
+        fechaCreacion={`Usuario desde: ${formatFecha(data.fecha_creacion_usuario)}`}
+        mesesHistoricos={mesesHistoricos}
+        mesSeleccionado={mesSeleccionado}
+        onConsultarMes={onConsultarMes || (() => {})}
+        loading={loading}
+      />
 
       {pendientes.length > 0 && (
         <div className="seccion-pendientes">

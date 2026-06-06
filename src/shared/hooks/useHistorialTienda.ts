@@ -110,7 +110,6 @@ export const useHistorialTienda = ({ mode }: UseHistorialTiendaOptions) => {
 
   const [mesesHistoricos, setMesesHistoricos] = useState<MesItem[]>([]);
   const [mesSeleccionado, setMesSeleccionado] = useState<{ mes: number; año: number } | null>(null);
-  const [showMesesMenu, setShowMesesMenu] = useState(false);
 
   const [expandedNeveras, setExpandedNeveras] = useState<Set<number>>(new Set());
   const [expandedConsolidados, setExpandedConsolidados] = useState<Set<number>>(new Set());
@@ -290,8 +289,6 @@ export const useHistorialTienda = ({ mode }: UseHistorialTiendaOptions) => {
 
     mesesHistoricos,
     mesSeleccionado,
-    showMesesMenu,
-    setShowMesesMenu,
     consultarMesEspecifico,
     cargarHistorial,
 

@@ -8,6 +8,7 @@ interface User {
   rol: string;
   activo: boolean;
   hijos?: User[];
+  creadoPor?: string;
 }
 
 interface UserHierarchyProps {
@@ -18,6 +19,7 @@ interface UserHierarchyProps {
   onToggleStatus: (userId: number, userName: string, currentStatus: boolean) => void;
   onDeleteUser: (userId: number, userName: string) => void;
   onSurtir?: (neveraId: number) => void;
+  className?: string;
 }
 
 
@@ -27,7 +29,8 @@ const UserHierarchy: React.FC<UserHierarchyProps> = ({
   onEditUser,
   onToggleStatus,
   onDeleteUser,
-  onSurtir
+  onSurtir,
+  className = '',
 }) => {
   const [expandedUsers, setExpandedUsers] = useState<Set<number>>(new Set([currentUserId ? parseInt(currentUserId) : -1]));
 
@@ -69,6 +72,9 @@ const UserHierarchy: React.FC<UserHierarchyProps> = ({
             <span className="user-name">
               {isCurrentUser ? `${user.nombre_completo} (Mi Perfil)` : user.nombre_completo}
             </span>
+            {user.creadoPor && (
+              <span className="user-creado-por">Creado por: {user.creadoPor}</span>
+            )}
             {user.rol === 'tienda-fisica' ? (
               <span className="user-address">📍 {user.celular}</span>
             ) : user.rol === 'nevera' ? (
@@ -158,7 +164,7 @@ const UserHierarchy: React.FC<UserHierarchyProps> = ({
   }
 
   return (
-    <div className="user-hierarchy">
+    <div className={`user-hierarchy ${className}`}>
       {users.map(user => renderUserWithChildren(user, 0, user.id.toString() === currentUserId))}
     </div>
   );

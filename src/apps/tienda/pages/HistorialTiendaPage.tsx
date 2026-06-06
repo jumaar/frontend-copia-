@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useHistorialTienda } from '../../../shared/hooks/useHistorialTienda';
 import HistorialTiendaView from '../../../shared/components/HistorialTiendaView/HistorialTiendaView';
 
@@ -12,8 +12,6 @@ const HistorialTiendaPage: React.FC = () => {
     historial,
     mesesHistoricos,
     mesSeleccionado,
-    showMesesMenu,
-    setShowMesesMenu,
     consultarMesEspecifico,
     expandedNeveras,
     expandedConsolidados,
@@ -23,16 +21,6 @@ const HistorialTiendaPage: React.FC = () => {
     toggleProducto,
     resumenGlobal,
   } = useHistorialTienda({ mode: 'self' });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element).closest('.meses-dropdown')) {
-        setShowMesesMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setShowMesesMenu]);
 
   if (!historial && loading) {
     return (
@@ -53,7 +41,6 @@ const HistorialTiendaPage: React.FC = () => {
       successMessage={successMessage}
       mesesHistoricos={mesesHistoricos}
       mesSeleccionado={mesSeleccionado}
-      showMesesMenu={showMesesMenu}
       expandedNeveras={expandedNeveras}
       expandedConsolidados={expandedConsolidados}
       expandedProductos={expandedProductos}
@@ -62,7 +49,6 @@ const HistorialTiendaPage: React.FC = () => {
       toggleConsolidado={toggleConsolidado}
       toggleProducto={toggleProducto}
       consultarMesEspecifico={consultarMesEspecifico}
-      setShowMesesMenu={setShowMesesMenu}
       setError={setError}
       setSuccessMessage={setSuccessMessage}
     />

@@ -1,8 +1,8 @@
 import React from 'react';
 import TablaTransacciones from '../TablaTransacciones/TablaTransacciones';
-import MesesDropdown from '../MesesDropdown/MesesDropdown';
 import { formatMoneda } from '../../config/format';
 import type { TransaccionesData, EmpaquePendiente, ProductoPendiente, Promocion, MesItem } from '../../types/cuentas-tienda.types';
+import '../HistorialTiendaView/HistorialTiendaView.css';
 
 interface CuentasTiendaViewProps {
   transacciones: TransaccionesData;
@@ -99,16 +99,9 @@ const CuentasTiendaView: React.FC<CuentasTiendaViewProps> = ({
             data={transacciones}
             loading={loading}
             error={error}
-            headerControls={
-              mesesHistoricos.length > 0 ? (
-                <MesesDropdown
-                  meses={mesesHistoricos}
-                  seleccionado={mesSeleccionado}
-                  onSelect={onConsultarMes}
-                  loading={loading}
-                />
-              ) : null
-            }
+            mesesHistoricos={mesesHistoricos}
+            mesSeleccionado={mesSeleccionado}
+            onConsultarMes={onConsultarMes}
           />
         </div>
       )}

@@ -11,7 +11,9 @@ import {
   filtrarPendientes,
   calcularLiquidacion,
 } from '../../hooks/useHistorialTienda';
+import TransaccionesHeader from '../TransaccionesHeader/TransaccionesHeader';
 import './HistorialTiendaView.css';
+import '../TablaTransacciones/TablaTransacciones.css';
 
 interface HistorialTiendaViewProps {
   historial: HistorialTiendaResponse;
@@ -20,7 +22,6 @@ interface HistorialTiendaViewProps {
   successMessage: string | null;
   mesesHistoricos: MesItem[];
   mesSeleccionado: { mes: number; año: number } | null;
-  showMesesMenu: boolean;
   expandedNeveras: Set<number>;
   expandedConsolidados: Set<number>;
   expandedProductos: Set<string>;
@@ -29,7 +30,6 @@ interface HistorialTiendaViewProps {
   toggleConsolidado: (id: number) => void;
   toggleProducto: (key: string) => void;
   consultarMesEspecifico: (mes: number, año: number) => void;
-  setShowMesesMenu: (show: boolean) => void;
   setError: (error: string | null) => void;
   setSuccessMessage: (msg: string | null) => void;
 }
@@ -41,7 +41,6 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
   successMessage,
   mesesHistoricos,
   mesSeleccionado,
-  showMesesMenu,
   expandedNeveras,
   expandedConsolidados,
   expandedProductos,
@@ -50,7 +49,6 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
   toggleConsolidado,
   toggleProducto,
   consultarMesEspecifico,
-  setShowMesesMenu,
   setError,
   setSuccessMessage,
 }) => {
@@ -92,45 +90,16 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
 
       {historial && infoUsuario && (
         <div className="tabla-transacciones">
-          <div className="transacciones-header">
-            <div className="user-info">
-              <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>
-                {infoUsuario.nombre_usuario} {infoUsuario.apellido_usuario}
-              </div>
-              <p className="periodo-info">
-                Período: {infoUsuario.periodo.mes}/{infoUsuario.periodo.año}
-                {infoUsuario.parametros_usados?.es_periodo_actual && <span className="badge-actual">ACTUAL</span>}
-              </p>
-              {mesesHistoricos.length > 0 && (
-                <div className="meses-dropdown">
-                  <button className="dropdown-toggle" onClick={() => setShowMesesMenu(!showMesesMenu)}>
-                    Consultar Meses Anteriores
-                    <span className={`dropdown-arrow ${showMesesMenu ? 'open' : ''}`}>▼</span>
-                  </button>
-                  {showMesesMenu && (
-                    <div className="dropdown-menu">
-                      {mesesHistoricos.map(mesItem => (
-                        <div key={`${mesItem.mes}-${mesItem.año}`} className="dropdown-item">
-                          <span className="mes-fecha">{mesItem.fecha}</span>
-                          <button
-                            className={`btn-consultar ${mesSeleccionado?.mes === mesItem.mes && mesSeleccionado?.año === mesItem.año ? 'activo' : ''}`}
-                            onClick={() => {
-                              consultarMesEspecifico(mesItem.mes, mesItem.año);
-                              setShowMesesMenu(false);
-                            }}
-                            disabled={loading}
-                          >
-                            {loading && mesSeleccionado?.mes === mesItem.mes && mesSeleccionado?.año === mesItem.año ? 'Consultando...' : 'Consultar'}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="summary-info" />
-            </div>
-          </div>
+          <TransaccionesHeader
+            title={`${infoUsuario.nombre_usuario} ${infoUsuario.apellido_usuario}`}
+            titleSize="large"
+            periodo={infoUsuario.periodo}
+            esPeriodoActual={infoUsuario.parametros_usados?.es_periodo_actual || false}
+            mesesHistoricos={mesesHistoricos}
+            mesSeleccionado={mesSeleccionado}
+            onConsultarMes={consultarMesEspecifico}
+            loading={loading}
+          />
 
           {resumenGlobal && neveras.length > 0 && (
             <div className="resumen-financiero">

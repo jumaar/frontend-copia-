@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LogisticaPage.css';
 import CreateTokenModal from '../../../shared/components/CreateTokenModal/CreateTokenModal';
@@ -8,16 +8,34 @@ import EditUserModal from '../../../shared/components/EditUserModal/EditUserModa
 import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';
 import UserHierarchy from '../../../shared/components/UserHierarchy/UserHierarchy';
 import Alert from '../../../shared/components/Alert/Alert';
-import { getManagementData, toggleUserStatus, getUserDetails, deleteUser } from '../../../services/api';
+import { useUserManagement, type User } from '../../../shared/hooks/useUserManagement';
+import { getManagementData, getUserDetails } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
 
-interface User {
-  id: number;
-  nombre_completo: string;
-  celular: string;
-  rol: string;
-  activo: boolean;
-  hijos?: User[];
+function buildTiendaHierarchy(item: any, creadoPor: string): User[] {
+  return [{
+    id: item.id_usuario,
+    nombre_completo: item.nombre_completo,
+    celular: item.celular,
+    rol: 'tienda',
+    activo: item.activo,
+    creadoPor,
+    hijos: (item.tiendas || []).map((store: any) => ({
+      id: store.id_tienda * -1,
+      nombre_completo: store.nombre_tienda,
+      celular: store.direccion,
+      rol: 'tienda-fisica',
+      activo: true,
+      hijos: (store.neveras || []).map((nevera: any) => ({
+        id: nevera.id_nevera * -1,
+        nombre_completo: `Nevera ${nevera.id_nevera}`,
+        celular: '',
+        rol: 'nevera',
+        activo: nevera.estado === 2,
+        hijos: [],
+      })),
+    })),
+  }];
 }
 
 const LogisticaPage: React.FC = () => {
@@ -28,38 +46,34 @@ const LogisticaPage: React.FC = () => {
   const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeTokens, setActiveTokens] = useState<TokenData[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [tiendasData, setTiendasData] = useState<any[]>([]);
-  const [sobrinasData, setSobrinasData] = useState<any[]>([]);
+  const [jerarquiaItems, setJerarquiaItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
   const [userProfileData, setUserProfileData] = useState<any>(null);
+  const [usuarioActual, setUsuarioActual] = useState<any>(null);
+
+  const { handleToggleStatus, handleUserUpdated } = useUserManagement({
+    currentUser,
+    setUsers: () => {},
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const data = await getManagementData();
-
-        // Set user data for the profile section
-        setUsers(data.usuario_actual ? [data.usuario_actual] : []);
-
-        // Set tiendas data for individual components
-        setTiendasData(data.tiendas_creadas || []);
-        setSobrinasData(data.sobrinas || []);
+        setUsuarioActual(data.usuario_actual || null);
+        setJerarquiaItems(data.jerarquia || []);
         setActiveTokens(data.tokens || []);
 
-        // Verificar si el usuario actual de logística necesita completar perfil
         if (data.usuario_actual?.rol === 'Logistica' &&
-            (!data.usuario_actual.logistica || data.usuario_actual.logistica.length === 0) &&
-            (!data.usuario_actual.logisticas || data.usuario_actual.logisticas.length === 0)) {
+            !data.usuario_actual.logistica) {
           setUserProfileData(data.usuario_actual);
           setShowProfileAlert(true);
         }
-
       } catch (error) {
         console.error("No se pudieron cargar los datos de gestión:", error);
-        setUsers([]);
+        setJerarquiaItems([]);
         setActiveTokens([]);
       } finally {
         setIsLoading(false);
@@ -80,9 +94,7 @@ const LogisticaPage: React.FC = () => {
     try {
       const userData = await getUserDetails(userId);
       setSelectedUser(userData);
-      
-      // Verificar si es el usuario de logística (padre) o una tienda (hijo)
-      // El usuario de logística tiene ID igual al usuario actual, las tiendas tienen IDs diferentes
+
       if (userId === parseInt(currentUser?.id || '0')) {
         setEditLogisticaModalOpen(true);
       } else {
@@ -92,7 +104,7 @@ const LogisticaPage: React.FC = () => {
       console.error("Error fetching user details for editing.");
     }
   };
-  
+
   const handleCloseEditLogisticaModal = () => {
     setEditLogisticaModalOpen(false);
     setSelectedUser(null);
@@ -118,136 +130,14 @@ const LogisticaPage: React.FC = () => {
     setActiveTokens(prevTokens => prevTokens.filter(t => t.token !== expiredToken));
   };
 
-  const handleToggleStatus = async (userId: number, userName: string, currentStatus: boolean) => {
-    const action = currentStatus ? 'desactivar' : 'activar';
-    const isConfirmed = window.confirm(
-      `¿Estás seguro de que quieres ${action} al usuario "${userName}"?`
-    );
-
-    if (isConfirmed) {
-      try {
-        const updatedUser = await toggleUserStatus(userId);
-        // Mapear la respuesta del backend al formato esperado por el frontend
-        const mappedUser: User = {
-          id: updatedUser.id_usuario || updatedUser.id,
-          nombre_completo: updatedUser.nombre_completo || `${updatedUser.nombre_usuario || ''} ${updatedUser.apellido_usuario || ''}`.trim(),
-          celular: updatedUser.celular,
-          rol: updatedUser.rol,
-          activo: updatedUser.activo
-        };
-
-        // Actualizar el estado del usuario y sus hijos recursivamente
-        const updateUserInHierarchy = (users: User[]): User[] => {
-          return users.map(user => {
-            if (user.id === userId) {
-              // Actualizar nombre, celular y estado activo, pero mantener el rol original
-              return {
-                ...user,
-                nombre_completo: mappedUser.nombre_completo,
-                celular: mappedUser.celular,
-                activo: mappedUser.activo
-              };
-            }
-            if (user.hijos) {
-              return {
-                ...user,
-                hijos: updateUserInHierarchy(user.hijos)
-              };
-            }
-            return user;
-          });
-        };
-
-        setUsers(prevUsers => updateUserInHierarchy(prevUsers));
-      } catch (error) {
-        console.error(`Error al cambiar el estado del usuario ${userId}.`);
-        alert('No se pudo cambiar el estado del usuario. Inténtalo de nuevo.');
-      }
-    }
-  };
-
-  const handleUserUpdated = (updatedUser: any) => {
-    // Función recursiva para actualizar usuario editado en la jerarquía
-    const updateUserInHierarchy = (users: User[]): User[] => {
-      return users.map(user => {
-        if (user.id === updatedUser.id_usuario) {
-          // Actualizar nombre y celular, pero mantener rol y estado activo originales
-          return {
-            ...user,
-            nombre_completo: `${updatedUser.nombre_usuario} ${updatedUser.apellido_usuario}`,
-            celular: updatedUser.celular
-          };
-        }
-        if (user.hijos) {
-          return {
-            ...user,
-            hijos: updateUserInHierarchy(user.hijos)
-          };
-        }
-        return user;
-      });
-    };
-
-    setUsers(prevUsers => updateUserInHierarchy(prevUsers));
-  };
-
-  const handleDeleteUser = async (userId: number, userName: string) => {
-    const isConfirmed = window.confirm(
-      `¿Estás seguro de que quieres eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`
-    );
-
-    if (isConfirmed) {
-      try {
-        const response = await deleteUser(userId);
-
-        // Función recursiva para eliminar usuario de la jerarquía
-        const removeUserFromHierarchy = (users: User[]): User[] => {
-          return users
-            .filter(user => user.id !== userId) // Filtrar el usuario a eliminar
-            .map(user => ({
-              ...user,
-              hijos: user.hijos ? removeUserFromHierarchy(user.hijos) : undefined
-            }));
-        };
-
-        setUsers(prevUsers => removeUserFromHierarchy(prevUsers));
-        
-        // Mostrar mensaje de éxito
-        alert(response.message || 'Usuario eliminado exitosamente.');
-      } catch (error: any) {
-        console.error(`Error al eliminar el usuario ${userId}.`, error);
-        
-        // Manejar diferentes tipos de errores según la respuesta del backend
-        if (error.response) {
-          const { status, data } = error.response;
-          
-          switch (status) {
-            case 401:
-              alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-              // Opcional: redirigir al login
-              // window.location.href = '/login';
-              break;
-            case 403:
-              alert(data.message || 'No tienes permiso para eliminar a este usuario.');
-              break;
-            case 404:
-              alert(data.message || `Usuario con ID ${userId} no encontrado.`);
-              break;
-            default:
-              alert(data.message || 'No se pudo eliminar el usuario. Inténtalo de nuevo.');
-          }
-        } else {
-          alert('No se pudo eliminar el usuario. Inténtalo de nuevo.');
-        }
-      }
-    }
-  };
-
-  const nombreUsuarioActual = users[0]?.nombre_completo || '';
-  const todasLasTiendas = [
-    ...tiendasData.map((t: any) => ({ ...t, creado_por: nombreUsuarioActual })),
-    ...sobrinasData,
-  ];
+  const jerarquias = useMemo(() => {
+    return jerarquiaItems.map((item: any) => {
+      const creadoPor = item.tipo === 'sobrina'
+        ? (item.creado_por || 'Otro logística')
+        : (usuarioActual?.nombre_completo || '');
+      return buildTiendaHierarchy(item, creadoPor);
+    });
+  }, [jerarquiaItems, usuarioActual]);
 
   return (
     <>
@@ -275,79 +165,50 @@ const LogisticaPage: React.FC = () => {
           </div>
         </div>
 
-        {users.length > 0 && (
+        {usuarioActual && (
           <UserProfileCard
-            role={users[0].rol}
-            fullName={users[0].nombre_completo}
-            phone={users[0].celular}
-            onEditClick={() => handleOpenEditModal(users[0].id)}
+            role={usuarioActual.rol}
+            fullName={usuarioActual.nombre_completo}
+            phone={usuarioActual.celular}
+            onEditClick={() => handleOpenEditModal(usuarioActual.id)}
           />
         )}
 
         <div className="tiendas-section">
           {isLoading ? (
             <p>Cargando datos...</p>
-          ) : todasLasTiendas.length > 0 ? (
-            todasLasTiendas.map((tiendaUser: any) => {
-              const tiendaHierarchy: User[] = [{
-                id: tiendaUser.id_usuario,
-                nombre_completo: tiendaUser.nombre_completo,
-                celular: tiendaUser.celular,
-                rol: 'tienda',
-                activo: tiendaUser.activo,
-                hijos: tiendaUser.tiendas_creadas.map((store: any) => ({
-                  id: store.id_tienda * -1,
-                  nombre_completo: store.nombre_tienda,
-                  celular: store.direccion,
-                  rol: 'tienda-fisica',
-                  activo: true,
-                  hijos: store.neveras.map((nevera: any) => ({
-                    id: nevera.id_nevera * -1,
-                    nombre_completo: `Nevera ${nevera.id_nevera}`,
-                    celular: '',
-                    rol: 'nevera',
-                    activo: nevera.estado === 2,
-                    hijos: []
-                  }))
-                }))
-              }];
-
-              return (
-                <div key={tiendaUser.id_usuario} className="tienda-component card">
-                  <UserHierarchy
-                    users={tiendaHierarchy}
-                    currentUserRole={currentUser?.role}
-                    currentUserId={currentUser?.id}
-                    onEditUser={handleOpenEditModal}
-                    onToggleStatus={handleToggleStatus}
-                    onDeleteUser={handleDeleteUser}
-                    onSurtir={() => navigate('/logistica/inventario')}
-                  />
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '8px', paddingLeft: '8px' }}>
-                    Creado por: {tiendaUser.creado_por}
-                  </div>
-                </div>
-              );
-            })
+          ) : jerarquias.length > 0 ? (
+            jerarquias.map((hierarchy) => (
+              <UserHierarchy
+                key={hierarchy[0]?.id}
+                users={hierarchy}
+                currentUserRole={currentUser?.role}
+                currentUserId={currentUser?.id}
+                onEditUser={handleOpenEditModal}
+                onToggleStatus={handleToggleStatus}
+                onDeleteUser={() => {}}
+                onSurtir={() => navigate('/logistica/inventario')}
+              />
+            ))
           ) : (
             <p>No hay tiendas para mostrar.</p>
           )}
         </div>
       </div>
       <CreateTokenModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onTokenCreated={handleTokenCreated} />
-      <EditLogisticaModal 
-        isOpen={isEditLogisticaModalOpen} 
-        onClose={handleCloseEditLogisticaModal} 
-        userData={selectedUser} 
-        onUserUpdated={handleUserUpdated} 
+      <EditLogisticaModal
+        isOpen={isEditLogisticaModalOpen}
+        onClose={handleCloseEditLogisticaModal}
+        userData={selectedUser}
+        onUserUpdated={handleUserUpdated}
       />
-      <EditUserModal 
-        isOpen={isEditUserModalOpen} 
-        onClose={handleCloseEditUserModal} 
-        userData={selectedUser} 
-        onUserUpdated={handleUserUpdated} 
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        onClose={handleCloseEditUserModal}
+        userData={selectedUser}
+        onUserUpdated={handleUserUpdated}
       />
-      
+
       {showProfileAlert && (
         <Alert
           message="Debe completar los datos de su perfil de logística para continuar."

@@ -5,16 +5,51 @@ import TokenDisplay, { type TokenData } from '../components/TokenDisplay/TokenDi
 import EditUserModal from '../components/EditUserModal/EditUserModal';
 import UserProfileCard from '../components/UserProfileCard/UserProfileCard';
 import UserHierarchy from '../components/UserHierarchy/UserHierarchy';
-import { getManagementData, toggleUserStatus, getUserDetails, deleteUser } from '../../services/api';
+import { useUserManagement, type User } from '../hooks/useUserManagement';
+import { getManagementData, getUserDetails } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface User {
-  id: number;
-  nombre_completo: string;
-  celular: string;
-  rol: string;
-  activo: boolean;
-  hijos?: User[];
+function mapTiendaToUser(store: any): User {
+  return {
+    id: store.id_tienda * -1,
+    nombre_completo: store.nombre_tienda,
+    celular: store.direccion,
+    rol: 'tienda-fisica',
+    activo: true,
+    hijos: (store.neveras || []).map((n: any) => ({
+      id: n.id_nevera * -1,
+      nombre_completo: `Nevera ${n.id_nevera}`,
+      celular: '',
+      rol: 'nevera',
+      activo: n.estado === 2,
+      hijos: [],
+    })),
+  };
+}
+
+function mapNodoToUser(node: any): User {
+  const rol = node.rol.toLowerCase().replace('_', '');
+  const hijos: User[] = [];
+
+  const usuariosCreados = node.usuarios_creados || [];
+  for (const child of usuariosCreados) {
+    const childUser = mapNodoToUser(child);
+    hijos.push(childUser);
+  }
+
+  const tiendas = node.tiendas || [];
+  for (const store of tiendas) {
+    hijos.push(mapTiendaToUser(store));
+  }
+
+  return {
+    id: node.id || node.id_usuario,
+    nombre_completo: node.nombre_completo || node.nombre_tienda || '',
+    celular: node.celular || node.direccion || '',
+    rol,
+    activo: node.activo !== undefined ? node.activo : true,
+    hijos,
+  };
 }
 
 const UserManagementPage: React.FC = () => {
@@ -23,171 +58,40 @@ const UserManagementPage: React.FC = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeTokens, setActiveTokens] = useState<TokenData[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [hierarchyUsers, setHierarchyUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [usuarioActual, setUsuarioActual] = useState<{ id: number; nombre_completo: string; celular: string; rol: string; activo: boolean } | null>(null);
+
+  const { handleToggleStatus, handleUserUpdated, handleDeleteUser } = useUserManagement({
+    currentUser,
+    setUsers: setHierarchyUsers,
+  });
+
+  const isSuperAdmin = currentUser?.role?.toLowerCase().replace('_', '') === 'superadmin';
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const data = await getManagementData();
-        console.log('Datos recibidos del backend:', data);
-        console.log('Usuario actual:', data.usuario_actual);
-        console.log('Rol del usuario actual:', data.usuario_actual?.rol);
-        console.log('Jerarquía del backend:', data.jerarquia);
-        console.log('Usuarios creados por usuario actual:', data.usuario_actual?.usuarios_creados);
-
-        if (data.jerarquia && data.jerarquia.length > 0) {
-          console.log('Primer admin en jerarquía:', data.jerarquia[0]);
-          console.log('Usuarios creados por el primer admin:', data.jerarquia[0].usuarios_creados);
-          if (data.jerarquia[0].usuarios_creados && data.jerarquia[0].usuarios_creados.length > 0) {
-            const logisticaUser = data.jerarquia[0].usuarios_creados.find((u: any) => u.rol.toLowerCase().replace('_', '') === 'logistica');
-            if (logisticaUser) {
-              console.log('Usuario logistica encontrado:', logisticaUser);
-              console.log('Tiendas creadas por logistica:', logisticaUser.usuarios_creados);
-            }
-          }
-        }
-
-
-        const transformedHierarchy: User[] = [];
-
-        if (data.usuario_actual) {
-          // Para Super Admin: mostrar jerarquía completa con 4 niveles
-          if (data.usuario_actual.rol.toLowerCase().replace('_', '') === 'superadmin') {
-            const rootUser: User = {
-              id: data.usuario_actual.id,
-              nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
-              celular: data.usuario_actual.celular || 'N/A',
-              rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
-              activo: data.usuario_actual.activo,
-              hijos: (data.jerarquia || []).map((admin: any) => {
-                // Cada admin tiene hijos que son frigos y logistica
-                const adminChildren = (admin.usuarios_creados || []).map((child: any) => {
-                  // Si es frigorifico, no tiene hijos
-                  if (child.rol.toLowerCase().replace('_', '') === 'frigorifico') {
-                    return {
-                      id: child.id,
-                      nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                      celular: child.celular || 'N/A',
-                      rol: child.rol.toLowerCase().replace('_', ''),
-                      activo: child.activo,
-                      hijos: [] // Frigoríficos no tienen hijos
-                    };
-                  }
-
-                  // Si es logistica, tiene hijos que son tiendas
-                  if (child.rol.toLowerCase().replace('_', '') === 'logistica') {
-                    return {
-                      id: child.id,
-                      nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                      celular: child.celular || 'N/A',
-                      rol: child.rol.toLowerCase().replace('_', ''),
-                      activo: child.activo,
-                      hijos: (child.usuarios_creados || [])
-                        .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
-                        .map((tiendaUser: any) => ({
-                          id: tiendaUser.id,
-                          nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
-                          celular: tiendaUser.celular || 'N/A',
-                          rol: tiendaUser.rol.toLowerCase().replace('_', ''),
-                          activo: tiendaUser.activo,
-                        }))
-                    };
-                  }
-
-                  // Otros roles (por si acaso)
-                  return {
-                    id: child.id,
-                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                    celular: child.celular || 'N/A',
-                    rol: child.rol.toLowerCase().replace('_', ''),
-                    activo: child.activo,
-                    hijos: []
-                  };
-                });
-
-                return {
-                  id: admin.id,
-                  nombre_completo: admin.nombre_completo || 'Admin sin nombre',
-                  celular: admin.celular || 'N/A',
-                  rol: admin.rol.toLowerCase().replace('_', ''),
-                  activo: admin.activo,
-                  hijos: adminChildren
-                };
-              }),
-            };
-            transformedHierarchy.push(rootUser);
-          } else {
-            // Para Admin normal: la jerarquía del backend contiene los usuarios creados por este admin
-            const rootUser: User = {
-              id: data.usuario_actual.id,
-              nombre_completo: data.usuario_actual.nombre_completo || 'Usuario Actual',
-              celular: data.usuario_actual.celular || 'N/A',
-              rol: data.usuario_actual.rol.toLowerCase().replace('_', ''),
-              activo: data.usuario_actual.activo,
-              hijos: (data.jerarquia || []).map((child: any) => {
-                if (child.rol.toLowerCase().replace('_', '') === 'frigorifico') {
-                  return {
-                    id: child.id,
-                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                    celular: child.celular || 'N/A',
-                    rol: child.rol.toLowerCase().replace('_', ''),
-                    activo: child.activo,
-                    hijos: [] // Frigoríficos no tienen hijos
-                  };
-                } else if (child.rol.toLowerCase().replace('_', '') === 'logistica') {
-                  return {
-                    id: child.id,
-                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                    celular: child.celular || 'N/A',
-                    rol: child.rol.toLowerCase().replace('_', ''),
-                    activo: child.activo,
-                    hijos: (child.usuarios_creados || [])
-                      .filter((tiendaUser: any) => tiendaUser.rol.toLowerCase().replace('_', '') === 'tienda')
-                      .map((tiendaUser: any) => ({
-                        id: tiendaUser.id,
-                        nombre_completo: tiendaUser.nombre_completo || 'Usuario sin nombre',
-                        celular: tiendaUser.celular || 'N/A',
-                        rol: tiendaUser.rol.toLowerCase().replace('_', ''),
-                        activo: tiendaUser.activo,
-                      }))
-                  };
-                } else {
-                  return {
-                    id: child.id,
-                    nombre_completo: child.nombre_completo || 'Usuario sin nombre',
-                    celular: child.celular || 'N/A',
-                    rol: child.rol.toLowerCase().replace('_', ''),
-                    activo: child.activo,
-                    hijos: []
-                  };
-                }
-              }),
-            };
-            transformedHierarchy.push(rootUser);
-          }
-        }
-        
-        setUsers(transformedHierarchy);
-        setActiveTokens(data.tokens || []);
         setUsuarioActual(data.usuario_actual || null);
+        setActiveTokens(data.tokens || []);
 
+        const hierarchy = (data.jerarquia || []).map((nodo: any) => mapNodoToUser(nodo));
+        setHierarchyUsers(hierarchy);
       } catch (error) {
         console.error("No se pudieron cargar los datos de gestión:", error);
-        setUsers([]); // En caso de error, la lista queda vacía
+        setHierarchyUsers([]);
         setActiveTokens([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Solo llamar a fetchData si tenemos un usuario autenticado
     if (currentUser) {
       fetchData();
     } else {
-      setIsLoading(false); // Si no hay usuario, no hay nada que cargar
+      setIsLoading(false);
     }
   }, [currentUser]);
 
@@ -215,119 +119,6 @@ const UserManagementPage: React.FC = () => {
   const handleTokenExpired = (expiredToken: string) => {
     setActiveTokens(prevTokens => prevTokens.filter(t => t.token !== expiredToken));
   };
-
-  const handleToggleStatus = async (userId: number, userName: string, currentStatus: boolean) => {
-    const action = currentStatus ? 'desactivar' : 'activar';
-    const isConfirmed = window.confirm(
-      `¿Estás seguro de que quieres ${action} al usuario "${userName}"?`
-    );
-
-    if (isConfirmed) {
-      try {
-        const updatedUser = await toggleUserStatus(userId);
-        // Mapear la respuesta del backend al formato esperado por el frontend
-        const mappedUser: User = {
-          id: updatedUser.id_usuario || updatedUser.id,
-          nombre_completo: updatedUser.nombre_completo || `${updatedUser.nombre_usuario || ''} ${updatedUser.apellido_usuario || ''}`.trim(),
-          celular: updatedUser.celular,
-          rol: updatedUser.rol,
-          activo: updatedUser.activo
-        };
-
-        // Actualizar el estado del usuario y sus hijos recursivamente
-        const updateUserInHierarchy = (users: User[]): User[] => {
-          return users.map(user => {
-            if (user.id === userId) {
-              // Actualizar nombre, celular y estado activo, pero mantener el rol original
-              return {
-                ...user,
-                nombre_completo: mappedUser.nombre_completo,
-                celular: mappedUser.celular,
-                activo: mappedUser.activo
-              };
-            }
-            if (user.hijos) {
-              return {
-                ...user,
-                hijos: updateUserInHierarchy(user.hijos)
-              };
-            }
-            return user;
-          });
-        };
-
-        setUsers(prevUsers => updateUserInHierarchy(prevUsers));
-      } catch (error) {
-        console.error(`Error al cambiar el estado del usuario ${userId}.`);
-        alert('No se pudo cambiar el estado del usuario. Inténtalo de nuevo.');
-      }
-    }
-  };
-
-  const handleUserUpdated = (updatedUser: any) => {
-    // Función recursiva para actualizar usuario editado en la jerarquía
-    const updateUserInHierarchy = (users: User[]): User[] => {
-      return users.map(user => {
-        if (user.id === updatedUser.id_usuario) {
-          // Actualizar nombre y celular, pero mantener rol y estado activo originales
-          return {
-            ...user,
-            nombre_completo: `${updatedUser.nombre_usuario} ${updatedUser.apellido_usuario}`,
-            celular: updatedUser.celular
-          };
-        }
-        if (user.hijos) {
-          return {
-            ...user,
-            hijos: updateUserInHierarchy(user.hijos)
-          };
-        }
-        return user;
-      });
-    };
-
-    setUsers(prevUsers => updateUserInHierarchy(prevUsers));
-  };
-
-  const handleDeleteUser = async (userId: number, userName: string) => {
-    if (userId.toString() === currentUser?.id) {
-      alert('No puedes eliminar tu propio usuario.');
-      return;
-    }
-
-    // Verificar permisos: Super Admin y Admin pueden eliminar usuarios
-    if (!['superadmin', 'admin'].includes(currentUser?.role || '')) {
-      alert('No tienes permisos para eliminar usuarios.');
-      return;
-    }
-
-    const isConfirmed = window.confirm(
-      `¿Estás seguro de que quieres eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`
-    );
-
-    if (isConfirmed) {
-      try {
-        await deleteUser(userId);
-
-        // Función recursiva para eliminar usuario de la jerarquía
-        const removeUserFromHierarchy = (users: User[]): User[] => {
-          return users
-            .filter(user => user.id !== userId) // Filtrar el usuario a eliminar
-            .map(user => ({
-              ...user,
-              hijos: user.hijos ? removeUserFromHierarchy(user.hijos) : undefined
-            }));
-        };
-
-        setUsers(prevUsers => removeUserFromHierarchy(prevUsers));
-        alert('Usuario eliminado exitosamente.');
-      } catch (error) {
-        console.error(`Error al eliminar el usuario ${userId}.`);
-        alert('No se pudo eliminar el usuario. Inténtalo de nuevo.');
-      }
-    }
-  };
-
 
   return (
     <>
@@ -364,19 +155,34 @@ const UserManagementPage: React.FC = () => {
           />
         )}
 
-        <div className="management-table-container card">
         {isLoading ? (
           <p>Cargando datos...</p>
-        ) : users.length > 0 ? (
-          <UserHierarchy users={users[0]?.hijos || []} currentUserRole={currentUser?.role} currentUserId={currentUser?.id} onEditUser={handleOpenEditModal} onToggleStatus={handleToggleStatus} onDeleteUser={handleDeleteUser} />
+        ) : isSuperAdmin ? (
+          hierarchyUsers.map((adminNode) => (
+            <UserHierarchy
+              key={adminNode.id}
+              users={[adminNode]}
+              currentUserRole={currentUser?.role}
+              currentUserId={currentUser?.id}
+              onEditUser={handleOpenEditModal}
+              onToggleStatus={handleToggleStatus}
+              onDeleteUser={handleDeleteUser}
+            />
+          ))
         ) : (
-          <p>No hay usuarios para mostrar.</p>
+          <UserHierarchy
+            users={hierarchyUsers}
+            currentUserRole={currentUser?.role}
+            currentUserId={currentUser?.id}
+            onEditUser={handleOpenEditModal}
+            onToggleStatus={handleToggleStatus}
+            onDeleteUser={handleDeleteUser}
+          />
         )}
       </div>
-    </div>
-    <CreateTokenModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onTokenCreated={handleTokenCreated} />
-    <EditUserModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} userData={selectedUser} onUserUpdated={handleUserUpdated} />
-  </>
+      <CreateTokenModal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal} onTokenCreated={handleTokenCreated} />
+      <EditUserModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} userData={selectedUser} onUserUpdated={handleUserUpdated} />
+    </>
   );
 };
 

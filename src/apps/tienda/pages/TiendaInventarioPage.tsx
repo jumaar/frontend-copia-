@@ -2,25 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { getTiendas } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import SurtirNeveraModal from '../../../shared/components/SurtirNeveraModal/SurtirNeveraModal';
-import './TiendaDashboardPage.css';
-
-interface Nevera {
-  id_nevera: number;
-  contraseña: string;
-  id_estado_nevera: number;
-}
-
-interface Tienda {
-  id_tienda: number;
-  nombre_tienda: string;
-  direccion: string;
-  ciudad: string;
-  departamento: string;
-  neveras: Nevera[];
-}
+import ListaTiendasNeveras, { type TiendaData } from '../../../shared/components/ListaTiendasNeveras';
 
 interface TiendasResponse {
-  tiendas: Tienda[];
+  tiendas: TiendaData[];
   ciudades_disponibles: Array<{
     id_ciudad: number;
     nombre_ciudad: string;
@@ -83,60 +68,10 @@ const TiendaInventarioPage: React.FC = () => {
 
       <section className="card" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
         <div style={{ padding: '1rem' }}>
-          {tiendasData?.tiendas.length === 0 ? (
-            <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '2rem' }}>
-              No tienes tiendas asignadas.
-            </p>
-          ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {tiendasData?.tiendas.map((tienda) => (
-                <div
-                  key={tienda.id_tienda}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '1rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--border-radius-md)',
-                    backgroundColor: 'var(--color-card-bg)'
-                  }}
-                >
-                  <div>
-                    <h4 style={{ margin: '0 0 0.25rem 0', color: 'var(--color-text-primary)' }}>
-                      {tienda.nombre_tienda}
-                    </h4>
-                    <p style={{ margin: '0', color: 'var(--color-text-secondary)' }}>
-                      {tienda.direccion} - {tienda.ciudad}, {tienda.departamento}
-                    </p>
-                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                      Neveras activas: {tienda.neveras.filter(n => n.id_estado_nevera === 2).length}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    {tienda.neveras.filter(n => n.id_estado_nevera === 2).map((nevera) => (
-                      <button
-                        key={nevera.id_nevera}
-                        className="action-button"
-                        onClick={() => handleMostrarSurtir(nevera.id_nevera)}
-                        style={{
-                          padding: '0.5rem 1rem',
-                          backgroundColor: '#667eea',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          minWidth: '100px'
-                        }}
-                      >
-                        Mostrar Nevera {nevera.id_nevera}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <ListaTiendasNeveras
+            tiendas={tiendasData?.tiendas || []}
+            onSurtir={handleMostrarSurtir}
+          />
         </div>
       </section>
 

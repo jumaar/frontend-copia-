@@ -155,7 +155,7 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
     setMesSeleccionado({ mes, año });
 
     if (mode === 'self' && user?.id) {
-      cargarTransacciones(parseInt(user.id), undefined, mes, año);
+      cargarTransacciones(parseInt(user.id), neveraSeleccionada || undefined, mes, año);
     } else if (mode === 'admin' && tiendaSeleccionada && neveraSeleccionada) {
       let userId: number | null = null;
       for (const u of usuariosTienda) {
@@ -315,16 +315,10 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
   }, [tiendaSeleccionada, neveraSeleccionada, tipoPago, montoPago, notaPago, saldoTotalLiquidar, user, usuariosTienda, transacciones, cargarUsuariosTienda]);
 
   useEffect(() => {
-    if (esAdmin && user) {
+    if (user) {
       cargarUsuariosTienda();
     }
-  }, [esAdmin, user?.id, cargarUsuariosTienda]);
-
-  useEffect(() => {
-    if (mode === 'self' && user?.id) {
-      cargarTransacciones(parseInt(user.id));
-    }
-  }, [mode, user?.id, cargarTransacciones]);
+  }, [user?.id, cargarUsuariosTienda]);
 
   useEffect(() => {
     if (transacciones?.fecha_creacion_usuario) {

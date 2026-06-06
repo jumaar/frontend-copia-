@@ -8,69 +8,41 @@ import EditUserModal from '../../../shared/components/EditUserModal/EditUserModa
 import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';
 import CreateNeveraModal from '../../../shared/components/CreateNeveraModal/CreateNeveraModal';
 import PasswordConfirmationModal from '../../../shared/components/PasswordConfirmationModal/PasswordConfirmationModal';
-import { getTiendas, createTienda, updateTienda, deleteTienda, getUserDetails, createNevera, deleteNevera } from '../../../services/api';
+import { createTienda, updateTienda, deleteTienda, getUserDetails, createNevera, deleteNevera } from '../../../services/api';
+import { getManagementData } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
-import './TiendaDashboardPage.css';
 
-interface Nevera {
-  id_nevera: number;
-  id_tienda: number;
-  id_estado_nevera: number;
-  fecha_creacion: string;
-  fecha_activacion: string | null;
-  contraseña?: string;
-}
-
-interface Tienda {
-  id_tienda: number;
-  nombre_tienda: string;
-  direccion: string;
-  fecha_creacion: string;
-  ciudad: string;
-  departamento: string;
-  neveras?: Nevera[];
-}
-
-interface UsuarioData {
-  id_usuario: number;
-  nombre_usuario: string;
-  apellido_usuario: string;
-  identificacion_usuario: string;
-  celular: string;
-  email: string;
-  activo: boolean;
-  fecha_creacion: string;
-  fecha_ultima_modifi: string;
-  id_rol: number;
-  rol: {
-    id_rol: number;
-    nombre_rol: string;
+function mapTiendaToProductionItem(tienda: any): ProductionItem {
+  return {
+    id: tienda.id_tienda.toString(),
+    type: 'station',
+    name: tienda.nombre_tienda,
+    details: {
+      address: tienda.direccion,
+      city: tienda.ciudad,
+    },
+    children: (tienda.neveras || []).map((n: any) => ({
+      id: n.id_nevera.toString(),
+      type: 'scale' as const,
+      name: `Nevera ${n.id_nevera}`,
+      details: {
+        key: `Estado: ${n.estado === 2 ? 'Activa' : 'Inactiva'}`,
+        value: '',
+        isActive: n.estado === 2,
+      },
+      isActive: n.estado === 2,
+    })),
   };
 }
-
-
-
 
 const TiendaDashboardPage: React.FC = () => {
   const { user } = useAuth();
   const [productionItems, setProductionItems] = useState<ProductionItem[]>([
-    {
-      id: 'loading',
-      type: 'station',
-      name: 'Cargando tiendas...',
-      details: { address: '', city: '' },
-      children: []
-    }
+    { id: 'loading', type: 'station', name: 'Cargando tiendas...', details: { address: '', city: '' }, children: [] },
   ]);
   const [isStationModalOpen, setStationModalOpen] = useState(false);
   const [editingStation, setEditingStation] = useState<ProductionItem | null>(null);
-  const [userData, setUserData] = useState<UsuarioData | null>(null);
-  const [tiendasData, setTiendasData] = useState<Tienda[]>([]);
-  const [ciudadesDisponibles, setCiudadesDisponibles] = useState<Array<{
-    id_ciudad: number;
-    nombre_ciudad: string;
-    departamento: string;
-  }>>([]);
+  const [usuarioActual, setUsuarioActual] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
@@ -82,52 +54,23 @@ const TiendaDashboardPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (user?.id) {
-        try {
-          const [userResponse, tiendasResponse] = await Promise.all([
-            getUserDetails(Number(user.id)),
-            getTiendas(Number(user.id))
-          ]);
+      if (!user?.id) return;
+      setLoading(true);
+      try {
+        const data = await getManagementData();
+        setUsuarioActual(data.usuario_actual || null);
 
-          setUserData(userResponse);
-          setTiendasData(tiendasResponse.tiendas || []);
-          setCiudadesDisponibles(tiendasResponse.ciudades_disponibles || []);
-
-          // Convertir datos reales a formato ProductionItem
-          if (tiendasResponse.tiendas && tiendasResponse.tiendas.length > 0) {
-            const realProductionItems: ProductionItem[] = tiendasResponse.tiendas.map((tienda: Tienda) => ({
-              id: tienda.id_tienda.toString(),
-              type: 'station',
-              name: tienda.nombre_tienda,
-              details: {
-                address: tienda.direccion,
-                city: tienda.ciudad,
-                fecha_creacion: tienda.fecha_creacion
-              },
-              children: tienda.neveras ? tienda.neveras.map(nevera => ({
-                id:nevera.id_nevera.toString(),
-                type: 'scale',
-                name: `Nevera ${nevera.id_nevera}`,
-                details: {
-                  key: `Estado: ${nevera.id_estado_nevera === 2 ? 'Activa' : 'Inactiva'}`,
-                  value:nevera.contraseña,
-                  fecha_creacion:nevera.fecha_creacion,
-                  fecha_activacion:nevera.fecha_activacion
-                },
-                isActive:nevera.id_estado_nevera === 2
-              })) : []
-            }));
-            setProductionItems(realProductionItems);
-          } else {
-            // Si no hay tiendas, mostrar array vacío
-            setProductionItems([]);
-          }
-        } catch (error) {
-          console.error('Error fetching nevera data:', error);
+        const tiendas = (data.jerarquia || []) as any[];
+        if (tiendas.length > 0) {
+          setProductionItems(tiendas.map((t: any) => mapTiendaToProductionItem(t)));
+        } else {
           setProductionItems([]);
-        } finally {
-          setLoading(false);
         }
+      } catch (error) {
+        console.error('Error fetching management data:', error);
+        setProductionItems([]);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -139,16 +82,9 @@ const TiendaDashboardPage: React.FC = () => {
     setStationModalOpen(true);
   };
 
-  const handleCreateScale = async (station: ProductionItem) => {
-    // station es la tienda, crear nevera para esa tienda
-    try {
-      // Abrir modal para pedir codigo_activacion
-      setSelectedTiendaForNevera(station);
-      setCreateNeveraModalOpen(true);
-    } catch (error: any) {
-      console.error('Error creating nevera:', error);
-      alert('Error al crear la nevera. Inténtalo de nuevo.');
-    }
+  const handleCreateScale = (station: ProductionItem) => {
+    setSelectedTiendaForNevera(station);
+    setCreateNeveraModalOpen(true);
   };
 
   const handleOpenEditStationModal = (station: ProductionItem) => {
@@ -163,41 +99,22 @@ const TiendaDashboardPage: React.FC = () => {
 
   const handleSaveStation = async (stationData: StationData) => {
     try {
-      // Find the selected city ID
-      const selectedCity = ciudadesDisponibles.find(
-        ciudad => ciudad.nombre_ciudad === stationData.city
-      );
-
-      if (!selectedCity) {
-        console.error('Ciudad no encontrada');
-        return;
-      }
-
       if (editingStation) {
-        // Update existing tienda
         await updateTienda(parseInt(editingStation.id.toString()), {
           nombre_tienda: stationData.name,
           direccion: stationData.address,
-          id_ciudad: selectedCity.id_ciudad
+          id_ciudad: 0,
         });
-        // Refresh data
-        setRefreshTrigger(prev => prev + 1);
       } else {
-        // Create new tienda
         await createTienda({
           nombre_tienda: stationData.name,
           direccion: stationData.address,
-          id_ciudad: selectedCity.id_ciudad
+          id_ciudad: 0,
         });
-        // Refresh data
-        setRefreshTrigger(prev => prev + 1);
       }
+      setRefreshTrigger(prev => prev + 1);
     } catch (error: any) {
       console.error('Error saving tienda:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-
-      // Manejar error específico de creación de tienda bloqueada
       if (error.response?.status === 403 && error.response?.data?.code === 'TIENDA_CREATION_BLOCKED') {
         alert(error.response.data.message);
       } else {
@@ -208,62 +125,42 @@ const TiendaDashboardPage: React.FC = () => {
 
   const handleSaveNevera = async () => {
     if (!selectedTiendaForNevera) return;
-
     try {
-      const response = await createNevera({
-        id_tienda: Number(selectedTiendaForNevera.id)
-      });
-
-      // Mostrar modal de confirmación de contraseña
-      if (response && response.nevera) {
+      const response = await createNevera({ id_tienda: Number(selectedTiendaForNevera.id) });
+      if (response?.nevera) {
         setNewNeveraPassword(response.nevera.contraseña);
         setPasswordModalOpen(true);
-
-        // Actualizar el estado localmente para mostrar la contraseña sin recargar
-        setProductionItems(prevItems => {
-          return prevItems.map(item => {
-            if (item.id === selectedTiendaForNevera.id) {
-              const newNevera: ProductionItem = {
+        setProductionItems(prev => prev.map(item => {
+          if (item.id === selectedTiendaForNevera.id) {
+            return {
+              ...item,
+              children: [...(item.children || []), {
                 id: response.nevera.id_nevera.toString(),
-                type: 'scale',
+                type: 'scale' as const,
                 name: `Nevera ${response.nevera.id_nevera}`,
                 details: {
                   key: `Estado: ${response.nevera.id_estado_nevera === 2 ? 'Activa' : 'Inactiva'}`,
                   value: response.nevera.contraseña,
-                  fecha_creacion: response.nevera.fecha_creacion,
-                  fecha_activacion: null
                 },
-                isActive: response.nevera.id_estado_nevera === 2
-              };
-              return {
-                ...item,
-                children: [...(item.children || []), newNevera]
-              };
-            }
-            return item;
-          });
-        });
+                isActive: response.nevera.id_estado_nevera === 2,
+              }],
+            };
+          }
+          return item;
+        }));
       } else {
-        // Si no hay respuesta con nevera, refrescar datos
         setRefreshTrigger(prev => prev + 1);
       }
-
-      setCreateNeveraModalOpen(false);
-      setSelectedTiendaForNevera(null);
     } catch (error: any) {
       console.error('Error saving nevera:', error);
-
-      // Manejar error específico de creación bloqueada
       if (error.response?.status === 403 && error.response?.data?.code === 'NEVERA_CREATION_BLOCKED') {
         alert(error.response.data.message);
       } else {
         alert('Error al crear la nevera. Inténtalo de nuevo.');
       }
-
-      // Cerrar el modal en caso de error
-      setCreateNeveraModalOpen(false);
-      setSelectedTiendaForNevera(null);
     }
+    setCreateNeveraModalOpen(false);
+    setSelectedTiendaForNevera(null);
   };
 
   const handleCloseNeveraModal = () => {
@@ -279,48 +176,37 @@ const TiendaDashboardPage: React.FC = () => {
   };
 
   const handleDeleteStation = async (station: ProductionItem) => {
-    if (window.confirm(`¿Estás seguro de que quieres eliminar la tienda "${station.name}"? Esta acción no se puede deshacer.`)) {
-      try {
-        await deleteTienda(Number(station.id));
-        // Refresh data
-        setRefreshTrigger(prev => prev + 1);
-      } catch (error: any) {
-        console.error('Error deleting tienda:', error);
-
-        // Manejar errores específicos
-        if (error.response?.status === 403 && error.response?.data?.code === 'TIENDA_HAS_NEVERAS_ACTIVAS') {
-          alert(error.response.data.message);
-        } else if (error.response?.status === 404) {
-          alert('Tienda no encontrada o no tienes permisos para eliminarla.');
-        } else {
-          alert('Error al eliminar la tienda. Inténtalo de nuevo.');
-        }
+    if (!window.confirm(`¿Estás seguro de que quieres eliminar la tienda "${station.name}"?`)) return;
+    try {
+      await deleteTienda(Number(station.id));
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        alert(error.response.data.message);
+      } else {
+        alert('Error al eliminar la tienda.');
       }
     }
   };
 
   const handleDeleteScale = async (scale: ProductionItem) => {
-    if (window.confirm(`¿Estás seguro de que quieres eliminar la nevera "${scale.name}"? Esta acción no se puede deshacer.`)) {
-      try {
-        await deleteNevera(Number(scale.id));
-        // Refresh data
-        setRefreshTrigger(prev => prev + 1);
-      } catch (error: any) {
-        console.error('Error deleting nevera:', error);
-        alert('Error al eliminar la nevera. Inténtalo de nuevo.');
-      }
+    if (!window.confirm(`¿Eliminar nevera "${scale.name}"?`)) return;
+    try {
+      await deleteNevera(Number(scale.id));
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error: any) {
+      alert('Error al eliminar la nevera.');
     }
   };
 
   const handleOpenEditUserModal = async () => {
-    if (userData?.id_usuario) {
-      try {
-        const userDetails = await getUserDetails(userData.id_usuario);
-        setSelectedUser(userDetails);
-        setEditUserModalOpen(true);
-      } catch (error) {
-        console.error("Error fetching user details for editing.");
-      }
+    if (!usuarioActual?.id) return;
+    try {
+      const userDetails = await getUserDetails(usuarioActual.id);
+      setSelectedUser(userDetails);
+      setEditUserModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching user details.");
     }
   };
 
@@ -330,37 +216,29 @@ const TiendaDashboardPage: React.FC = () => {
   };
 
   const handleUserUpdated = () => {
-    // Refresh data to update user info
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const tiendasCount = loading ? '...' : productionItems.length.toString();
+
   return (
     <>
-       <div className="tienda-dashboard">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--spacing-unit) * 4)' }}>
         <div className="cuentas-header">
           <h1>Dashboard</h1>
           <p>Registro y gestión de tiendas.</p>
         </div>
 
         <section className="dashboard-summary" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
-          <SummaryCard
-            title="Total Transacciones"
-            value={loading ? "Cargando..." : "$0"} // TODO: implementar transacciones
-            description="Saldo total de la tienda"
-          />
-          <SummaryCard
-            title="Tiendas Activas"
-            value={loading ? "Cargando..." : tiendasData.length.toString()}
-            description="Tiendas registradas"
-          />
-         
+          <SummaryCard title="Total Transacciones" value={loading ? "Cargando..." : "$0"} description="Saldo total de la tienda" />
+          <SummaryCard title="Tiendas Activas" value={tiendasCount} description="Tiendas registradas" />
         </section>
 
-        {userData && (
+        {usuarioActual && (
           <UserProfileCard
-            role={userData.rol.nombre_rol}
-            fullName={`${userData.nombre_usuario} ${userData.apellido_usuario}`}
-            phone={userData.celular}
+            role={usuarioActual.rol}
+            fullName={usuarioActual.nombre_completo}
+            phone={usuarioActual.celular}
             onEditClick={handleOpenEditUserModal}
           />
         )}
@@ -387,34 +265,14 @@ const TiendaDashboardPage: React.FC = () => {
       <StationModal
         isOpen={isStationModalOpen}
         onClose={handleCloseStationModal}
-        stationData={editingStation ? {
-          id: editingStation.id,
-          name: editingStation.name,
-          address: editingStation.details.address,
-          city: editingStation.details.city
-        } : null}
-        availableCities={ciudadesDisponibles}
+        stationData={editingStation ? { id: editingStation.id, name: editingStation.name, address: editingStation.details.address, city: editingStation.details.city } : null}
+        availableCities={[]}
         onSave={handleSaveStation}
-        title={editingStation ? "Tienda" : "Tienda"}
+        title="Tienda"
       />
-      <CreateNeveraModal
-        isOpen={isCreateNeveraModalOpen}
-        onClose={handleCloseNeveraModal}
-        onConfirm={handleSaveNevera}
-        tiendaName={selectedTiendaForNevera?.name || ''}
-      />
-      <EditUserModal
-        isOpen={isEditUserModalOpen}
-        onClose={handleCloseEditUserModal}
-        userData={selectedUser}
-        onUserUpdated={handleUserUpdated}
-      />
-      <PasswordConfirmationModal
-        isOpen={isPasswordModalOpen}
-        onClose={handleClosePasswordModal}
-        password={newNeveraPassword}
-        title="Contraseña de Nevera Creada"
-      />
+      <CreateNeveraModal isOpen={isCreateNeveraModalOpen} onClose={handleCloseNeveraModal} onConfirm={handleSaveNevera} tiendaName={selectedTiendaForNevera?.name || ''} />
+      <EditUserModal isOpen={isEditUserModalOpen} onClose={handleCloseEditUserModal} userData={selectedUser} onUserUpdated={handleUserUpdated} />
+      <PasswordConfirmationModal isOpen={isPasswordModalOpen} onClose={handleClosePasswordModal} password={newNeveraPassword} title="Contraseña de Nevera Creada" />
     </>
   );
 };
