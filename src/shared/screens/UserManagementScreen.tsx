@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './ManagementPage.css';
-import CreateTokenModal from '../../../shared/components/CreateTokenModal/CreateTokenModal';
-import TokenDisplay, { type TokenData } from '../../../shared/components/TokenDisplay/TokenDisplay';
-import EditUserModal from '../../../shared/components/EditUserModal/EditUserModal';
-import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';
-import UserHierarchy from '../../../shared/components/UserHierarchy/UserHierarchy';
-import { getManagementData, toggleUserStatus, getUserDetails, deleteUser } from '../../../services/api';
-import { useAuth } from '../../../contexts/AuthContext';
+import CreateTokenModal from '../components/CreateTokenModal/CreateTokenModal';
+import TokenDisplay, { type TokenData } from '../components/TokenDisplay/TokenDisplay';
+import EditUserModal from '../components/EditUserModal/EditUserModal';
+import UserProfileCard from '../components/UserProfileCard/UserProfileCard';
+import UserHierarchy from '../components/UserHierarchy/UserHierarchy';
+import { getManagementData, toggleUserStatus, getUserDetails, deleteUser } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface User {
   id: number;

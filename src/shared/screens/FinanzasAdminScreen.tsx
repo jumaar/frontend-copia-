@@ -1,6 +1,6 @@
 import React from 'react';
-import { useFinanzas } from '../../../shared/hooks/useFinanzas';
-import FinanzasView from '../../../shared/components/FinanzasView/FinanzasView';
+import { useFinanzas } from '../hooks/useFinanzas';
+import FinanzasView from '../components/FinanzasView/FinanzasView';
 
 const FinanzasAdminPage: React.FC = () => {
   const {

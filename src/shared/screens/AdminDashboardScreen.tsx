@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import SummaryCard from '../../../shared/components/SummaryCard/SummaryCard';
-import { getActiveFridgesCount } from '../../../services/api';
+import SummaryCard from '../components/SummaryCard/SummaryCard';
+import { getActiveFridgesCount } from '../../services/api';
 import './AdminDashboardPage.css';
 
 const AdminDashboardPage: React.FC = () => {

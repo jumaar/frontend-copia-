@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLogisticaInventario } from '../../../shared/hooks/useLogisticaInventario';
-import InventarioView from '../../../shared/components/InventarioView/InventarioView';
+import { useLogisticaInventario } from '../hooks/useLogisticaInventario';
+import InventarioView from '../components/InventarioView/InventarioView';
 
 const InventarioAdminPage: React.FC = () => {
   const hook = useLogisticaInventario({ mode: 'admin' });
