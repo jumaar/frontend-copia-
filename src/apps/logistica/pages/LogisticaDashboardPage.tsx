@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CreateTokenModal from '../../../shared/components/CreateTokenModal/CreateTokenModal';
-import TokenDisplay, { type TokenData } from '../../../shared/components/TokenDisplay/TokenDisplay';
-import EditLogisticaModal from '../../../shared/components/EditLogisticaModal/EditLogisticaModal';
+import CreateTokenModal from '../../../shared/scoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal';
+import TokenDisplay, { type TokenData } from '../../../shared/scoped/admin-superadmin-logistica/TokenDisplay/TokenDisplay';
+import EditLogisticaModal from '../components/EditLogisticaModal/EditLogisticaModal';
 import EditUserModal from '../../../shared/components/EditUserModal/EditUserModal';
 import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';
-import UserHierarchy from '../../../shared/components/UserHierarchy/UserHierarchy';
+import UserHierarchy from '../../../shared/scoped/admin-superadmin-logistica/UserHierarchy/UserHierarchy';
 import Alert from '../../../shared/components/Alert/Alert';
-import { useUserManagement, type User } from '../../../shared/hooks/useUserManagement';
+import { useUserManagement, type User } from '../../../shared/scoped/admin-superadmin-logistica/useUserManagement';
 import { getManagementData, getUserDetails } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -146,7 +146,7 @@ const LogisticaDashboardPage: React.FC = () => {
           <p>Administrar usuarios de logística y sus tiendas asignadas.</p>
         </div>
 
-        <div className="active-tokens-section">
+        <div className="card active-tokens-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
             <h2>Tokens Activos</h2>
             <button className="button button-primary" onClick={handleOpenCreateModal}>

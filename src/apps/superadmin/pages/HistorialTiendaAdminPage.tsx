@@ -1,1 +1,1 @@
-export { default } from '../../../shared/screens/HistorialTiendaAdminScreen';
+export { default } from '../../../shared/scoped/admin-superadmin-logistica/HistorialTiendaAdminScreen';

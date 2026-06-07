@@ -1,1 +1,1 @@
-export { default } from '../../../shared/screens/GlobalAccountsScreen';
+export { default } from '../../../shared/scoped/admin-superadmin/GlobalAccountsScreen';

@@ -1,1 +1,1 @@
-export { default } from '../../../shared/screens/UserManagementScreen';
+export { default } from '../../../shared/scoped/admin-superadmin/UserManagementScreen';

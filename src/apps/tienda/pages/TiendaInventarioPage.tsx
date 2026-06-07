@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getTiendas } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
-import SurtirNeveraModal from '../../../shared/components/SurtirNeveraModal/SurtirNeveraModal';
-import ListaTiendasNeveras, { type TiendaData } from '../../../shared/components/ListaTiendasNeveras';
+import SurtirNeveraModal from '../../../shared/scoped/admin-superadmin-logistica-tienda/SurtirNeveraModal/SurtirNeveraModal';
+import ListaTiendasNeveras, { type TiendaData } from '../components/ListaTiendasNeveras';
 
 interface TiendasResponse {
   tiendas: TiendaData[];

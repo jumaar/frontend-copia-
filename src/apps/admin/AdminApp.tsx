@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
 import { adminNavItems } from '../../shared/layouts/Sidebar/navigation/admin.nav';
-import AdminDashboardPage from './pages/AdminDashboardPage';
-import UserManagementPage from './pages/UserManagementPage';
-import FridgeManagementPage from './pages/FridgeManagementPage';
-import GlobalAccountsPage from './pages/GlobalAccountsPage';
-import LogisticaInventarioPage from './pages/InventarioAdminPage';
-import FrigorificoProductosPage from './pages/ProductosAdminPage';
-import CuentasTiendaPage from './pages/CuentasTiendaAdminPage';
-import HistorialTiendaPage from './pages/HistorialTiendaAdminPage';
-import CuentasFrigorificoPage from './pages/CuentasFrigorificoPage';
-import LogisticaFinanzasPage from './pages/FinanzasAdminPage';
+
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
+const FridgeManagementPage = lazy(() => import('./pages/FridgeManagementPage'));
+const GlobalAccountsPage = lazy(() => import('./pages/GlobalAccountsPage'));
+const LogisticaInventarioPage = lazy(() => import('./pages/InventarioAdminPage'));
+const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
+const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
+const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
+const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
+const LogisticaFinanzasPage = lazy(() => import('./pages/FinanzasAdminPage'));
 
 const adminRouteTitles: Record<string, string> = {
   '/admin/dashboard': 'Dashboard',

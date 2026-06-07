@@ -2,11 +2,9 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { SurtidoProvider } from './contexts/SurtidoContext';
 import SignInPage from './shared/public/SignInPage';
 import SignUpPage from './shared/public/SignUpPage';
 import UnauthorizedPage from './shared/public/UnauthorizedPage';
-import RootLayout from './shared/layouts/RootLayout';
 import ProtectedRoute from './shared/public/ProtectedRoute';
 import { getDashboardPath } from './shared/config/roles';
 
@@ -15,7 +13,7 @@ const SuperAdminApp = React.lazy(() => import('./apps/superadmin/SuperAdminApp')
 const LogisticaApp = React.lazy(() => import('./apps/logistica/LogisticaApp'));
 const FrigorificoApp = React.lazy(() => import('./apps/frigorifico/FrigorificoApp'));
 const TiendaApp = React.lazy(() => import('./apps/tienda/TiendaApp'));
-const TrazabilidadEmpaquePage = React.lazy(() => import('./shared/components/TrazabilidadEmpaque/TrazabilidadEmpaquePage'));
+const TrazabilidadPage = React.lazy(() => import('./shared/pages/TrazabilidadLayout'));
 
 const LoadingFallback = () => (
   <div className="loading-overlay">
@@ -83,9 +81,7 @@ const AppContent: React.FC = () => {
           path="/trazabilidad"
           element={
             <ProtectedRoute allowedRoles={['superadmin', 'admin', 'frigorifico', 'logistica', 'tienda']}>
-              <RootLayout>
-                <TrazabilidadEmpaquePage />
-              </RootLayout>
+              <TrazabilidadPage />
             </ProtectedRoute>
           }
         />
@@ -134,11 +130,9 @@ export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
-        <SurtidoProvider>
           <Router>
             <AppRouter />
           </Router>
-        </SurtidoProvider>
       </AuthProvider>
     </ThemeProvider>
   );

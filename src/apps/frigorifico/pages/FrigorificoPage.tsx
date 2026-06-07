@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import SummaryCard from '../../../shared/components/SummaryCard/SummaryCard';
-import ProductionHierarchy from '../../../shared/components/ProductionHierarchy/ProductionHierarchy';
-import type { ProductionItem } from '../../../shared/components/ProductionHierarchy/ProductionHierarchy';
-import StationModal from '../../../shared/components/StationModal/StationModal';
-import type { StationData } from '../../../shared/components/StationModal/StationModal';
-import ScaleModal from '../../../shared/components/ScaleModal/ScaleModal';
+import ProductionHierarchy from '../../../shared/scoped/tienda-frigorifico/ProductionHierarchy/ProductionHierarchy';
+import type { ProductionItem } from '../../../shared/scoped/tienda-frigorifico/ProductionHierarchy/ProductionHierarchy';
+import StationModal from '../../../shared/scoped/tienda-frigorifico/StationModal/StationModal';
+import type { StationData } from '../../../shared/scoped/tienda-frigorifico/StationModal/StationModal';
+import ScaleModal from '../components/ScaleModal/ScaleModal';
 import EditUserModal from '../../../shared/components/EditUserModal/EditUserModal';
 import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';
 import { getFrigorificoData, createFrigorifico, updateFrigorifico, createEstacion, deleteEstacion, deleteFrigorifico, getUserDetails } from '../../../services/api';

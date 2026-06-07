@@ -22,9 +22,7 @@ export default defineConfig({
           if (id.includes('/src/contexts/'))   return 'auth-context';
           if (id.includes('/src/services/'))   return 'services';
 
-          if (id.includes('/src/shared/components/')) return 'shared-components';
           if (id.includes('/src/shared/layouts/'))   return 'shared-layouts';
-          if (id.includes('/src/shared/hooks/'))     return 'shared-hooks';
           if (id.includes('/src/shared/public/'))    return 'shared-auth';
         },
       },

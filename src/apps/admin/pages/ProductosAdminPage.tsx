@@ -1,1 +1,1 @@
-export { default } from '../../../shared/screens/ProductosAdminScreen';
+export { default } from '../../../shared/scoped/admin-superadmin/ProductosAdminScreen';

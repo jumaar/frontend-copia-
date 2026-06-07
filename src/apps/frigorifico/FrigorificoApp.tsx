@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
 import { frigorificoNavItems } from '../../shared/layouts/Sidebar/navigation/frigorifico.nav';
-import FrigorificoPage from './pages/FrigorificoPage';
-import FrigorificoLogisticaPage from './pages/LogisticaPage';
-import FrigorificoProductosPage from './pages/ProductosPage';
-import FrigorificoCuentasPage from './pages/CuentasFrigorificoPage';
+
+const FrigorificoPage = lazy(() => import('./pages/FrigorificoPage'));
+const FrigorificoLogisticaPage = lazy(() => import('./pages/LogisticaPage'));
+const FrigorificoProductosPage = lazy(() => import('./pages/ProductosPage'));
+const FrigorificoCuentasPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
 
 const frigorificoRouteTitles: Record<string, string> = {
   '/frigorifico': 'Dashboard',

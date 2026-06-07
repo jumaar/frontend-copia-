@@ -1,1 +1,1 @@
-export { default } from '../../../shared/screens/FinanzasAdminScreen';
+export { default } from '../../../shared/scoped/admin-superadmin/FinanzasAdminScreen';

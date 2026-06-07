@@ -1,9 +1,12 @@
 import React from 'react';
-import { useLogisticaInventario } from '../../../shared/hooks/useLogisticaInventario';
-import InventarioView from '../../../shared/components/InventarioView/InventarioView';
+import { useLogisticaInventario } from '../../../shared/scoped/admin-superadmin-logistica/useLogisticaInventario';
+import { useSurtido } from '../contexts/SurtidoContext';
+import InventarioView from '../../../shared/scoped/admin-superadmin-logistica/InventarioView/InventarioView';
+import ParametrosSurtirModal from '../components/ParametrosSurtirModal/ParametrosSurtirModal';
 
 const LogisticaInventarioSelfPage: React.FC = () => {
-  const hook = useLogisticaInventario({ mode: 'self' });
+  const { iniciarSurtido } = useSurtido();
+  const hook = useLogisticaInventario({ mode: 'self', onIniciarSurtido: iniciarSurtido });
   const {
     inventarioData,
     loading,
@@ -79,8 +82,6 @@ const LogisticaInventarioSelfPage: React.FC = () => {
         showNeverasSection={showNeverasSection}
         isSurtirModalOpen={isSurtirModalOpen}
         selectedNeveraId={selectedNeveraId}
-        isParametrosSurtirModalOpen={isParametrosSurtirModalOpen}
-        surtirParamsNevera={surtirParamsNevera}
         searchId={searchId}
         esAdmin={esAdmin}
         toggleProductExpansion={toggleProductExpansion}
@@ -92,9 +93,7 @@ const LogisticaInventarioSelfPage: React.FC = () => {
         toggleVencidosNevera={toggleVencidosNevera}
         handleSurtir={handleSurtir}
         handleSurtirFlujo={handleSurtirFlujo}
-        handleConfirmParametrosSurtir={handleConfirmParametrosSurtir}
         handleCloseSurtirModal={handleCloseSurtirModal}
-        handleCloseParametrosSurtirModal={handleCloseParametrosSurtirModal}
         handleBuscar={handleBuscar}
         handleValidarEmpaques={handleValidarEmpaques}
         handleConsultarNeveras={handleConsultarNeveras}
@@ -102,6 +101,15 @@ const LogisticaInventarioSelfPage: React.FC = () => {
         esValidacionDelDia={esValidacionDelDia}
         setSearchId={setSearchId}
       />
+
+      {surtirParamsNevera && (
+        <ParametrosSurtirModal
+          isOpen={isParametrosSurtirModalOpen}
+          onClose={handleCloseParametrosSurtirModal}
+          onConfirm={handleConfirmParametrosSurtir}
+          idNevera={surtirParamsNevera.idNevera}
+        />
+      )}
     </div>
   );
 };

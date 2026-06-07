@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RoleLayout from '../../shared/layouts/RoleLayout';
+import { SurtidoProvider } from './contexts/SurtidoContext';
 import './logistica.css';
 import { logisticaNavItems } from '../../shared/layouts/Sidebar/navigation/logistica.nav';
-import LogisticaDashboardPage from './pages/LogisticaDashboardPage';
-import LogisticaGestionPage from './pages/LogisticaGestionPage';
-import LogisticaInventarioPage from '../../apps/logistica/pages/LogisticaInventarioSelfPage';
-import LogisticaFinanzasPage from './pages/LogisticaFinanzasPage';
-import CuentasTiendaPage from './pages/CuentasTiendaPage';
-import HistorialTiendaPage from './pages/HistorialTiendaPage';
-import CuentasFrigorificoPage from './pages/CuentasFrigorificoPage';
+
+const SurtidoOverlay = lazy(() => import('./components/SurtidoOverlay'));
+const LogisticaDashboardPage = lazy(() => import('./pages/LogisticaDashboardPage'));
+const LogisticaGestionPage = lazy(() => import('./pages/LogisticaGestionPage'));
+const LogisticaInventarioPage = lazy(() => import('./pages/LogisticaInventarioSelfPage'));
+const LogisticaFinanzasPage = lazy(() => import('./pages/LogisticaFinanzasPage'));
+const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaPage'));
+const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaPage'));
+const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
 
 const logisticaRouteTitles: Record<string, string> = {
   '/logistica': 'Dashboard',
@@ -23,21 +26,24 @@ const logisticaRouteTitles: Record<string, string> = {
 
 const LogisticaApp: React.FC = () => {
   return (
-    <RoleLayout
-      category="Logística"
-      navItems={logisticaNavItems}
-      routeTitles={logisticaRouteTitles}
-    >
-      <Routes>
-        <Route index element={<LogisticaDashboardPage />} />
-        <Route path="gestion" element={<LogisticaGestionPage />} />
-        <Route path="inventario" element={<LogisticaInventarioPage />} />
-        <Route path="finanzas" element={<LogisticaFinanzasPage />} />
-        <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
-        <Route path="historial-tienda" element={<HistorialTiendaPage />} />
-        <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
-      </Routes>
-    </RoleLayout>
+    <SurtidoProvider>
+      <RoleLayout
+        category="Logística"
+        navItems={logisticaNavItems}
+        routeTitles={logisticaRouteTitles}
+      >
+        <Routes>
+          <Route index element={<LogisticaDashboardPage />} />
+          <Route path="gestion" element={<LogisticaGestionPage />} />
+          <Route path="inventario" element={<LogisticaInventarioPage />} />
+          <Route path="finanzas" element={<LogisticaFinanzasPage />} />
+          <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
+          <Route path="historial-tienda" element={<HistorialTiendaPage />} />
+          <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
+        </Routes>
+      </RoleLayout>
+      <SurtidoOverlay />
+    </SurtidoProvider>
   );
 };
 
