@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import './ManagementPage.css';
-import CreateTokenModal from '../admin-superadmin-logistica/CreateTokenModal/CreateTokenModal';
-import TokenDisplay, { type TokenData } from '../admin-superadmin-logistica/TokenDisplay/TokenDisplay';
-import EditUserModal from '../../components/EditUserModal/EditUserModal';
-import UserProfileCard from '../../components/UserProfileCard/UserProfileCard';
-import UserHierarchy from '../admin-superadmin-logistica/UserHierarchy/UserHierarchy';
-import { useUserManagement, type User } from '../admin-superadmin-logistica/useUserManagement';
-import { getManagementData, getUserDetails } from '../../../services/api';
-import { useAuth } from '../../../contexts/AuthContext';
+import '../ManagementPage.css';
+import CreateTokenModal from '../../admin-superadmin-logistica/CreateTokenModal/CreateTokenModal';
+import TokenDisplay, { type TokenData } from '../../admin-superadmin-logistica/TokenDisplay/TokenDisplay';
+import EditUserModal from '../../../components/EditUserModal/EditUserModal';
+import UserProfileCard from '../../../components/UserProfileCard/UserProfileCard';
+import UserHierarchy from '../../admin-superadmin-logistica/UserHierarchy/UserHierarchy';
+import { useUserManagement, type User } from '../../admin-superadmin-logistica/useUserManagement';
+import { getManagementData, getUserDetails } from '../../../../services/api';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 function mapTiendaToUser(store: any): User {
   return {

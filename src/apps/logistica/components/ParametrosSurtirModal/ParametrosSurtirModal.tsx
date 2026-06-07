@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getLogisticaSurtir } from '../../../../services/api';
-import '../../../../shared/scoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css';
+import '../../../../shared/componentscoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css';
 import './ParametrosSurtirModal.css';
 
 interface Nevera {

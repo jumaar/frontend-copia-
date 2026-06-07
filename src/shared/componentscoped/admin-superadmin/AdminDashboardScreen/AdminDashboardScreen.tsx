@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import SummaryCard from '../../components/SummaryCard/SummaryCard';
-import { getActiveFridgesCount } from '../../../services/api';
-import './AdminDashboardPage.css';
+import SummaryCard from '../../../components/SummaryCard/SummaryCard';
+import { getActiveFridgesCount } from '../../../../services/api';
+import './AdminDashboardScreen.css';
 
 const AdminDashboardPage: React.FC = () => {
   const [activeFridgesCount, setActiveFridgesCount] = useState<string>('...');

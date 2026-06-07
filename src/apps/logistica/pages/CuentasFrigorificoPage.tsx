@@ -1,1 +1,1 @@
-export { default } from '../../../shared/scoped/admin-superadmin-frigorifico-logistica/CuentasFrigorificoScreen';
+export { default } from '../../../shared/componentscoped/admin-superadmin-frigorifico-logistica/CuentasFrigorificoScreen/CuentasFrigorificoScreen';

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useCuentasFrigorifico } from './useCuentasFrigorifico';
-import CuentasFrigorificoView from './CuentasFrigorificoView/CuentasFrigorificoView';
-import GestionCobro from './GestionCobro';
-import type { UsuarioHermano } from '../../types/cuentas-frigorifico.types';
-import '../../../apps/frigorifico/pages/CuentasPage.css';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { useCuentasFrigorifico } from '../useCuentasFrigorifico';
+import CuentasFrigorificoView from '../CuentasFrigorificoView/CuentasFrigorificoView';
+import GestionCobro from '../GestionCobro';
+import type { UsuarioHermano } from '../../../types/cuentas-frigorifico.types';
+import './CuentasFrigorificoScreen.css';
 
 const CuentasFrigorificoPage: React.FC = () => {
   const { user } = useAuth();

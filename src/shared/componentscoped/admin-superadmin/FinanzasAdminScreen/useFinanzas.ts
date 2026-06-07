@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../services/api';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../../services/api';
 
 export interface AdminInfo {
   id_usuario: number;

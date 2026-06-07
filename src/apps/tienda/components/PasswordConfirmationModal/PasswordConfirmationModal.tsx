@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../../../shared/scoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css'; // Reutilizamos los estilos
+import '../../../../shared/componentscoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css'; // Reutilizamos los estilos
 import './PasswordConfirmationModal.css';
 
 interface PasswordConfirmationModalProps {

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { useCuentasTienda } from '../../../shared/scoped/admin-superadmin-logistica-tienda/useCuentasTienda';
-import CuentasTiendaView from '../../../shared/scoped/admin-superadmin-logistica-tienda/CuentasTiendaView/CuentasTiendaView';
-import TiendaSelector from '../../../shared/scoped/admin-superadmin-logistica-tienda/TiendaSelector';
+import { useCuentasTienda } from '../../../shared/componentscoped/admin-superadmin-logistica-tienda/useCuentasTienda';
+import CuentasTiendaView from '../../../shared/componentscoped/admin-superadmin-logistica-tienda/CuentasTiendaView/CuentasTiendaView';
+import TiendaSelector from '../../../shared/componentscoped/admin-superadmin-logistica-tienda/TiendaSelector';
 import '../../../shared/components/TablaTransacciones/TablaTransacciones.css';
 
 const TiendaCuentasPage: React.FC = () => {

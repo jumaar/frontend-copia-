@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLogisticaInventario } from '../admin-superadmin-logistica/useLogisticaInventario';
-import InventarioView from '../admin-superadmin-logistica/InventarioView/InventarioView';
+import { useLogisticaInventario } from '../../admin-superadmin-logistica/useLogisticaInventario';
+import InventarioView from '../../admin-superadmin-logistica/InventarioView/InventarioView';
 
 const InventarioAdminPage: React.FC = () => {
   const hook = useLogisticaInventario({ mode: 'admin' });
