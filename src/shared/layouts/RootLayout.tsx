@@ -7,7 +7,7 @@ import Alert from '../components/Alert/Alert';
 import SurtirFlujoModal from '../components/SurtirFlujoModal/SurtirFlujoModal';
 import './RootLayout.css';
 import { useAuth } from '../../contexts/AuthContext';
-import { useSurtido } from '../../apps/logistica/contexts/SurtidoContext';
+import { useSurtido } from '../../contexts/SurtidoContext';
 import { adminNavItems } from './Sidebar/navigation/admin.nav';
 import { superadminNavItems } from './Sidebar/navigation/superadmin.nav';
 import { logisticaNavItems } from './Sidebar/navigation/logistica.nav';

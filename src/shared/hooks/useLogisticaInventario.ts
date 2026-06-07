@@ -7,7 +7,7 @@ import {
   postValidacionEmpaques,
 } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
-import { useSurtido } from '../../apps/logistica/contexts/SurtidoContext';
+import { useSurtido } from '../../contexts/SurtidoContext';
 
 export interface Empaque {
   id_empaque: number;

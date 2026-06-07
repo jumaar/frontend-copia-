@@ -6,7 +6,7 @@ import {
   retirarEmpaquesEstado5,
   validacionDosaTres,
 } from '../../../services/api';
-import { useSurtido } from '../../../apps/logistica/contexts/SurtidoContext';
+import { useSurtido } from '../../../contexts/SurtidoContext';
 import './SurtirFlujoModal.css';
 
 interface EmpaqueCambio {

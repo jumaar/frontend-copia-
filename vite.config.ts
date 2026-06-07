@@ -11,15 +11,21 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router')) {
-            return 'vendor-react';
+          if (id.includes('node_modules/')) {
+            if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router/')) {
+              return 'vendor-react';
+            }
+            if (id.includes('/axios/'))     return 'vendor-axios';
+            if (id.includes('/jwt-decode/')) return 'vendor-jwt';
           }
-          if (id.includes('node_modules/axios')) {
-            return 'vendor-axios';
-          }
-          if (id.includes('node_modules/next-themes')) {
-            return 'vendor-themes';
-          }
+
+          if (id.includes('/src/contexts/'))   return 'auth-context';
+          if (id.includes('/src/services/'))   return 'services';
+
+          if (id.includes('/src/shared/components/')) return 'shared-components';
+          if (id.includes('/src/shared/layouts/'))   return 'shared-layouts';
+          if (id.includes('/src/shared/hooks/'))     return 'shared-hooks';
+          if (id.includes('/src/shared/public/'))    return 'shared-auth';
         },
       },
     },

@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { SurtidoProvider } from './apps/logistica/contexts/SurtidoContext';
+import { SurtidoProvider } from './contexts/SurtidoContext';
 import SignInPage from './shared/public/SignInPage';
 import SignUpPage from './shared/public/SignUpPage';
 import UnauthorizedPage from './shared/public/UnauthorizedPage';
