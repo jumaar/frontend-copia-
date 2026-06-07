@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../../../shared/componentscoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css';
+import './ScaleModal.css';
 
 interface ScaleModalProps {
   isOpen: boolean;

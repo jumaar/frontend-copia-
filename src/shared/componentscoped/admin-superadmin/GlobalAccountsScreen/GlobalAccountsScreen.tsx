@@ -1,6 +1,5 @@
 import React from 'react';
 import SummaryCard from '../../../components/SummaryCard/SummaryCard';
-import '../ManagementPage.css'; // Reusing styles for consistency
 import './GlobalAccountsScreen.css';
 
 // Mock data based on the seed file

@@ -1,0 +1,220 @@
+.resumen-financiero {
+  display: flex;
+  justify-content: space-around;
+  gap: calc(var(--spacing-unit) * 3);
+  margin: calc(var(--spacing-unit) * 3) 0;
+  padding: calc(var(--spacing-unit) * 3);
+  background: var(--color-card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.resumen-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.resumen-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+}
+
+.resumen-value {
+  font-size: 1.3rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.transacciones-container {
+  margin-bottom: 2rem;
+}
+
+.empaques-container {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.empaques-title {
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+}
+
+.empaques-empty {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.producto-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.producto-card {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.producto-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--color-hover-bg);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.producto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.producto-name {
+  font-weight: bold;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+}
+
+.producto-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.producto-liquidar {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.producto-toggle {
+  color: var(--color-text-secondary);
+  font-size: 1.2rem;
+}
+
+.producto-body {
+  padding: 1rem;
+  background-color: var(--color-card-bg);
+}
+
+.liquidacion-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.liquidacion-thead-tr {
+  border-bottom: 2px solid var(--color-border);
+}
+
+.liquidacion-th {
+  text-align: left;
+  padding: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.liquidacion-th-right {
+  text-align: right;
+  padding: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.liquidacion-td {
+  padding: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.liquidacion-td-right {
+  padding: 0.5rem;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.liquidacion-tfoot-td {
+  padding: 0.5rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.liquidacion-tfoot-td-right {
+  padding: 0.5rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.liquidacion-td {
+  padding: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.liquidacion-tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.liquidacion-tfoot-tr {
+  background-color: var(--color-hover-bg);
+}
+
+.liquidacion-tfoot-td {
+  padding: 0.5rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.id-cell-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.promo-badge {
+  background-color: var(--color-success);
+  color: white;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  cursor: help;
+}
+
+.liquidacion-total {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-success);
+  color: white;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .resumen-financiero {
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 2);
+  }
+  .producto-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}

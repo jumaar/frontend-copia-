@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../ManagementPage.css';
+import './UserManagementScreen.css';
 import CreateTokenModal from '../../admin-superadmin-logistica/CreateTokenModal/CreateTokenModal';
 import TokenDisplay, { type TokenData } from '../../admin-superadmin-logistica/TokenDisplay/TokenDisplay';
 import EditUserModal from '../../../components/EditUserModal/EditUserModal';

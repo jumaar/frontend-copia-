@@ -36,15 +36,6 @@
   color: var(--color-text-primary);
 }
 
-.modal-close-button {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  line-height: 1;
-}
-
 .modal-body {
   padding: 1.5rem;
 }
@@ -65,6 +56,34 @@
 @keyframes slideInUp {
   from { transform: translateY(50px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-scrollable {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-body-scrollable {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.modal-error {
+  color: var(--color-error);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: 0.75rem 1rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-medium);
+}
+
+.edit-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .form-group {
@@ -94,55 +113,22 @@
   box-shadow: 0 0 0 3px var(--shadow-color-primary-light);
 }
 
-.modal-error {
-  color: var(--color-error);
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: var(--border-radius-md);
+.readonly-field {
+  display: block;
   padding: 0.75rem 1rem;
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-  font-weight: var(--font-weight-medium);
-}
-
-.password-confirmation-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.password-warning {
-  background-color: var(--color-alert-warning-bg);
-  border: 1px solid var(--color-alert-warning-border);
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  color: var(--color-alert-warning-text);
-}
-
-.password-display {
-  background-color: var(--color-input-bg);
+  background-color: var(--color-hover-bg);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  font-family: monospace;
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: center;
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.form-group-section {
+  padding: 0.5rem 0;
+}
+
+.form-group-section h3 {
+  margin: 0;
+  font-size: 1rem;
   color: var(--color-text-primary);
-}
-
-.password-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.password-actions .button {
-  flex: 1;
-}
-
-.password-modal {
-  max-width: 500px;
 }

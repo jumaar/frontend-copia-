@@ -9,7 +9,7 @@ import type {
   ResumenFinancieroData,
   LogisticaItem,
 } from '../useFinanzas';
-import '../../../../../apps/logistica/pages/LogisticaFinanzasPage.css';
+import './FinanzasView.css';
 
 interface FinanzasViewProps {
   data: ResumenFinancieroData | null;

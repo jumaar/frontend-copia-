@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../../../shared/componentscoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css';
+import './CreateNeveraModal.css';
 
 interface CreateNeveraModalProps {
   isOpen: boolean;

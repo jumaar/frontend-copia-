@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { getLogisticaSurtir } from '../../../../services/api';
-import '../../../../shared/componentscoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css';
 import './ParametrosSurtirModal.css';
 
 interface Nevera {
@@ -145,20 +144,18 @@ const ParametrosSurtirModal: React.FC<ParametrosSurtirModalProps> = ({
                 <p>
                   <strong>Nevera #{idNevera}</strong> — Selecciona las ciudades para el surtido:
                 </p>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                <div className="action-buttons-row">
                   <button
                     type="button"
                     onClick={handleSelectAll}
-                    className="button button-secondary"
-                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+                    className="button button-secondary action-button-sm"
                   >
                     Seleccionar Todas
                   </button>
                   <button
                     type="button"
                     onClick={handleDeselectAll}
-                    className="button button-secondary"
-                    style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+                    className="button button-secondary action-button-sm"
                   >
                     Deseleccionar Todas
                   </button>
@@ -173,24 +170,20 @@ const ParametrosSurtirModal: React.FC<ParametrosSurtirModalProps> = ({
                     <div
                       key={idCiudad}
                       className="role-selection-item"
-                      style={{
-                        backgroundColor: isSelected ? 'var(--color-hover-bg)' : 'var(--color-card-bg)',
-                        cursor: 'pointer',
-                      }}
+                      style={{ backgroundColor: isSelected ? 'var(--color-hover-bg)' : 'var(--color-card-bg)' }}
                       onClick={() => handleCityToggle(idCiudad)}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                      <div className="role-item-row">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleCityToggle(idCiudad)}
-                          style={{ marginRight: '1rem', accentColor: 'var(--color-primary-start)' }}
                         />
-                        <div style={{ flex: 1 }}>
+                        <div className="role-item-info">
                           <div className="role-name">
                             {data.nombre} ({data.count} neveras)
                           </div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
+                          <div className="role-item-detail">
                             {data.neveras.join(', ')}
                           </div>
                         </div>
@@ -216,7 +209,7 @@ const ParametrosSurtirModal: React.FC<ParametrosSurtirModalProps> = ({
                   onChange={(e) => setDiasExcluir(Math.max(0, parseInt(e.target.value) || 0))}
                   className="dias-input"
                 />
-                  <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                  <span className="dias-row-label">
                     día(s) — Excluir neveras surtidas recientemente
                   </span>
                 </div>

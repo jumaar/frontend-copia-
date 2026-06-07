@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasFrigorifico } from '../useCuentasFrigorifico';
 import CuentasFrigorificoView from '../CuentasFrigorificoView/CuentasFrigorificoView';
-import GestionCobro from '../GestionCobro';
+import GestionCobro from '../GestionCobro/GestionCobro';
 import type { UsuarioHermano } from '../../../types/cuentas-frigorifico.types';
 import './CuentasFrigorificoScreen.css';
 

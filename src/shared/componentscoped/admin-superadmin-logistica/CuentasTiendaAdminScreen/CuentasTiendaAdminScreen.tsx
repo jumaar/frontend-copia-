@@ -3,7 +3,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasTienda } from '../../admin-superadmin-logistica-tienda/useCuentasTienda';
 import CuentasTiendaView from '../../admin-superadmin-logistica-tienda/CuentasTiendaView/CuentasTiendaView';
 import GestionCobro from '../../admin-superadmin-frigorifico-logistica/GestionCobro/GestionCobro';
-import TiendaSelector from '../../admin-superadmin-logistica-tienda/TiendaSelector';
+import TiendaSelector from '../../admin-superadmin-logistica-tienda/TiendaSelector/TiendaSelector';
 import '../../../components/TablaTransacciones/TablaTransacciones.css';
 
 const CuentasTiendaAdminPage: React.FC = () => {

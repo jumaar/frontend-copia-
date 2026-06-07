@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { updateUserLogisticaComplete } from '../../../../services/api';
-import '../../../../shared/componentscoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css';
+import './EditLogisticaModal.css';
 
 interface UserLogisticaData {
   id_usuario: number;
