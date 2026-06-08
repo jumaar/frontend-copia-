@@ -176,7 +176,7 @@ const CuentasFrigorificoPage: React.FC = () => {
 
       {isAdmin && usuarioSeleccionado && (
         <GestionCobro
-          mode="pago"
+          mode="entregar"
           tipoPago={tipoPago}
           setTipoPago={setTipoPago}
           montoPago={montoPago}

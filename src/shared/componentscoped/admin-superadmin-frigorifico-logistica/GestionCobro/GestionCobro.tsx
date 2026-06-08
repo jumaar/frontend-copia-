@@ -2,7 +2,7 @@ import React from 'react';
 import './GestionCobro.css';
 
 interface GestionCobroProps {
-  mode?: 'cobro' | 'pago';
+  mode?: 'recibir' | 'entregar';
   tipoPago: 'pago' | 'abono' | '';
   setTipoPago: (tipo: 'pago' | 'abono' | '') => void;
   montoPago: number;
@@ -18,24 +18,24 @@ interface GestionCobroProps {
 }
 
 const LABELS: Record<string, { titulo: string; saldo: string; tipoTotal: string; btnTotal: string; placeholderNota: string }> = {
-  cobro: {
-    titulo: '💰 Gestión de Cobro',
-    saldo: 'Total a Cobrar',
-    tipoTotal: 'Cobro Total',
-    btnTotal: 'Cobrar Total',
-    placeholderNota: 'cobro total por',
+  recibir: {
+    titulo: '💰 Recibir Dinero',
+    saldo: 'Total a Recibir',
+    tipoTotal: 'Recibir Total',
+    btnTotal: 'Recibir Total',
+    placeholderNota: 'recibir total por',
   },
-  pago: {
-    titulo: '💳 Gestión de Pago',
-    saldo: 'Total a Pagar',
-    tipoTotal: 'Pago Total',
-    btnTotal: 'Pagar Total',
-    placeholderNota: 'pago total por',
+  entregar: {
+    titulo: '💳 Entregar Dinero',
+    saldo: 'Total a Entregar',
+    tipoTotal: 'Entregar Total',
+    btnTotal: 'Entregar Total',
+    placeholderNota: 'entregar total por',
   },
 };
 
 const GestionCobro: React.FC<GestionCobroProps> = ({
-  mode = 'cobro',
+  mode = 'recibir',
   tipoPago,
   setTipoPago,
   montoPago,
