@@ -1,11 +1,17 @@
 import React from 'react';
-import SummaryCard from '../../../../shared/components/SummaryCard/SummaryCard';
-import TableEstacion from '../../../../shared/components/TableEstacion/TableEstacion';
-import type { Frigorifico } from '../../types/logistica.types';
+import SummaryCard from '../../../components/SummaryCard/SummaryCard';
+import TableEstacion from '../../../components/TableEstacion/TableEstacion';
 import './FrigorificoCard.css';
 
 interface FrigorificoCardProps {
-  frigorifico: Frigorifico;
+  frigorifico: {
+    id_frigorifico: number;
+    nombre_frigorifico: string;
+    direccion: string;
+    lotes_en_stock: { cantidad: number; peso_total_g: number };
+    lotes_despachados: { cantidad: number; peso_total_g: number };
+    estaciones: any[];
+  };
   expandedProducts: Set<string>;
   confirmedProducts: Set<string>;
   onToggleProduct: (productId: number) => void;

@@ -4,9 +4,10 @@ import type { Empaque, SearchResult } from '../../types/logistica.types';
 interface EmpaqueSearchResultProps {
   result: SearchResult;
   userName: string;
+  onDelete?: (estacionId: string, epc: string) => void;
 }
 
-const EmpaqueSearchResult: React.FC<EmpaqueSearchResultProps> = ({ result, userName }) => (
+const EmpaqueSearchResult: React.FC<EmpaqueSearchResultProps> = ({ result, userName, onDelete }) => (
   <div style={{
     marginBottom: '2rem',
     padding: '1rem',
@@ -26,6 +27,7 @@ const EmpaqueSearchResult: React.FC<EmpaqueSearchResultProps> = ({ result, userN
             <th>Peso (g)</th>
             <th>EPC</th>
             <th>Fecha</th>
+            {onDelete && <th>Acciones</th>}
           </tr>
         </thead>
         <tbody>
@@ -36,6 +38,24 @@ const EmpaqueSearchResult: React.FC<EmpaqueSearchResultProps> = ({ result, userN
               <td>{empaque.peso_g}</td>
               <td style={{ fontWeight: 'bold', color: '#ff6b35' }}>⭐ {empaque.epc}</td>
               <td>{new Date(empaque.fecha_empaque).toLocaleString('es-CO')}</td>
+              {onDelete && (
+                <td>
+                  <button
+                    className="btn-eliminar"
+                    onClick={() => onDelete(result.estacion, empaque.epc)}
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
