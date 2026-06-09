@@ -1,0 +1,5 @@
+.buscador-meses {
+  display: inline-flex;
+  align-items: center;
+  z-index: 10;
+}

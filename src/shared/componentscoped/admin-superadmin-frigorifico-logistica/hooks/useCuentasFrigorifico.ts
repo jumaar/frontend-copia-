@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getTransaccionesFrigorifico, getHermanos, procesarPago } from '../../../services/api';
-import type { UsuarioHermano, TransaccionesData } from '../../../shared/types/cuentas-frigorifico.types';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { getTransaccionesFrigorifico, getHermanos, procesarPago } from '../../../../services/api';
+import type { UsuarioHermano, TransaccionesData } from '../../../../shared/types/cuentas-frigorifico.types';
 
 interface UseCuentasFrigorificoOptions {
   mode: 'self' | 'admin';

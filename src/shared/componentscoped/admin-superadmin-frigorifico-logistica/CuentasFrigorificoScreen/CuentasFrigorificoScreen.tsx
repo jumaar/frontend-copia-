@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { useCuentasFrigorifico } from '../useCuentasFrigorifico';
-import CuentasFrigorificoView from '../CuentasFrigorificoView/CuentasFrigorificoView';
+import { useCuentasFrigorifico } from '../hooks/useCuentasFrigorifico';
+import Resumen from '../../../components/Resumen/Resumen';
+import TablaTransacciones from '../../../components/TablaTransacciones/TablaTransacciones';
 import GestionCobro from '../../admin-superadmin-logistica/GestionCobro/GestionCobro';
-import Dropdown from '../../../components/Dropdown/Dropdown';
+import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
 import Alert from '../../../components/Alert/Alert';
-import './CuentasFrigorificoScreen.css';
 
 const CuentasFrigorificoPage: React.FC = () => {
   const { user } = useAuth();
@@ -32,7 +32,6 @@ const CuentasFrigorificoPage: React.FC = () => {
     notaPago,
     setNotaPago,
     procesandoPago,
-    esFrigorifico: _esFrigoHook,
     cargarTransacciones,
     consultarMesEspecifico,
     manejarPago,
@@ -45,6 +44,29 @@ const CuentasFrigorificoPage: React.FC = () => {
       .filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE')
       .reduce((sum: number, t: any) => sum + t.monto, 0);
   }, [transacciones]);
+
+  const resumenItems = useMemo(() => {
+    if (!transacciones) return [];
+    const t = transacciones as any;
+    const pendientes = t.transacciones.filter((tx: any) => tx.nombre_estado_transaccion === 'PENDIENTE').length;
+    const consolidados = t.transacciones.filter((tx: any) => tx.nombre_tipo_transaccion === 'ticket_consolidado').length;
+    const saldoTotalPendientes = t.transacciones.filter((tx: any) => tx.nombre_estado_transaccion === 'PENDIENTE').reduce((sum: number, tx: any) => sum + tx.monto, 0);
+    const montoTotalMes = t.transacciones.filter((tx: any) =>
+      tx.nombre_estado_transaccion === 'PENDIENTE' || tx.nombre_estado_transaccion === 'PAGADO'
+    ).filter((tx: any) => tx.id_empaque !== null).reduce((sum: number, tx: any) => sum + tx.monto, 0);
+    const montoTiendaMes = t.transacciones.filter((tx: any) =>
+      tx.nombre_estado_transaccion === 'PENDIENTE' || tx.nombre_estado_transaccion === 'PAGADO'
+    ).filter((tx: any) => tx.id_empaque !== null).reduce((sum: number, tx: any) => sum + (tx.costo_tienda || 0), 0);
+
+    return [
+      { label: 'Total Transacciones', value: String(t.total_transacciones), icon: '📊' },
+      { label: 'Pendientes', value: String(pendientes), icon: '⏳' },
+      { label: 'Consolidados', value: String(consolidados), icon: '✅' },
+      { label: 'Saldo Total (Pendientes)', value: formatMoneda(saldoTotalPendientes), icon: '💰' },
+      { label: 'Monto del Mes', value: formatMoneda(montoTotalMes), icon: '📅' },
+      { label: 'Monto Tienda Mes', value: formatMoneda(montoTiendaMes), icon: '🏪' },
+    ];
+  }, [transacciones, formatMoneda]);
 
   if (loadingUsuarios && isAdmin) {
     return (
@@ -74,33 +96,30 @@ const CuentasFrigorificoPage: React.FC = () => {
               Consulta las transacciones de productos pendientes y consolidados por frigorífico
             </p>
 
-            <div className="usuario-selector" style={{ marginTop: '1.5rem' }}>
-              <div className="selector-container">
-                <h3>SELECCIONAR FRIGORÍFICO:</h3>
-                <Dropdown
-                  options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario}` }))}
-                  selectedId={usuarioSeleccionado}
-                  onSelect={(id) => {
-                    const numId = Number(id);
-                    setUsuarioSeleccionado(numId);
-                    cargarTransacciones(numId);
-                  }}
-                  placeholder="Selecciona un frigorífico..."
-                  disabled={loadingUsuarios}
-                  loading={loading}
-                  variant="block"
-                  actionLabel="Seleccionar"
-                  renderLabel={(option, _isSelected) => {
-                    const usuario = usuariosHermanos.find(u => u.id_usuario === option.id);
-                    return (
-                      <span className="dropdown-item-label">
-                        ❄️ {option.label}
-                        {usuario?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
-                      </span>
-                    );
-                  }}
-                />
-              </div>
+            <div style={{ marginTop: '1.5rem' }}>
+              <ProveedorSelector
+                title="SELECCIONAR FRIGORÍFICO:"
+                options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario}` }))}
+                selectedId={usuarioSeleccionado}
+                onSelect={(id) => {
+                  const numId = Number(id);
+                  setUsuarioSeleccionado(numId);
+                  cargarTransacciones(numId);
+                }}
+                placeholder="Selecciona un frigorífico..."
+                disabled={loadingUsuarios}
+                loading={loading}
+                actionLabel="Seleccionar"
+                renderLabel={(option, _isSelected) => {
+                  const usuario = usuariosHermanos.find(u => u.id_usuario === option.id);
+                  return (
+                    <span className="dropdown-item-label">
+                      ❄️ {option.label}
+                      {usuario?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
+                    </span>
+                  );
+                }}
+              />
             </div>
           </>
         )}
@@ -122,17 +141,23 @@ const CuentasFrigorificoPage: React.FC = () => {
       )}
 
       {(isFrigorifico || usuarioSeleccionado) && (
-          <CuentasFrigorificoView
-            transacciones={transacciones}
-            loading={loading}
-            error={error}
-            mesesHistoricos={mesesHistoricos}
-            mesSeleccionado={mesSeleccionado}
-            consultarMesEspecifico={consultarMesEspecifico}
-            esFrigorifico={isFrigorifico}
-            formatMoneda={formatMoneda}
-            hideHeader={true}
-          />
+        <>
+          <Resumen items={resumenItems} />
+
+          {transacciones && (
+            <div className="transacciones-container">
+              <TablaTransacciones
+                data={transacciones}
+                loading={loading}
+                error={error}
+                mesesHistoricos={mesesHistoricos}
+                mesSeleccionado={mesSeleccionado}
+                onConsultarMes={consultarMesEspecifico}
+                variant="proveedor"
+              />
+            </div>
+          )}
+        </>
       )}
 
       {isAdmin && usuarioSeleccionado && (
