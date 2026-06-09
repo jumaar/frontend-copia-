@@ -130,51 +130,6 @@
   padding: calc(var(--spacing-unit) * 0.5);
 }
 
-/* Mensajes de error */
-.error-message {
-  margin-bottom: calc(var(--spacing-unit) * 4);
-}
-
-.error-content {
-  background: rgba(239, 68, 68, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid var(--color-error);
-  border-radius: var(--border-radius-lg);
-  padding: calc(var(--spacing-unit) * 3);
-  display: flex;
-  align-items: center;
-  gap: calc(var(--spacing-unit) * 2);
-  color: var(--color-error);
-}
-
-.error-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.error-content p {
-  margin: 0;
-  font-weight: var(--font-weight-medium);
-  flex-grow: 1;
-}
-
-.error-retry-btn {
-  background: var(--color-error);
-  color: white;
-  border: none;
-  padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
-  border-radius: var(--border-radius-md);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.error-retry-btn:hover {
-  background: #dc2626;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
-}
-
 /* Container de transacciones */
 .transacciones-container {
   max-width: 100%;

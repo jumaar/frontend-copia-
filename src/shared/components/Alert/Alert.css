@@ -23,8 +23,14 @@
 .alert-content.welcome {
   background-color: var(--color-success);
   color: var(--color-text-inverse);
-  font-size: 1.125rem; /* Un poco más grande */
-  font-weight: var(--font-weight-semibold); /* Más grueso */
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-semibold);
+  border: none;
+}
+
+.alert-content.success {
+  background-color: var(--color-success);
+  color: var(--color-text-inverse);
   border: none;
 }
 
@@ -37,6 +43,7 @@
 }
 
 .alert-content.welcome .alert-dismiss-button,
+.alert-content.success .alert-dismiss-button,
 .alert-content.error .alert-dismiss-button {
   color: var(--color-text-inverse);
 }

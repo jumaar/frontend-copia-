@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasTienda } from '../../admin-superadmin-logistica-tienda/useCuentasTienda';
 import CuentasTiendaView from '../../admin-superadmin-logistica-tienda/CuentasTiendaView/CuentasTiendaView';
-import GestionCobro from '../../admin-superadmin-frigorifico-logistica/GestionCobro/GestionCobro';
+import GestionCobro from '../GestionCobro/GestionCobro';
 import TiendaSelector from '../../admin-superadmin-logistica-tienda/TiendaSelector/TiendaSelector';
+import Alert from '../../../components/Alert/Alert';
 
 const CuentasTiendaAdminPage: React.FC = () => {
   const { user } = useAuth();
@@ -122,23 +123,11 @@ const CuentasTiendaAdminPage: React.FC = () => {
       </div>
 
       {successMessage && (
-        <div className="success-message" style={{ backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success)', color: 'var(--color-success)' }}>
-          <div className="success-content">
-            <span className="success-icon">✅</span>
-            <p>{successMessage}</p>
-            <button className="success-close-btn" onClick={() => setSuccessMessage(null)}>Cerrar</button>
-          </div>
-        </div>
+        <Alert message={successMessage} onDismiss={() => setSuccessMessage(null)} type="success" />
       )}
 
       {error && (
-        <div className="error-message">
-          <div className="error-content">
-            <span className="error-icon">⚠️</span>
-            <p>{error}</p>
-            <button className="error-retry-btn" onClick={() => setError(null)}>Cerrar</button>
-          </div>
-        </div>
+        <Alert message={error} onDismiss={() => setError(null)} type="error" />
       )}
 
       {transacciones && (

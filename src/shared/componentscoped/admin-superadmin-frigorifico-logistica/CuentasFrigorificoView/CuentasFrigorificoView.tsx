@@ -7,12 +7,9 @@ interface CuentasFrigorificoViewProps {
   transacciones: TransaccionesData | null;
   loading: boolean;
   error: string | null;
-  successMessage: string | null;
   mesesHistoricos: Array<{mes: number, año: number, fecha: string}>;
   mesSeleccionado: {mes: number, año: number} | null;
   consultarMesEspecifico: (mes: number, año: number) => void;
-  setError: (error: string | null) => void;
-  setSuccessMessage: (msg: string | null) => void;
   esFrigorifico: boolean;
   formatMoneda: (monto: number) => string;
   hideHeader?: boolean;
@@ -22,12 +19,9 @@ const CuentasFrigorificoView: React.FC<CuentasFrigorificoViewProps> = ({
   transacciones,
   loading,
   error,
-  successMessage,
   mesesHistoricos,
   mesSeleccionado,
   consultarMesEspecifico,
-  setError,
-  setSuccessMessage,
   esFrigorifico,
   formatMoneda,
   hideHeader = false,
@@ -100,37 +94,6 @@ const CuentasFrigorificoView: React.FC<CuentasFrigorificoViewProps> = ({
           </div>
         );
       })()}
-
-      {successMessage && (
-        <div className="success-message" style={{ backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success)', color: 'var(--color-success)' }}>
-          <div className="success-content">
-            <span className="success-icon">✅</span>
-            <p>{successMessage}</p>
-            <button
-              className="success-close-btn"
-              onClick={() => setSuccessMessage(null)}
-              style={{ background: 'none', border: 'none', color: 'var(--color-success)', cursor: 'pointer', marginTop: '0.5rem' }}
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="error-message">
-          <div className="error-content">
-            <span className="error-icon">⚠️</span>
-            <p>{error}</p>
-            <button
-              className="error-retry-btn"
-              onClick={() => setError(null)}
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
 
       {transacciones && (
         <div className="transacciones-container">
