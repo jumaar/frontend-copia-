@@ -1,19 +1,81 @@
-@media (max-width: 768px) {
-  .busqueda-empaque-container input {
-    font-size: 0.9rem;
-  }
+.epc-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
 
-  .card-header {
-    padding: 0.75rem 1rem;
-  }
+.epc-header-proveedor {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
 
-  .card-header h2 {
-    font-size: 1.2rem;
-  }
+.epc-header-contacto {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.epc-header-sep {
+  color: var(--color-border);
+}
+
+.epc-header-frigo {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.epc-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.epc-search-label {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.epc-search-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+}
+
+.epc-search-input-group input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text-primary);
 }
 
 @media (max-width: 480px) {
-  .card-header h2 {
-    font-size: 1.1rem;
+  .epc-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .epc-search-label {
+    white-space: normal;
+  }
+
+  .epc-search-input-group {
+    flex-wrap: wrap;
+  }
+
+  .epc-search-input-group .btn-consultar {
+    margin-left: 0;
+    width: 100%;
   }
 }

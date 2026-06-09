@@ -1,0 +1,89 @@
+.table-estacion-title {
+  margin-bottom: 1rem;
+}
+
+.table-estacion-empty {
+  color: var(--color-text-secondary);
+}
+
+.table-estacion-scroll {
+  overflow-x: auto;
+}
+
+.table-estacion-table {
+  width: 100%;
+  min-width: 950px;
+  margin-top: 1rem;
+  border-collapse: collapse;
+}
+
+.product-header-row {
+  background-color: var(--color-hover-bg);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.product-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  gap: 1rem;
+}
+
+.product-header-name {
+  font-weight: bold;
+  color: var(--color-text-primary);
+}
+
+.product-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.product-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--color-primary);
+  text-decoration: underline;
+  padding: 0.25rem 0.5rem;
+}
+
+.product-confirm-btn {
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.product-confirm-btn.confirmed {
+  background-color: var(--color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.empaque-header-row {
+  background-color: var(--color-card-bg);
+  font-weight: bold;
+  color: var(--color-text-secondary);
+}
+
+.empaque-header-row th {
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.empaque-row {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.empaque-row td {
+  padding: 0.5rem;
+  color: var(--color-text-primary);
+}

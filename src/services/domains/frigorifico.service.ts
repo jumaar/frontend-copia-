@@ -57,6 +57,11 @@ export const getGestionLogisticaByUser = async (idUsuario: number) => {
   return response.data;
 };
 
+export const getGestionLogisticaByFrigorifico = async (idUsuario: number, idFrigorifico: number) => {
+  const response = await apiClient.get(`/frigorifico/gestion?id_usuario=${idUsuario}&id_frigorifico=${idFrigorifico}`);
+  return response.data;
+};
+
 export const deleteEmpaque = async (estacionId: string, epc: string) => {
   const response = await apiClient.delete(`/frigorifico/estacion/${estacionId}/empaque/${epc}`);
   return response.data;

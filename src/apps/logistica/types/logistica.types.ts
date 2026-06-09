@@ -43,7 +43,7 @@ export interface Estacion {
   productos: Producto[];
 }
 
-export interface Frigorifico {
+export interface FrigorificoBasico {
   id_frigorifico: number;
   nombre_frigorifico: string;
   direccion: string;
@@ -55,6 +55,20 @@ export interface Frigorifico {
       nombre_departamento: string;
     };
   };
+}
+
+export interface GestionDataBasico {
+  usuario_actual: {
+    id: number;
+    nombre_completo: string;
+    celular: string;
+    rol: string;
+    activo: boolean;
+  };
+  frigorificos: FrigorificoBasico[];
+}
+
+export interface Frigorifico extends FrigorificoBasico {
   lotes_en_stock: {
     cantidad: number;
     peso_total_g: number;
@@ -76,10 +90,6 @@ export interface GestionData {
     activo: boolean;
   };
   frigorificos: Frigorifico[];
-  ciudades_disponibles: Array<{
-    id_ciudad: number;
-    nombre_ciudad: string;
-  }>;
 }
 
 export interface SearchResult {

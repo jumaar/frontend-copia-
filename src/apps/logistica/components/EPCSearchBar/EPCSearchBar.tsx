@@ -8,6 +8,11 @@ interface EPCSearchBarProps {
   onKeyPress: (e: React.KeyboardEvent) => void;
   disabled: boolean;
   label?: string;
+  proveedorNombre?: string;
+  proveedorEmail?: string;
+  proveedorCelular?: string;
+  frigorificoNombre?: string;
+  frigorificoDireccion?: string;
 }
 
 const EPCSearchBar: React.FC<EPCSearchBarProps> = ({
@@ -17,35 +22,50 @@ const EPCSearchBar: React.FC<EPCSearchBarProps> = ({
   onKeyPress,
   disabled,
   label,
+  proveedorNombre,
+  proveedorEmail,
+  proveedorCelular,
+  frigorificoNombre,
+  frigorificoDireccion,
 }) => (
   <section className="busqueda-empaque-container card" style={{ marginBottom: '2rem' }}>
-    <div className="card-header">
-      <h2>{label || 'Búsqueda por EPC'}</h2>
-    </div>
-    <div style={{ padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-      <input
-        type="text"
-        placeholder="Ingrese EPC (máximo 24 caracteres)"
-        value={searchEPC}
-        onChange={(e) => onSearchEPCChange(e.target.value)}
-        onKeyPress={onKeyPress}
-        maxLength={24}
-        style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--color-border)' }}
-      />
-      <button
-        onClick={onSearch}
-        disabled={disabled}
-        style={{
-          padding: '0.5rem 1rem',
-          backgroundColor: 'var(--color-primary)',
-          color: 'white',
-          border: 'none',
-          borderRadius: 'var(--border-radius-md)',
-          cursor: 'pointer'
-        }}
-      >
-        Buscar
-      </button>
+    {(proveedorNombre || frigorificoNombre) && (
+      <div className="epc-header-info">
+        {proveedorNombre && <span className="epc-header-proveedor">{proveedorNombre}</span>}
+        {(proveedorEmail || proveedorCelular) && (
+          <span className="epc-header-contacto">
+            {proveedorEmail && <span>{proveedorEmail}</span>}
+            {proveedorEmail && proveedorCelular && <span className="epc-header-sep">|</span>}
+            {proveedorCelular && <span>{proveedorCelular}</span>}
+          </span>
+        )}
+        {frigorificoNombre && (
+          <span className="epc-header-frigo">
+            {frigorificoNombre}
+            {frigorificoDireccion && <> — {frigorificoDireccion}</>}
+          </span>
+        )}
+      </div>
+    )}
+    <div className="epc-search-row">
+      <label className="epc-search-label">{label || 'Búsqueda por EPC'}</label>
+      <div className="epc-search-input-group">
+        <input
+          type="text"
+          placeholder="Ingrese EPC (máximo 24 caracteres)"
+          value={searchEPC}
+          onChange={(e) => onSearchEPCChange(e.target.value)}
+          onKeyPress={onKeyPress}
+          maxLength={24}
+        />
+        <button
+          className="btn-consultar"
+          onClick={onSearch}
+          disabled={disabled}
+        >
+          Buscar
+        </button>
+      </div>
     </div>
   </section>
 );

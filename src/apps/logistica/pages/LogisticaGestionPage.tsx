@@ -1,11 +1,9 @@
 import React from 'react';
 import { useLogisticaGestion } from '../hooks/useLogisticaGestion';
-import UserListItem from '../components/UserListItem/UserListItem';
-import FrigorificoHeader from '../components/FrigorificoHeader/FrigorificoHeader';
+import ProveedorSelector from '../../../shared/components/ProveedorSelector/ProveedorSelector';
+import FrigorificoCard from '../components/FrigorificoCard/FrigorificoCard';
 import EPCSearchBar from '../components/EPCSearchBar/EPCSearchBar';
 import EmpaqueSearchResult from '../components/EmpaqueSearchResult/EmpaqueSearchResult';
-import StationProductsSection from '../components/StationProductsSection/StationProductsSection';
-import SummaryCard from '../../../shared/components/SummaryCard/SummaryCard';
 import Alert from '../../../shared/components/Alert/Alert';
 
 const LogisticaGestionPage: React.FC = () => {
@@ -13,26 +11,42 @@ const LogisticaGestionPage: React.FC = () => {
     hermanos,
     loading,
     consultingUser,
+    loadingDetalle,
     error,
     setError,
     hasLogisticaData,
-    selectedFrigorifico,
     selectedUserName,
     selectedUserData,
-    productosHoy,
-    pesoTotal,
+    frigorificoSeleccionado,
+    frigorificoDetallado,
     searchEPC,
     setSearchEPC,
     searchResult,
     expandedProducts,
     confirmedProducts,
-    allEstaciones,
     handleConsultUser,
+    cargarDetalleFrigorifico,
     handleSearch,
     handleKeyPress,
     toggleProductExpansion,
     handleConfirmarCambioEstado,
   } = useLogisticaGestion();
+
+  const handleSelectProveedor = (id: string | number) => {
+    const numId = Number(id);
+    const hermano = hermanos.find(h => h.id_usuario === numId);
+    if (hermano) {
+      handleConsultUser(numId, `${hermano.nombre_usuario} ${hermano.apellido_usuario}`);
+    }
+  };
+
+  const handleSelectFrigorifico = (id: string | number) => {
+    cargarDetalleFrigorifico(Number(id));
+  };
+
+  const proveedorActual = React.useMemo(() => {
+    return hermanos.find(h => `${h.nombre_usuario} ${h.apellido_usuario}` === selectedUserName) ?? null;
+  }, [hermanos, selectedUserName]);
 
   if (loading && hermanos.length === 0) {
     return <div className="management-page">Cargando...</div>;
@@ -45,77 +59,77 @@ const LogisticaGestionPage: React.FC = () => {
         <p>Empaques por estación pendientes de recogida</p>
       </div>
 
-      <section className="card" style={{ marginBottom: '2rem', marginTop: 'calc(var(--spacing-unit) * -4)' }}>
-        <div style={{ padding: '1rem' }}>
-          {hermanos.length === 0 ? (
-            <p>No hay usuarios Frigorificos disponibles.</p>
-          ) : (
-            <div style={{ display: 'grid', gap: '1rem' }}>
-              {hermanos.map((hermano) => (
-                <UserListItem
-                  key={hermano.id_usuario}
-                  hermano={hermano}
-                  onConsult={handleConsultUser}
-                  consultingUser={consultingUser}
-                  hasLogisticaData={hasLogisticaData}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {selectedFrigorifico && (
-        <FrigorificoHeader frigorifico={selectedFrigorifico} userName={selectedUserName} />
-      )}
-
-      {selectedUserData && (
-        <>
-          <div className="dashboard-summary" style={{ marginBottom: '2rem' }}>
-            <SummaryCard
-              title="Productos Hoy"
-              value={String(productosHoy)}
-              description="Cantidad total de empaques"
-            />
-            <SummaryCard
-              title="Peso Total"
-              value={`${pesoTotal.toFixed(2)} kg`}
-              description="Suma de pesos en kg"
-            />
-          </div>
-
-          <EPCSearchBar
-            searchEPC={searchEPC}
-            onSearchEPCChange={setSearchEPC}
-            onSearch={() => handleSearch()}
-            onKeyPress={handleKeyPress}
-            disabled={consultingUser !== null}
-            label={`Búsqueda por EPC - ${selectedUserName}`}
-          />
-
-          {error && selectedUserData && (
-            <p style={{ color: 'red', padding: '0 1rem' }}>{error}</p>
-          )}
-
-          {searchResult && (
-            <EmpaqueSearchResult result={searchResult} userName={selectedUserName} />
-          )}
-
-          {allEstaciones.map((estacion) => (
-            <StationProductsSection
-              key={estacion.id_estacion}
-              estacion={estacion}
-              expandedProducts={expandedProducts}
-              confirmedProducts={confirmedProducts}
-              onToggleProduct={toggleProductExpansion}
-              onConfirmar={handleConfirmarCambioEstado}
-            />
-          ))}
-        </>
-      )}
+      <ProveedorSelector
+        title="SELECCIONAR PROVEEDOR:"
+        options={hermanos.map(h => ({ id: h.id_usuario, label: `${h.nombre_usuario} ${h.apellido_usuario}` }))}
+        selectedId={null}
+        onSelect={handleSelectProveedor}
+        placeholder="Selecciona un proveedor..."
+        disabled={!hasLogisticaData}
+        loading={consultingUser !== null}
+        actionLabel="Consultar"
+        renderLabel={(option, _isSelected) => {
+          const hermano = hermanos.find(h => h.id_usuario === option.id);
+          return (
+            <span>
+              ❄️ {option.label}
+              {hermano?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({hermano.email})</span>}
+            </span>
+          );
+        }}
+      />
 
       {error && !selectedUserData && (
         <Alert type="error" message={error} onDismiss={() => setError(null)} />
+      )}
+
+      {selectedUserData && selectedUserData.frigorificos.length > 0 && (
+        <ProveedorSelector
+          title="SELECCIONAR FRIGORÍFICO:"
+          options={selectedUserData.frigorificos.map(f => ({
+            id: f.id_frigorifico,
+            label: `${f.nombre_frigorifico} — ${f.ciudad?.nombre_ciudad || 'Sin ciudad'}`,
+          }))}
+          selectedId={frigorificoSeleccionado}
+          onSelect={handleSelectFrigorifico}
+          placeholder="Selecciona un frigorífico..."
+          loading={loadingDetalle}
+          actionLabel="Ver"
+        />
+      )}
+
+      {error && selectedUserData && (
+        <Alert type="error" message={error} onDismiss={() => setError(null)} />
+      )}
+
+      {searchResult && (
+        <EmpaqueSearchResult result={searchResult} userName={selectedUserName} />
+      )}
+
+      {frigorificoDetallado && (
+        <>
+          <EPCSearchBar
+            searchEPC={searchEPC}
+            onSearchEPCChange={setSearchEPC}
+            onSearch={handleSearch}
+            onKeyPress={handleKeyPress}
+            disabled={consultingUser !== null}
+            label="Búsqueda por EPC"
+            proveedorNombre={selectedUserData?.usuario_actual?.nombre_completo}
+            proveedorEmail={proveedorActual?.email}
+            proveedorCelular={proveedorActual?.celular ? String(proveedorActual.celular) : undefined}
+            frigorificoNombre={frigorificoDetallado.nombre_frigorifico}
+            frigorificoDireccion={frigorificoDetallado.direccion}
+          />
+
+          <FrigorificoCard
+            frigorifico={frigorificoDetallado}
+            expandedProducts={expandedProducts}
+            confirmedProducts={confirmedProducts}
+            onToggleProduct={toggleProductExpansion}
+            onConfirmar={handleConfirmarCambioEstado}
+          />
+        </>
       )}
     </div>
   );

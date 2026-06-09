@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getHermanos, getGestionLogisticaByUser, cambiarEstadoEmpaques } from '../../../services/api';
+import { getHermanos, getGestionLogisticaByUser, getGestionLogisticaByFrigorifico, cambiarEstadoEmpaques } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { numberToWords } from '../../../shared/utils/numberToWords';
 import type {
   Hermano,
   LogisticaData,
   GestionLogisticaResponse,
+  GestionDataBasico,
   Frigorifico,
-  GestionData,
+  Producto,
   SearchResult,
 } from '../types/logistica.types';
 
@@ -15,11 +16,13 @@ export function useLogisticaGestion() {
   const { user } = useAuth();
   const [logisticaData, setLogisticaData] = useState<LogisticaData[] | null>(null);
   const [hermanos, setHermanos] = useState<Hermano[]>([]);
-  const [selectedUserData, setSelectedUserData] = useState<GestionData | null>(null);
+  const [selectedUserData, setSelectedUserData] = useState<GestionDataBasico | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>('');
-  const [selectedFrigorifico, setSelectedFrigorifico] = useState<Frigorifico | null>(null);
+  const [frigorificoSeleccionado, setFrigorificoSeleccionado] = useState<number | null>(null);
+  const [frigorificoDetallado, setFrigorificoDetallado] = useState<Frigorifico | null>(null);
   const [loading, setLoading] = useState(true);
   const [consultingUser, setConsultingUser] = useState<number | null>(null);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchEPC, setSearchEPC] = useState('');
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
@@ -30,18 +33,19 @@ export function useLogisticaGestion() {
   const hasLogisticaData = !!(logisticaData && logisticaData.length > 0);
 
   const refreshUserData = useCallback(async () => {
-    if (selectedUserData && selectedUserName) {
+    if (frigorificoSeleccionado && selectedUserName) {
       try {
         const userId = hermanos.find(h => `${h.nombre_usuario} ${h.apellido_usuario}` === selectedUserName)?.id_usuario;
         if (userId) {
-          const refreshedData = await getGestionLogisticaByUser(userId);
-          setSelectedUserData(refreshedData);
+          const data = await getGestionLogisticaByFrigorifico(userId, frigorificoSeleccionado);
+          const frigorifico = data.frigorificos?.[0] ?? null;
+          setFrigorificoDetallado(frigorifico);
         }
       } catch (err) {
         console.error('Error refreshing user data:', err);
       }
     }
-  }, [selectedUserData, selectedUserName, hermanos]);
+  }, [frigorificoSeleccionado, selectedUserName, hermanos]);
 
   useEffect(() => {
     const fetchLogisticaData = async () => {
@@ -87,16 +91,14 @@ export function useLogisticaGestion() {
       setConsultingUser(userId);
       setError(null);
       setSelectedUserData(null);
-      setSelectedFrigorifico(null);
+      setFrigorificoSeleccionado(null);
+      setFrigorificoDetallado(null);
       setSearchResult(null);
+      setExpandedProducts(new Set());
 
-      const gestionData = await getGestionLogisticaByUser(userId);
+      const gestionData: GestionDataBasico = await getGestionLogisticaByUser(userId);
       setSelectedUserData(gestionData);
       setSelectedUserName(userName);
-
-      if (gestionData.frigorificos && gestionData.frigorificos.length > 0) {
-        setSelectedFrigorifico(gestionData.frigorificos[0]);
-      }
     } catch (err: any) {
       console.error('Error fetching user data:', err);
       if (err.response?.status === 401) {
@@ -110,11 +112,35 @@ export function useLogisticaGestion() {
     }
   }, [logisticaData]);
 
+  const cargarDetalleFrigorifico = useCallback(async (idFrigorifico: number) => {
+    if (!selectedUserName) return;
+    const userId = hermanos.find(h => `${h.nombre_usuario} ${h.apellido_usuario}` === selectedUserName)?.id_usuario;
+    if (!userId) return;
+
+    try {
+      setLoadingDetalle(true);
+      setError(null);
+      setFrigorificoDetallado(null);
+      setSearchResult(null);
+      setExpandedProducts(new Set());
+
+      setFrigorificoSeleccionado(idFrigorifico);
+      const data = await getGestionLogisticaByFrigorifico(userId, idFrigorifico);
+      const frigorifico = data.frigorificos?.[0] ?? null;
+      setFrigorificoDetallado(frigorifico);
+    } catch (err: any) {
+      console.error('Error fetching frigorifico detail:', err);
+      setError('Error al cargar el detalle del frigorífico.');
+    } finally {
+      setLoadingDetalle(false);
+    }
+  }, [selectedUserName, hermanos]);
+
   const handleSearch = useCallback((epc?: string) => {
     const query = epc ?? searchEPC;
 
-    if (!selectedUserData) {
-      alert('Primero consulta los datos de un usuario.');
+    if (!frigorificoDetallado) {
+      alert('Primero selecciona un frigorífico.');
       return;
     }
 
@@ -123,20 +149,17 @@ export function useLogisticaGestion() {
       return;
     }
 
-    let foundProduct: import('../types/logistica.types').Producto | null = null;
+    let foundProduct: Producto | null = null;
     let foundEstacion: string = '';
 
-    for (const frigorifico of selectedUserData.frigorificos) {
-      for (const estacion of frigorifico.estaciones) {
-        for (const producto of estacion.productos) {
-          const empaque = producto.empaques.find((e) => e.epc === query);
-          if (empaque) {
-            foundProduct = { ...producto, empaques: [empaque] };
-            foundEstacion = estacion.id_estacion;
-            break;
-          }
+    for (const estacion of frigorificoDetallado.estaciones) {
+      for (const producto of estacion.productos) {
+        const empaque = producto.empaques.find((e) => e.epc === query);
+        if (empaque) {
+          foundProduct = { ...producto, empaques: [empaque] };
+          foundEstacion = estacion.id_estacion;
+          break;
         }
-        if (foundProduct) break;
       }
       if (foundProduct) break;
     }
@@ -150,7 +173,7 @@ export function useLogisticaGestion() {
       setError('No se encontró ningún empaque con ese EPC.');
       setSearchEPC('');
     }
-  }, [searchEPC, selectedUserData]);
+  }, [searchEPC, frigorificoDetallado]);
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -255,21 +278,15 @@ export function useLogisticaGestion() {
     }
   }, [currentUserLogisticaId, refreshUserData]);
 
-  const allEstaciones = selectedUserData?.frigorificos.flatMap(f => f.estaciones) || [];
-  const allProductos = allEstaciones.flatMap(e => e.productos);
-  const productosHoy = allProductos.reduce((total, producto) => total + producto.cantidad_total, 0);
-  const pesoTotal = allProductos.reduce((total, producto) =>
-    total + producto.empaques.reduce((sum, empaque) => sum + parseFloat(empaque.peso_g), 0), 0
-  ) / 1000;
-
   return {
-    logisticaData,
     hermanos,
     selectedUserData,
     selectedUserName,
-    selectedFrigorifico,
+    frigorificoSeleccionado,
+    frigorificoDetallado,
     loading,
     consultingUser,
+    loadingDetalle,
     error,
     searchEPC,
     setSearchEPC,
@@ -277,11 +294,9 @@ export function useLogisticaGestion() {
     expandedProducts,
     confirmedProducts,
     hasLogisticaData,
-    allEstaciones,
-    productosHoy,
-    pesoTotal,
     setError,
     handleConsultUser,
+    cargarDetalleFrigorifico,
     handleSearch,
     handleKeyPress,
     toggleProductExpansion,

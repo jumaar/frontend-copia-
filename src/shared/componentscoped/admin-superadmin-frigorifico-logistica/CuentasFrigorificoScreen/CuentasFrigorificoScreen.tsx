@@ -98,7 +98,7 @@ const CuentasFrigorificoPage: React.FC = () => {
 
             <div style={{ marginTop: '1.5rem' }}>
               <ProveedorSelector
-                title="SELECCIONAR FRIGORÍFICO:"
+                title="SELECCIONAR PROVEEDOR:"
                 options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario}` }))}
                 selectedId={usuarioSeleccionado}
                 onSelect={(id) => {

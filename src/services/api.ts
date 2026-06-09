@@ -75,6 +75,7 @@ export {
   getHermanos,
   getGestionLogistica,
   getGestionLogisticaByUser,
+  getGestionLogisticaByFrigorifico,
   deleteEmpaque,
   cambiarEstadoEmpaques,
 } from './domains/frigorifico.service';
