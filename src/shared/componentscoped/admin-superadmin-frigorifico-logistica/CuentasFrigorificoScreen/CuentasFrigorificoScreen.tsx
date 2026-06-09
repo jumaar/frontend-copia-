@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasFrigorifico } from '../useCuentasFrigorifico';
 import CuentasFrigorificoView from '../CuentasFrigorificoView/CuentasFrigorificoView';
 import GestionCobro from '../GestionCobro/GestionCobro';
-import type { UsuarioHermano } from '../../../types/cuentas-frigorifico.types';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import './CuentasFrigorificoScreen.css';
 
 const CuentasFrigorificoPage: React.FC = () => {
@@ -24,8 +24,6 @@ const CuentasFrigorificoPage: React.FC = () => {
     setSuccessMessage,
     mesesHistoricos,
     mesSeleccionado,
-    showMesesMenu,
-    setShowMesesMenu,
     tipoPago,
     setTipoPago,
     montoPago,
@@ -33,25 +31,12 @@ const CuentasFrigorificoPage: React.FC = () => {
     notaPago,
     setNotaPago,
     procesandoPago,
-    showTipoMenu,
-    setShowTipoMenu,
     esFrigorifico: _esFrigoHook,
     cargarTransacciones,
     consultarMesEspecifico,
     manejarPago,
     formatMoneda,
   } = useCuentasFrigorifico({ mode: isFrigorifico ? 'self' : 'admin' });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element).closest('.meses-dropdown')) {
-        setShowMesesMenu(false);
-        setShowTipoMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [setShowMesesMenu, setShowTipoMenu]);
 
   const saldoPendientes = useMemo(() => {
     if (!transacciones?.transacciones) return 0;
@@ -91,37 +76,29 @@ const CuentasFrigorificoPage: React.FC = () => {
             <div className="usuario-selector" style={{ marginTop: '1.5rem' }}>
               <div className="selector-container">
                 <h3>SELECCIONAR FRIGORÍFICO:</h3>
-                <div className="meses-dropdown">
-                  <button
-                    className="dropdown-toggle"
-                    onClick={() => setShowMesesMenu(!showMesesMenu)}
-                    disabled={loadingUsuarios}
-                  >
-                    {usuarioSeleccionado
-                      ? (() => { const u = usuariosHermanos.find((h: UsuarioHermano) => h.id_usuario === usuarioSeleccionado); return u ? `${u.nombre_usuario} ${u.apellido_usuario}` : `Usuario #${usuarioSeleccionado}`; })()
-                      : <span>Selecciona un frigorífico...</span>}
-                    <span className="dropdown-arrow">▼</span>
-                  </button>
-                  {showMesesMenu && (
-                    <div className="dropdown-menu">
-                      {usuariosHermanos.map((usuario: UsuarioHermano) => (
-                        <div key={usuario.id_usuario} className="dropdown-item">
-                          <span className="mes-fecha">
-                            ❄️ {usuario.nombre_usuario} {usuario.apellido_usuario}
-                            {usuario.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
-                          </span>
-                          <button
-                            className={`btn-consultar ${usuarioSeleccionado === usuario.id_usuario ? 'activo' : ''}`}
-                            onClick={() => { setUsuarioSeleccionado(usuario.id_usuario); setShowMesesMenu(false); cargarTransacciones(usuario.id_usuario); }}
-                            disabled={loading}
-                          >
-                            Seleccionar
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Dropdown
+                  options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario}` }))}
+                  selectedId={usuarioSeleccionado}
+                  onSelect={(id) => {
+                    const numId = Number(id);
+                    setUsuarioSeleccionado(numId);
+                    cargarTransacciones(numId);
+                  }}
+                  placeholder="Selecciona un frigorífico..."
+                  disabled={loadingUsuarios}
+                  loading={loading}
+                  variant="block"
+                  actionLabel="Seleccionar"
+                  renderLabel={(option, _isSelected) => {
+                    const usuario = usuariosHermanos.find(u => u.id_usuario === option.id);
+                    return (
+                      <span className="dropdown-item-label">
+                        ❄️ {option.label}
+                        {usuario?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
+                      </span>
+                    );
+                  }}
+                />
               </div>
             </div>
           </>
@@ -163,9 +140,7 @@ const CuentasFrigorificoPage: React.FC = () => {
           successMessage={successMessage}
           mesesHistoricos={mesesHistoricos}
           mesSeleccionado={mesSeleccionado}
-          showMesesMenu={showMesesMenu}
           consultarMesEspecifico={consultarMesEspecifico}
-          setShowMesesMenu={setShowMesesMenu}
           setError={setError}
           setSuccessMessage={setSuccessMessage}
           esFrigorifico={isFrigorifico}
@@ -184,8 +159,6 @@ const CuentasFrigorificoPage: React.FC = () => {
           notaPago={notaPago}
           setNotaPago={setNotaPago}
           procesandoPago={procesandoPago}
-          showTipoMenu={showTipoMenu}
-          setShowTipoMenu={setShowTipoMenu}
           onProcesarPago={manejarPago}
           userName={user?.name || ''}
           saldoTotalLiquidar={saldoPendientes}

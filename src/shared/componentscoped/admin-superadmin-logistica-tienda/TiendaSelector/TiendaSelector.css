@@ -86,8 +86,8 @@
   width: 100%;
 }
 
-.tienda-selector-ciudad .meses-dropdown,
-.tienda-selector-children .meses-dropdown {
+.tienda-selector-ciudad .dropdown,
+.tienda-selector-children .dropdown {
   display: block;
 }
 

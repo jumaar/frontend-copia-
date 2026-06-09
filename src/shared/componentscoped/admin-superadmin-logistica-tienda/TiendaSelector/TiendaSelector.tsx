@@ -1,6 +1,6 @@
 import React from 'react';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import type { UsuarioTienda, Tienda } from '../../../types/cuentas-tienda.types';
-import '../../../components/MesesDropdown/MesesDropdown.css';
 import './TiendaSelector.css';
 
 interface TiendaSelectorProps {
@@ -92,71 +92,43 @@ const TiendaSelector: React.FC<TiendaSelectorProps> = ({
           <div className="tienda-selector-filters">
             <div className="tienda-selector-ciudad">
               <label className="selector-label">1. Filtrar por Ciudad:</label>
-              <div className="meses-dropdown" style={{ marginTop: '0.5rem' }}>
-                <button
-                  className="dropdown-toggle"
-                  onClick={onToggleCiudadMenu}
-                  disabled={loading}
-                >
-                  {ciudadSeleccionada
-                    ? `${ciudades.find(c => c.nombre_ciudad === ciudadSeleccionada)?.nombre_ciudad || ciudadSeleccionada} - ${ciudades.find(c => c.nombre_ciudad === ciudadSeleccionada)?.departamento || ''}`
-                    : <span>Selecciona una ciudad...</span>}
-                  <span className="dropdown-arrow">▼</span>
-                </button>
-                {showCiudadMenu && !loading && (
-                  <div className="dropdown-menu">
-                    <div className="dropdown-item">
-                      <span className="mes-fecha">Todas las ciudades</span>
-                      <button className="btn-consultar" onClick={() => onCiudadSelect(null)}>Seleccionar</button>
-                    </div>
-                    {ciudades.map(ciudad => (
-                      <div key={ciudad.id_ciudad} className="dropdown-item">
-                        <span className="mes-fecha">{ciudad.nombre_ciudad} - {ciudad.departamento}</span>
-                        <button
-                          className={`btn-consultar ${ciudadSeleccionada === ciudad.nombre_ciudad ? 'activo' : ''}`}
-                          onClick={() => onCiudadSelect(ciudad.nombre_ciudad)}
-                        >
-                          Seleccionar
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <Dropdown
+                options={[
+                  { id: '__todas__', label: 'Todas las ciudades' },
+                  ...ciudades.map(c => ({ id: c.nombre_ciudad, label: `${c.nombre_ciudad} - ${c.departamento}` })),
+                ]}
+                selectedId={ciudadSeleccionada || '__todas__'}
+                onSelect={(id) => {
+                  onCiudadSelect(id === '__todas__' ? null : String(id));
+                }}
+                placeholder="Selecciona una ciudad..."
+                disabled={loading}
+                variant="block"
+              />
             </div>
             <div className="tienda-selector-children">
               <div style={{ flex: '1 1 350px' }}>
                 <label className="selector-label">2. Seleccionar Tienda:</label>
-                <div className="meses-dropdown">
-                  <button className="dropdown-toggle" onClick={onToggleTiendaMenu} disabled={loading}>
-                    {selected
-                      ? <span>🏪 {selected.tienda.nombre_tienda}</span>
-                      : <span>Selecciona una tienda...</span>}
-                    <span className="dropdown-arrow">▼</span>
-                  </button>
-                  {showTiendaMenu && !loading && (
-                    <div className="dropdown-menu">
-                      {tiendasFiltradas.map(tienda => {
-                        const tienePendientes = tienda.neveras?.some(n => n.pendientes_pago) || false;
-                        return (
-                          <div key={tienda.id_tienda} className="dropdown-item">
-                            <span className="mes-fecha" style={{ color: tienePendientes ? 'var(--color-error)' : 'var(--color-text-primary)' }}>
-                              🏪 {tienda.nombre_tienda}
-                              {tienePendientes && <span style={{ color: 'var(--color-error)', fontWeight: 'bold', marginLeft: '8px' }}>💰 Pendientes</span>}
-                            </span>
-                            <button
-                              className={`btn-consultar ${tiendaSeleccionada === tienda.id_tienda ? 'activo' : ''}`}
-                              onClick={() => { onTiendaSelect(tienda.id_tienda); onToggleTiendaMenu(); }}
-                              disabled={loading}
-                            >
-                              Seleccionar
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                <Dropdown
+                  options={tiendasFiltradas.map(tienda => ({
+                    id: tienda.id_tienda,
+                    label: `🏪 ${tienda.nombre_tienda}`,
+                  }))}
+                  selectedId={tiendaSeleccionada}
+                  onSelect={(id) => { onTiendaSelect(Number(id)); }}
+                  placeholder="Selecciona una tienda..."
+                  disabled={loading}
+                  variant="block"
+                  renderLabel={(option, _isSelected) => {
+                    const tienePendientes = tiendasFiltradas.find(t => t.id_tienda === option.id)?.neveras?.some(n => n.pendientes_pago) || false;
+                    return (
+                      <span className="dropdown-item-label" style={{ color: tienePendientes ? 'var(--color-error)' : 'var(--color-text-primary)' }}>
+                        🏪 {option.label.replace('🏪 ', '')}
+                        {tienePendientes && <span style={{ color: 'var(--color-error)', fontWeight: 'bold', marginLeft: '8px' }}>💰 Pendientes</span>}
+                      </span>
+                    );
+                  }}
+                />
               </div>
 
               {isConsulta && loading && tiendaSeleccionada && (

@@ -51,7 +51,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element).closest('.meses-dropdown')) {
+      if (!(event.target as Element).closest('.dropdown')) {
         setShowCiudadMenu(false);
         setShowTiendaMenu(false);
         setShowTipoMenu(false);
@@ -166,8 +166,6 @@ const CuentasTiendaAdminPage: React.FC = () => {
           notaPago={notaPago}
           setNotaPago={setNotaPago}
           procesandoPago={procesandoPago}
-          showTipoMenu={showTipoMenu}
-          setShowTipoMenu={setShowTipoMenu}
           onProcesarPago={manejarPago}
           userName={user?.name || ''}
           saldoTotalLiquidar={saldoTotalLiquidar}

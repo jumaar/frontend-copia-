@@ -10,9 +10,7 @@ interface CuentasFrigorificoViewProps {
   successMessage: string | null;
   mesesHistoricos: Array<{mes: number, año: number, fecha: string}>;
   mesSeleccionado: {mes: number, año: number} | null;
-  showMesesMenu: boolean;
   consultarMesEspecifico: (mes: number, año: number) => void;
-  setShowMesesMenu: (show: boolean) => void;
   setError: (error: string | null) => void;
   setSuccessMessage: (msg: string | null) => void;
   esFrigorifico: boolean;

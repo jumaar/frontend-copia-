@@ -45,7 +45,7 @@ const HistorialTiendaAdminPage: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element).closest('.meses-dropdown')) {
+      if (!(event.target as Element).closest('.dropdown')) {
         setShowCiudadMenu(false);
         setShowTiendaMenu(false);
       }

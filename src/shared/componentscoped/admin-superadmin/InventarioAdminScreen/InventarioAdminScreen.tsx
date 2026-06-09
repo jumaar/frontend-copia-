@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLogisticaInventario } from '../../admin-superadmin-logistica/useLogisticaInventario';
 import InventarioView from '../../admin-superadmin-logistica/InventarioView/InventarioView';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const InventarioAdminPage: React.FC = () => {
   const hook = useLogisticaInventario({ mode: 'admin' });
@@ -71,42 +72,18 @@ const InventarioAdminPage: React.FC = () => {
               No hay usuarios logística relacionados disponibles.
             </p>
           ) : (
-            <div className="meses-dropdown">
-              <button
-                className="dropdown-toggle"
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-              >
-                {selectedUserId && usuariosLogistica.length > 0 ? (
-                  <span>
-                    {(() => {
-                      const usuario = usuariosLogistica.find(u => u.id_usuario === selectedUserId);
-                      return usuario ? `${usuario.nombre_usuario} ${usuario.apellido_usuario} (ID: ${usuario.id_usuario})` : 'Selecciona una logística...';
-                    })()}
-                  </span>
-                ) : (
-                  <span>Selecciona una logística...</span>
-                )}
-                <span className="dropdown-arrow">▼</span>
-              </button>
-              {showUserDropdown && (
-                <div className="dropdown-menu">
-                  {usuariosLogistica.map(usuario => (
-                    <div key={usuario.id_usuario} className="dropdown-item">
-                      <span className="mes-fecha">
-                        {usuario.nombre_usuario} {usuario.apellido_usuario} (ID: {usuario.id_usuario})
-                      </span>
-                      <button
-                        className={`btn-consultar ${selectedUserId === usuario.id_usuario ? 'activo' : ''}`}
-                        onClick={() => handleSeleccionarLogistica(usuario.id_usuario)}
-                        disabled={loading}
-                      >
-                        {loading && selectedUserId === usuario.id_usuario ? 'Consultando...' : 'Consultar'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <Dropdown
+              options={usuariosLogistica.map(u => ({
+                id: u.id_usuario,
+                label: `${u.nombre_usuario} ${u.apellido_usuario} (ID: ${u.id_usuario})`,
+              }))}
+              selectedId={selectedUserId}
+              onSelect={(id) => handleSeleccionarLogistica(Number(id))}
+              placeholder="Selecciona una logística..."
+              disabled={loading}
+              variant="block"
+              actionLabel="Consultar"
+            />
           )}
           {selectedUserId && usuariosLogistica.length > 0 && (
             <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: 'var(--color-card-bg)', borderRadius: '6px', border: '1px solid var(--color-border)' }}>

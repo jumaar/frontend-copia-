@@ -1,4 +1,5 @@
 import React from 'react';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import './GestionCobro.css';
 
 interface GestionCobroProps {
@@ -10,8 +11,6 @@ interface GestionCobroProps {
   notaPago: string;
   setNotaPago: (nota: string) => void;
   procesandoPago: boolean;
-  showTipoMenu: boolean;
-  setShowTipoMenu: (show: boolean) => void;
   onProcesarPago: () => void;
   userName: string;
   saldoTotalLiquidar?: number;
@@ -43,8 +42,6 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
   notaPago,
   setNotaPago,
   procesandoPago,
-  showTipoMenu,
-  setShowTipoMenu,
   onProcesarPago,
   userName,
   saldoTotalLiquidar,
@@ -76,24 +73,15 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
 
       <div className="gestion-cobro-tipo">
         <label>Tipo de Transacción:</label>
-        <div className="meses-dropdown">
-          <button className="dropdown-toggle" onClick={() => setShowTipoMenu(!showTipoMenu)}>
-            <span>{tipoPago === 'pago' ? L.tipoTotal : tipoPago === 'abono' ? 'Abono' : 'Seleccionar tipo...'}</span>
-            <span className="dropdown-arrow">▼</span>
-          </button>
-          {showTipoMenu && (
-            <div className="dropdown-menu">
-              <div className="dropdown-item">
-                <span className="mes-fecha">{L.tipoTotal}</span>
-                <button className={`btn-consultar ${tipoPago === 'pago' ? 'activo' : ''}`} onClick={() => { setTipoPago('pago'); setShowTipoMenu(false); }}>Seleccionar</button>
-              </div>
-              <div className="dropdown-item">
-                <span className="mes-fecha">Abono</span>
-                <button className={`btn-consultar ${tipoPago === 'abono' ? 'activo' : ''}`} onClick={() => { setTipoPago('abono'); setShowTipoMenu(false); }}>Seleccionar</button>
-              </div>
-            </div>
-          )}
-        </div>
+        <Dropdown
+          options={[
+            { id: 'pago', label: L.tipoTotal },
+            { id: 'abono', label: 'Abono' },
+          ]}
+          selectedId={tipoPago || null}
+          onSelect={(id) => setTipoPago(id as 'pago' | 'abono')}
+          placeholder="Seleccionar tipo..."
+        />
       </div>
 
       {tipoPago && (

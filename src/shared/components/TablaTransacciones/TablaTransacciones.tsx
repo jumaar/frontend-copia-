@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { formatMoneda, formatFecha } from '../../config/format';
 import TransaccionesHeader from '../TransaccionesHeader/TransaccionesHeader';
-import type { MesItem } from '../MesesDropdown/MesesDropdown';
+import type { MesItem } from '../../types/cuentas-tienda.types';
 import './TablaTransacciones.css';
 
 interface Transaccion {

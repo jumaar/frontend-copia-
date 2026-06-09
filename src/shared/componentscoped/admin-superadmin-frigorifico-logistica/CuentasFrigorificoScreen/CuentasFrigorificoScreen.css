@@ -291,21 +291,6 @@
     font-size: 1rem;
   }
 
-  .meses-lista {
-    flex-direction: column;
-    max-height: none;
-  }
-
-  .mes-item {
-    flex-direction: column;
-    text-align: center;
-    gap: calc(var(--spacing-unit) * 0.5);
-  }
-
-  .mes-fecha {
-    min-width: auto;
-  }
-
   .resumen-financiero {
     flex-direction: column;
     gap: calc(var(--spacing-unit) * 2);
