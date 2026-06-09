@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { formatMoneda, formatFecha } from '../../config/format';
 import TransaccionesHeader from '../TransaccionesHeader/TransaccionesHeader';
+import ConsolidatedTickets from '../ConsolidatedTickets/ConsolidatedTickets';
+import type { ConsolidatedTicket } from '../ConsolidatedTickets/ConsolidatedTickets';
 import type { MesItem } from '../../types/cuentas-tienda.types';
 import './TablaTransacciones.css';
 
@@ -51,6 +53,7 @@ interface TablaTransaccionesProps {
   mesesHistoricos?: MesItem[];
   mesSeleccionado?: { mes: number; año: number } | null;
   onConsultarMes?: (mes: number, año: number) => void;
+  variant?: 'cliente' | 'proveedor';
 }
 
 const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
@@ -60,9 +63,13 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
   mesesHistoricos = [],
   mesSeleccionado = null,
   onConsultarMes,
+  variant = 'cliente',
 }) => {
   const [expandedConsolidados, setExpandedConsolidados] = useState<Set<number>>(new Set());
   const [expandedNotas, setExpandedNotas] = useState<Set<number>>(new Set());
+
+  const isProveedor = variant === 'proveedor';
+  const costoLabel = isProveedor ? 'Costo Frigorifico' : 'Costo Tienda';
 
   const toggleNota = (idTransaccion: number) => {
     const newExpanded = new Set(expandedNotas);
@@ -166,7 +173,7 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
                   <th>ID Transacción</th>
                   <th>ID Empaque</th>
                   <th>Monto</th>
-                  <th>Costo Tienda</th>
+                  <th>{costoLabel}</th>
                   <th>Fecha</th>
                   <th>Tipo</th>
                   <th>Estado</th>
@@ -211,100 +218,14 @@ const TablaTransacciones: React.FC<TablaTransaccionesProps> = ({
       )}
 
       {consolidados.length > 0 && (
-        <div className="seccion-consolidados">
-          <h3 className="seccion-titulo">
-            <span className="icon">✅</span>
-            Tickets Consolidados Pagados ({consolidados.length})
-          </h3>
-          <div className="consolidados-lista">
-            {consolidados.map(({ ticket, productos }) => {
-              const isExpanded = expandedConsolidados.has(ticket.id_transaccion);
-              const gananciaTienda = productos.reduce((sum, p) => sum + (p.costo_tienda || 0), 0);
-              return (
-                <div key={ticket.id_transaccion} className="consolidado-item">
-                  <div
-                    className={`consolidado-header ${isExpanded ? 'expanded' : ''}`}
-                    onClick={() => toggleConsolidado(ticket.id_transaccion)}
-                  >
-                    <div className="consolidado-info">
-                      <button className="expand-button">
-                        {isExpanded ? '▼' : '▶'}
-                      </button>
-                      <div className="consolidado-datos">
-                        <h4>Ticket #{ticket.id_transaccion}</h4>
-                        <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
-                        <p className="consolidado-ganancia">Ganancia tienda: {formatMoneda(gananciaTienda)}</p>
-                        <p className="consolidado-fecha">{ticket.hora_transaccion ? formatFecha(ticket.hora_transaccion) : '-'}</p>
-                        <p className="consolidado-productos">
-                          {productos.length} producto{productos.length !== 1 ? 's' : ''} agrupado{productos.length !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="consolidado-badge">
-                      <span className="badge estado-consolidado">CONSOLIDADO</span>
-                    </div>
-                  </div>
-
-                  {ticket.info_pago && (
-                    <div className="info-pago-section">
-                      <h6>Información del Pago</h6>
-                      <p>
-                        <strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})
-                      </p>
-                      {ticket.info_pago.nota_opcional_pago && (
-                        <p>
-                          <strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {isExpanded && (
-                    <div className="consolidado-detalle">
-                      <h5>Productos incluidos en este ticket:</h5>
-                      <div className="tabla-container">
-                        <table className="productos-table">
-                          <thead>
-                            <tr>
-                              <th>ID Transacción</th>
-                              <th>ID Empaque</th>
-                              <th>Monto</th>
-                              <th>Costo Tienda</th>
-                              <th>Fecha</th>
-                              <th>Nota</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {productos.map(producto => (
-                              <tr key={producto.id_transaccion} className="fila-pagada">
-                                <td className="id-cell">{producto.id_transaccion}</td>
-                                <td>{producto.id_empaque || '-'}</td>
-                                <td className="monto-cell">{formatMoneda(producto.monto)}</td>
-                                <td className="monto-cell">{formatMoneda(producto.costo_tienda)}</td>
-                                <td>{producto.hora_transaccion ? formatFecha(producto.hora_transaccion) : '-'}</td>
-                                <td className={`nota-cell ${expandedNotas.has(producto.id_transaccion) ? 'nota-expanded' : ''}`}>
-                                  <span className="nota-text">{producto.nota_opcional}</span>
-                                  {producto.nota_opcional && (
-                                    <button
-                                      className="nota-toggle"
-                                      onClick={() => toggleNota(producto.id_transaccion)}
-                                    >
-                                      {expandedNotas.has(producto.id_transaccion) ? 'ver menos' : 'ver más'}
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <ConsolidatedTickets
+          variant={variant}
+          consolidados={consolidados as ConsolidatedTicket[]}
+          expandedConsolidados={expandedConsolidados}
+          toggleConsolidado={toggleConsolidado}
+          expandedNotas={expandedNotas}
+          toggleNota={toggleNota}
+        />
       )}
 
       {pendientes.length === 0 && consolidados.length === 0 && (

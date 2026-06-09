@@ -13,6 +13,8 @@ import {
   calcularLiquidacion,
 } from '../useHistorialTienda';
 import TransaccionesHeader from '../../../components/TransaccionesHeader/TransaccionesHeader';
+import ConsolidatedTickets from '../../../components/ConsolidatedTickets/ConsolidatedTickets';
+import type { ConsolidatedTicket } from '../../../components/ConsolidatedTickets/ConsolidatedTickets';
 import './HistorialTiendaView.css';
 import '../../../components/TablaTransacciones/TablaTransacciones.css';
 
@@ -190,7 +192,6 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                       return sum + liquidar;
                     }, 0) || 0;
 
-                    const totalConsolidados = consolidados.reduce((sum, c) => sum + (c.ticket.monto || 0), 0);
                     const totalPendientesTransacciones = pendientes.reduce((sum, t) => sum + (t.monto || 0), 0);
 
                     return (
@@ -204,6 +205,7 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                               <span>📦 {neveraData.empaques?.length || 0} empaques pendientes</span>
                               <span>✅ {consolidados.length} consolidados</span>
                               <span>⏳ {pendientes.length} transacciones pendientes</span>
+                              <span className="historial-nevera-stats-monto">💰 Monto Pendiente: {formatMoneda(totalEmpaques + totalPendientesTransacciones)}</span>
                             </div>
                           </div>
                           <span className="historial-nevera-toggle">{isExpanded ? '▲' : '▼'}</span>
@@ -318,83 +320,12 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>
-                              <h4 className="historial-section-title">
-                                ✅ Transacciones Consolidadas ({consolidados.length})
-                              </h4>
-                              {consolidados.length === 0 ? (
-                                <p className="historial-empty-text">No hay transacciones consolidadas en este período.</p>
-                              ) : (
-                                <div className="consolidados-lista">
-                                  {consolidados.map(({ ticket, productos }) => {
-                                    const isConsExpanded = expandedConsolidados.has(ticket.id_transaccion);
-                                    const gananciaTienda = productos.reduce((s, p) => s + (p.costo_tienda || 0), 0);
-                                    return (
-                                      <div key={ticket.id_transaccion} className="consolidado-item">
-                                        <div
-                                          className={`consolidado-header ${isConsExpanded ? 'expanded' : ''}`}
-                                          onClick={() => toggleConsolidado(ticket.id_transaccion)}
-                                        >
-                                          <div className="consolidado-info">
-                                            <button className="expand-button">{isConsExpanded ? '▼' : '▶'}</button>
-                                            <div className="consolidado-datos">
-                                              <h4>Ticket #{ticket.id_transaccion}</h4>
-                                              <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
-                                              <p className="consolidado-ganancia">Ganancia tienda: {formatMoneda(gananciaTienda)}</p>
-                                              <p className="consolidado-fecha">{ticket.hora_transaccion ? formatFecha(ticket.hora_transaccion) : '-'}</p>
-                                              <p className="consolidado-productos">
-                                                {productos.length} producto{productos.length !== 1 ? 's' : ''} agrupado{productos.length !== 1 ? 's' : ''}
-                                              </p>
-                                            </div>
-                                          </div>
-                                          <div className="consolidado-badge">
-                                            <span className="badge estado-consolidado">CONSOLIDADO</span>
-                                          </div>
-                                        </div>
-                                        {ticket.info_pago && (
-                                          <div className="info-pago-section">
-                                            <h6>Información del Pago</h6>
-                                            <p><strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})</p>
-                                            {ticket.info_pago.nota_opcional_pago && (
-                                              <p><strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}</p>
-                                            )}
-                                          </div>
-                                        )}
-                                        {isConsExpanded && (
-                                          <div className="consolidado-detalle">
-                                            <h5>Productos incluidos en este ticket:</h5>
-                                            <div className="tabla-container">
-                                              <table className="productos-table">
-                                                <thead>
-                                                  <tr>
-                                                    <th>ID Transacción</th>
-                                                    <th>ID Empaque</th>
-                                                    <th>Monto</th>
-                                                    <th>Costo Tienda</th>
-                                                    <th>Fecha</th>
-                                                    <th>Nota</th>
-                                                  </tr>
-                                                </thead>
-                                                <tbody>
-                                                  {productos.map(prod => (
-                                                    <tr key={prod.id_transaccion} className="fila-pagada">
-                                                      <td className="id-cell">{prod.id_transaccion}</td>
-                                                      <td>{prod.id_empaque || '-'}</td>
-                                                      <td className="monto-cell">{formatMoneda(prod.monto)}</td>
-                                                      <td className="monto-cell">{formatMoneda(prod.costo_tienda ?? 0)}</td>
-                                                      <td>{prod.hora_transaccion ? formatFecha(prod.hora_transaccion) : '-'}</td>
-                                                      <td className="nota-cell"><span className="nota-text">{prod.nota_opcional}</span></td>
-                                                    </tr>
-                                                  ))}
-                                                </tbody>
-                                              </table>
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
+                              <ConsolidatedTickets
+                                variant="cliente"
+                                consolidados={consolidados as ConsolidatedTicket[]}
+                                expandedConsolidados={expandedConsolidados}
+                                toggleConsolidado={toggleConsolidado}
+                              />
                             </div>
 
                             {pendientes.length > 0 && (
@@ -432,30 +363,6 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
                                 </div>
                               </div>
                             )}
-
-                            <div className="historial-resumen-nevera">
-                              <h4 className="historial-section-title">📋 Resumen Nevera #{neveraData.nevera.id_nevera}</h4>
-                              <div className="historial-resumen-grid">
-                                <div className="historial-resumen-item">
-                                  <span className="historial-resumen-label">📦 Empaques Pendientes</span>
-                                  <div className="historial-resumen-value">{neveraData.empaques?.length || 0} ({formatMoneda(totalEmpaques)})</div>
-                                </div>
-                                <div className="historial-resumen-item">
-                                  <span className="historial-resumen-label">✅ Consolidados</span>
-                                  <div className="historial-resumen-value">{consolidados.length} ({formatMoneda(totalConsolidados)})</div>
-                                </div>
-                                <div className="historial-resumen-item">
-                                  <span className="historial-resumen-label">⏳ Pendientes</span>
-                                  <div className="historial-resumen-value">{pendientes.length} ({formatMoneda(totalPendientesTransacciones)})</div>
-                                </div>
-                                <div className="historial-resumen-item">
-                                  <span className="historial-resumen-label">💰 Total</span>
-                                  <div className="historial-resumen-value" style={{ color: 'var(--color-primary)' }}>
-                                    {formatMoneda(totalEmpaques + totalConsolidados + totalPendientesTransacciones)}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
                           </div>
                         )}
                       </div>

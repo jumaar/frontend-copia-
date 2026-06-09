@@ -141,6 +141,7 @@ const CuentasFrigorificoView: React.FC<CuentasFrigorificoViewProps> = ({
             mesesHistoricos={mesesHistoricos}
             mesSeleccionado={mesSeleccionado}
             onConsultarMes={consultarMesEspecifico}
+            variant="proveedor"
           />
         </div>
       )}
