@@ -130,60 +130,7 @@ ul, ol {
   background-color: var(--color-hover-bg);
 }
 
-/* ===== Dropdown (componente genérico global) ===== */
-.dropdown-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(var(--spacing-unit) * 2);
-  width: auto;
-  min-width: 260px;
-  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
-  font-size: 0.9rem;
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.dropdown-toggle:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-}
-
-.dropdown-toggle:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.dropdown-arrow {
-  transition: transform 0.3s ease;
-  font-size: 0.8rem;
-}
-
-.dropdown-arrow.open {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--color-card-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-lg);
-  z-index: 999999;
-  margin-top: calc(var(--spacing-unit) * 0.5);
-  max-height: 300px;
-  overflow-y: auto;
-}
-
+/* ===== Botón de acción global ===== */
 .btn-consultar {
   font-size: 0.8rem;
   padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1);
