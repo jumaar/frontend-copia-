@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type {
   HistorialTiendaResponse,
+  HistorialNeveraData,
   MesItem,
   ResumenGlobal,
 } from '../../../types/historial-tienda.types';
@@ -34,6 +35,25 @@ interface HistorialTiendaViewProps {
   setSuccessMessage: (msg: string | null) => void;
 }
 
+interface TiendaGroup {
+  id_tienda: number;
+  nombre_tienda: string;
+  neveras: HistorialNeveraData[];
+}
+
+function agruparNeverasPorTienda(neveras: HistorialNeveraData[]): TiendaGroup[] {
+  const groupsMap = new Map<number, TiendaGroup>();
+  neveras.forEach(neveraData => {
+    const tiendaId = neveraData.nevera.id_tienda;
+    const tiendaNombre = neveraData.nevera.nombre_tienda;
+    if (!groupsMap.has(tiendaId)) {
+      groupsMap.set(tiendaId, { id_tienda: tiendaId, nombre_tienda: tiendaNombre, neveras: [] });
+    }
+    groupsMap.get(tiendaId)!.neveras.push(neveraData);
+  });
+  return Array.from(groupsMap.values());
+}
+
 const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
   historial,
   loading,
@@ -54,6 +74,8 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
 }) => {
   const infoUsuario = historial;
   const neveras = historial?.neveras || [];
+
+  const tiendaGroups = useMemo(() => agruparNeverasPorTienda(neveras), [neveras]);
 
   return (
     <div className="cuentas-page">
@@ -104,6 +126,10 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
           {resumenGlobal && neveras.length > 0 && (
             <div className="resumen-financiero">
               <div className="resumen-item">
+                <span className="resumen-label">🏪 Tiendas hijas</span>
+                <span className="resumen-value">{tiendaGroups.length}</span>
+              </div>
+              <div className="resumen-item">
                 <span className="resumen-label">❄️ Total Neveras</span>
                 <span className="resumen-value">{resumenGlobal.totalNeveras}</span>
               </div>
@@ -140,289 +166,304 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
             </div>
           )}
 
-          <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {neveras.map(neveraData => {
-              const isExpanded = expandedNeveras.has(neveraData.nevera.id_nevera);
-              const consolidados = agruparConsolidados(neveraData.transacciones);
-              const pendientes = filtrarPendientes(neveraData.transacciones);
+          <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {tiendaGroups.map(group => (
+              <div key={group.id_tienda} className="historial-tienda-group">
+                <div className="historial-tienda-group-header">
+                  <h3 className="historial-tienda-group-title">
+                    🏪 {group.nombre_tienda}
+                  </h3>
+                  <span className="historial-tienda-group-meta">
+                    {group.neveras.length} nevera{group.neveras.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
 
-              const totalEmpaques = neveraData.empaques?.reduce((sum: number, e: any) => {
-                const precioTienda = parseFloat(neveraData.productos?.find((p: any) => p.id_producto === e.id_producto)?.precio_tienda || '0') || 0;
-                const { liquidar } = calcularLiquidacion(e, precioTienda, neveraData.promociones);
-                return sum + liquidar;
-              }, 0) || 0;
+                <div className="historial-tienda-group-neveras">
+                  {group.neveras.map(neveraData => {
+                    const isExpanded = expandedNeveras.has(neveraData.nevera.id_nevera);
+                    const consolidados = agruparConsolidados(neveraData.transacciones);
+                    const pendientes = filtrarPendientes(neveraData.transacciones);
 
-              const totalConsolidados = consolidados.reduce((sum, c) => sum + (c.ticket.monto || 0), 0);
-              const totalPendientesTransacciones = pendientes.reduce((sum, t) => sum + (t.monto || 0), 0);
+                    const totalEmpaques = neveraData.empaques?.reduce((sum: number, e: any) => {
+                      const precioTienda = parseFloat(neveraData.productos?.find((p: any) => p.id_producto === e.id_producto)?.precio_tienda || '0') || 0;
+                      const { liquidar } = calcularLiquidacion(e, precioTienda, neveraData.promociones);
+                      return sum + liquidar;
+                    }, 0) || 0;
 
-              return (
-                <div key={neveraData.nevera.id_nevera} className="historial-nevera-card">
-                  <button type="button" className="historial-nevera-header-btn" onClick={() => toggleNevera(neveraData.nevera.id_nevera)}>
-                    <div>
-                      <h3 className="historial-nevera-title">
-                        ❄️ Nevera #{neveraData.nevera.id_nevera} — {neveraData.nevera.nombre_tienda}
-                      </h3>
-                      <div className="historial-nevera-stats">
-                        <span>📦 {neveraData.empaques?.length || 0} empaques pendientes</span>
-                        <span>✅ {consolidados.length} consolidados</span>
-                        <span>⏳ {pendientes.length} transacciones pendientes</span>
-                      </div>
-                    </div>
-                    <span className="historial-nevera-toggle">{isExpanded ? '▲' : '▼'}</span>
-                  </button>
+                    const totalConsolidados = consolidados.reduce((sum, c) => sum + (c.ticket.monto || 0), 0);
+                    const totalPendientesTransacciones = pendientes.reduce((sum, t) => sum + (t.monto || 0), 0);
 
-                  {isExpanded && (
-                    <div className="historial-nevera-body">
-                      <div style={{ marginBottom: '1.5rem' }}>
-                        <h4 className="historial-section-title">📦 Empaques Pendientes de Liquidación</h4>
-                        {!neveraData.empaques?.length ? (
-                          <p className="historial-empty-text">No hay empaques pendientes para liquidar.</p>
-                        ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {neveraData.productos?.map((producto: any) => {
-                              const empaquesProducto = neveraData.empaques?.filter((e: any) => e.id_producto === producto.id_producto) || [];
-                              if (empaquesProducto.length === 0) return null;
-                              const precioTiendaPorcentaje = parseFloat(producto.precio_tienda) || 0;
-                              const totalPrecio = empaquesProducto.reduce((s: number, e: any) => s + e.precio_venta_total, 0);
-                              const { descuento: td, precioConDescuento: tpcd, tiendaComision: tcom, liquidar: tliq } = empaquesProducto.reduce((acc: any, e: any) => {
-                                const r = calcularLiquidacion(e, precioTiendaPorcentaje, neveraData.promociones);
-                                return {
-                                  descuento: acc.descuento + r.descuento,
-                                  precioConDescuento: acc.precioConDescuento + r.precioConDescuento,
-                                  tiendaComision: acc.tiendaComision + r.tiendaComision,
-                                  liquidar: acc.liquidar + r.liquidar,
-                                };
-                              }, { descuento: 0, precioConDescuento: 0, tiendaComision: 0, liquidar: 0 });
-                              const key = `${neveraData.nevera.id_nevera}_${producto.id_producto}`;
-                              const isProdExpanded = expandedProductos.has(key);
-
-                              return (
-                                <div key={key} className="historial-producto-card">
-                                  <button type="button" className="historial-producto-header" onClick={() => toggleProducto(key)}>
-                                    <div>
-                                      <span className="historial-producto-name">{producto.nombre_producto} (ID: {producto.id_producto})</span>
-                                      <div className="historial-producto-meta">
-                                        <span>{empaquesProducto.length} empaques</span>
-                                        <span>Venta: {formatMoneda(totalPrecio)}</span>
-                                        <span style={{ color: td > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
-                                          Desc: {formatMoneda(td)}
-                                        </span>
-                                        <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>
-                                          Liquidar: {formatMoneda(tliq)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <span style={{ color: 'var(--color-text-secondary)' }}>{isProdExpanded ? '▲' : '▼'}</span>
-                                  </button>
-                                  {isProdExpanded && (
-                                    <div className="historial-producto-body">
-                                      <table className="historial-table">
-                                        <thead>
-                                          <tr className="historial-table-header">
-                                            <th style={{ textAlign: 'left', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>ID</th>
-                                            <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Precio Venta</th>
-                                            <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Desc</th>
-                                            <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Venta Final</th>
-                                            <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Comision</th>
-                                            <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Liquidar</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {empaquesProducto.map((empaque: any, idx: number) => {
-                                            const r = calcularLiquidacion(empaque, precioTiendaPorcentaje, neveraData.promociones);
-                                            const promoAplicada = empaque.promocion ? neveraData.promociones?.find((p: any) => p.id_promocion === empaque.promocion) : null;
-                                            return (
-                                              <tr key={idx} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                                                <td style={{ padding: '0.4rem', color: 'var(--color-text-primary)' }}>
-                                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                                    <span>{empaque.id_empaque}</span>
-                                                    {promoAplicada && (
-                                                      <span title={`${promoAplicada.nombre} (${promoAplicada.valor}%)`} className="badge estado-consolidado" style={{ fontSize: '0.65rem' }}>
-                                                        -{promoAplicada.valor}%
-                                                      </span>
-                                                    )}
-                                                  </div>
-                                                </td>
-                                                <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-text-primary)' }}>{formatMoneda(empaque.precio_venta_total)}</td>
-                                                <td style={{ padding: '0.4rem', textAlign: 'right', color: r.descuento > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
-                                                  {r.descuento > 0 ? `-${formatMoneda(r.descuento)}` : '-'}
-                                                </td>
-                                                <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-success)' }}>{formatMoneda(r.precioConDescuento)}</td>
-                                                <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-error)' }}>{formatMoneda(r.tiendaComision)}</td>
-                                                <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-primary)', fontWeight: '600' }}>{formatMoneda(r.liquidar)}</td>
-                                              </tr>
-                                            );
-                                          })}
-                                        </tbody>
-                                        <tfoot>
-                                          <tr className="historial-table-footer">
-                                            <td style={{ padding: '0.4rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>TOTAL</td>
-                                            <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>{formatMoneda(totalPrecio)}</td>
-                                            <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-warning)' }}>{formatMoneda(td)}</td>
-                                            <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-success)' }}>{formatMoneda(tpcd)}</td>
-                                            <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-error)' }}>{formatMoneda(tcom)}</td>
-                                            <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-primary)' }}>{formatMoneda(tliq)}</td>
-                                          </tr>
-                                        </tfoot>
-                                      </table>
-                                      {precioTiendaPorcentaje > 0 && (
-                                        <div className="historial-comision">
-                                          * Comisión tienda: {precioTiendaPorcentaje}%
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      <div style={{ marginBottom: '1.5rem' }}>
-                        <h4 className="historial-section-title">
-                          ✅ Transacciones Consolidadas ({consolidados.length})
-                        </h4>
-                        {consolidados.length === 0 ? (
-                          <p className="historial-empty-text">No hay transacciones consolidadas en este período.</p>
-                        ) : (
-                          <div className="consolidados-lista">
-                            {consolidados.map(({ ticket, productos }) => {
-                              const isConsExpanded = expandedConsolidados.has(ticket.id_transaccion);
-                              const gananciaTienda = productos.reduce((s, p) => s + (p.costo_tienda || 0), 0);
-                              return (
-                                <div key={ticket.id_transaccion} className="consolidado-item">
-                                  <div
-                                    className={`consolidado-header ${isConsExpanded ? 'expanded' : ''}`}
-                                    onClick={() => toggleConsolidado(ticket.id_transaccion)}
-                                  >
-                                    <div className="consolidado-info">
-                                      <button className="expand-button">{isConsExpanded ? '▼' : '▶'}</button>
-                                      <div className="consolidado-datos">
-                                        <h4>Ticket #{ticket.id_transaccion}</h4>
-                                        <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
-                                        <p className="consolidado-ganancia">Ganancia tienda: {formatMoneda(gananciaTienda)}</p>
-                                        <p className="consolidado-fecha">{ticket.hora_transaccion ? formatFecha(ticket.hora_transaccion) : '-'}</p>
-                                        <p className="consolidado-productos">
-                                          {productos.length} producto{productos.length !== 1 ? 's' : ''} agrupado{productos.length !== 1 ? 's' : ''}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div className="consolidado-badge">
-                                      <span className="badge estado-consolidado">CONSOLIDADO</span>
-                                    </div>
-                                  </div>
-                                  {ticket.info_pago && (
-                                    <div className="info-pago-section">
-                                      <h6>Información del Pago</h6>
-                                      <p><strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})</p>
-                                      {ticket.info_pago.nota_opcional_pago && (
-                                        <p><strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}</p>
-                                      )}
-                                    </div>
-                                  )}
-                                  {isConsExpanded && (
-                                    <div className="consolidado-detalle">
-                                      <h5>Productos incluidos en este ticket:</h5>
-                                      <div className="tabla-container">
-                                        <table className="productos-table">
-                                          <thead>
-                                            <tr>
-                                              <th>ID Transacción</th>
-                                              <th>ID Empaque</th>
-                                              <th>Monto</th>
-                                              <th>Costo Tienda</th>
-                                              <th>Fecha</th>
-                                              <th>Nota</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {productos.map(prod => (
-                                              <tr key={prod.id_transaccion} className="fila-pagada">
-                                                <td className="id-cell">{prod.id_transaccion}</td>
-                                                <td>{prod.id_empaque || '-'}</td>
-                                                <td className="monto-cell">{formatMoneda(prod.monto)}</td>
-                                                <td className="monto-cell">{formatMoneda(prod.costo_tienda ?? 0)}</td>
-                                                <td>{prod.hora_transaccion ? formatFecha(prod.hora_transaccion) : '-'}</td>
-                                                <td className="nota-cell"><span className="nota-text">{prod.nota_opcional}</span></td>
-                                              </tr>
-                                            ))}
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      {pendientes.length > 0 && (
-                        <div style={{ marginBottom: '1.5rem' }}>
-                          <h4 className="historial-section-title">⏳ Transacciones Pendientes ({pendientes.length})</h4>
-                          <div className="tabla-container">
-                            <table className="transacciones-table">
-                              <thead>
-                                <tr>
-                                  <th>ID</th>
-                                  <th>ID Empaque</th>
-                                  <th>Monto</th>
-                                  <th>Costo Tienda</th>
-                                  <th>Fecha</th>
-                                  <th>Tipo</th>
-                                  <th>Estado</th>
-                                  <th>Nota</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {pendientes.map(t => (
-                                  <tr key={t.id_transaccion} className="fila-pendiente">
-                                    <td className="id-cell">{t.id_transaccion}</td>
-                                    <td>{t.id_empaque ? t.id_empaque : <span className="badge estado-pendiente">Saldo</span>}</td>
-                                    <td className="monto-cell">{formatMoneda(t.monto)}</td>
-                                    <td className="monto-cell">{formatMoneda(t.costo_tienda ?? 0)}</td>
-                                    <td>{t.hora_transaccion ? formatFecha(t.hora_transaccion) : '-'}</td>
-                                    <td><span className="badge tipo-venta">{t.nombre_tipo_transaccion}</span></td>
-                                    <td><span className="badge estado-pendiente">PENDIENTE</span></td>
-                                    <td className="nota-cell"><span className="nota-text">{t.nota_opcional}</span></td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="historial-resumen-nevera">
-                        <h4 className="historial-section-title">📋 Resumen Nevera #{neveraData.nevera.id_nevera}</h4>
-                        <div className="historial-resumen-grid">
-                          <div className="historial-resumen-item">
-                            <span className="historial-resumen-label">📦 Empaques Pendientes</span>
-                            <div className="historial-resumen-value">{neveraData.empaques?.length || 0} ({formatMoneda(totalEmpaques)})</div>
-                          </div>
-                          <div className="historial-resumen-item">
-                            <span className="historial-resumen-label">✅ Consolidados</span>
-                            <div className="historial-resumen-value">{consolidados.length} ({formatMoneda(totalConsolidados)})</div>
-                          </div>
-                          <div className="historial-resumen-item">
-                            <span className="historial-resumen-label">⏳ Pendientes</span>
-                            <div className="historial-resumen-value">{pendientes.length} ({formatMoneda(totalPendientesTransacciones)})</div>
-                          </div>
-                          <div className="historial-resumen-item">
-                            <span className="historial-resumen-label">💰 Total</span>
-                            <div className="historial-resumen-value" style={{ color: 'var(--color-primary)' }}>
-                              {formatMoneda(totalEmpaques + totalConsolidados + totalPendientesTransacciones)}
+                    return (
+                      <div key={neveraData.nevera.id_nevera} className="historial-nevera-card">
+                        <button type="button" className="historial-nevera-header-btn" onClick={() => toggleNevera(neveraData.nevera.id_nevera)}>
+                          <div>
+                            <h3 className="historial-nevera-title">
+                              ❄️ Nevera #{neveraData.nevera.id_nevera}
+                            </h3>
+                            <div className="historial-nevera-stats">
+                              <span>📦 {neveraData.empaques?.length || 0} empaques pendientes</span>
+                              <span>✅ {consolidados.length} consolidados</span>
+                              <span>⏳ {pendientes.length} transacciones pendientes</span>
                             </div>
                           </div>
-                        </div>
+                          <span className="historial-nevera-toggle">{isExpanded ? '▲' : '▼'}</span>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="historial-nevera-body">
+                            <div style={{ marginBottom: '1.5rem' }}>
+                              <h4 className="historial-section-title">📦 Empaques Pendientes de Liquidación</h4>
+                              {!neveraData.empaques?.length ? (
+                                <p className="historial-empty-text">No hay empaques pendientes para liquidar.</p>
+                              ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                  {neveraData.productos?.map((producto: any) => {
+                                    const empaquesProducto = neveraData.empaques?.filter((e: any) => e.id_producto === producto.id_producto) || [];
+                                    if (empaquesProducto.length === 0) return null;
+                                    const precioTiendaPorcentaje = parseFloat(producto.precio_tienda) || 0;
+                                    const totalPrecio = empaquesProducto.reduce((s: number, e: any) => s + e.precio_venta_total, 0);
+                                    const { descuento: td, precioConDescuento: tpcd, tiendaComision: tcom, liquidar: tliq } = empaquesProducto.reduce((acc: any, e: any) => {
+                                      const r = calcularLiquidacion(e, precioTiendaPorcentaje, neveraData.promociones);
+                                      return {
+                                        descuento: acc.descuento + r.descuento,
+                                        precioConDescuento: acc.precioConDescuento + r.precioConDescuento,
+                                        tiendaComision: acc.tiendaComision + r.tiendaComision,
+                                        liquidar: acc.liquidar + r.liquidar,
+                                      };
+                                    }, { descuento: 0, precioConDescuento: 0, tiendaComision: 0, liquidar: 0 });
+                                    const key = `${neveraData.nevera.id_nevera}_${producto.id_producto}`;
+                                    const isProdExpanded = expandedProductos.has(key);
+
+                                    return (
+                                      <div key={key} className="historial-producto-card">
+                                        <button type="button" className="historial-producto-header" onClick={() => toggleProducto(key)}>
+                                          <div>
+                                            <span className="historial-producto-name">{producto.nombre_producto} (ID: {producto.id_producto})</span>
+                                            <div className="historial-producto-meta">
+                                              <span>{empaquesProducto.length} empaques</span>
+                                              <span>Venta: {formatMoneda(totalPrecio)}</span>
+                                              <span style={{ color: td > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
+                                                Desc: {formatMoneda(td)}
+                                              </span>
+                                              <span style={{ color: 'var(--color-primary)', fontWeight: '600' }}>
+                                                Liquidar: {formatMoneda(tliq)}
+                                              </span>
+                                            </div>
+                                          </div>
+                                          <span style={{ color: 'var(--color-text-secondary)' }}>{isProdExpanded ? '▲' : '▼'}</span>
+                                        </button>
+                                        {isProdExpanded && (
+                                          <div className="historial-producto-body">
+                                            <table className="historial-table">
+                                              <thead>
+                                                <tr className="historial-table-header">
+                                                  <th style={{ textAlign: 'left', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>ID</th>
+                                                  <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Precio Venta</th>
+                                                  <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Desc</th>
+                                                  <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Venta Final</th>
+                                                  <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Comision</th>
+                                                  <th style={{ textAlign: 'right', padding: '0.4rem', color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>Liquidar</th>
+                                                </tr>
+                                              </thead>
+                                              <tbody>
+                                                {empaquesProducto.map((empaque: any, idx: number) => {
+                                                  const r = calcularLiquidacion(empaque, precioTiendaPorcentaje, neveraData.promociones);
+                                                  const promoAplicada = empaque.promocion ? neveraData.promociones?.find((p: any) => p.id_promocion === empaque.promocion) : null;
+                                                  return (
+                                                    <tr key={idx} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                                                      <td style={{ padding: '0.4rem', color: 'var(--color-text-primary)' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                          <span>{empaque.id_empaque}</span>
+                                                          {promoAplicada && (
+                                                            <span title={`${promoAplicada.nombre} (${promoAplicada.valor}%)`} className="badge estado-consolidado" style={{ fontSize: '0.65rem' }}>
+                                                              -{promoAplicada.valor}%
+                                                            </span>
+                                                          )}
+                                                        </div>
+                                                      </td>
+                                                      <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-text-primary)' }}>{formatMoneda(empaque.precio_venta_total)}</td>
+                                                      <td style={{ padding: '0.4rem', textAlign: 'right', color: r.descuento > 0 ? 'var(--color-warning)' : 'var(--color-text-secondary)' }}>
+                                                        {r.descuento > 0 ? `-${formatMoneda(r.descuento)}` : '-'}
+                                                      </td>
+                                                      <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-success)' }}>{formatMoneda(r.precioConDescuento)}</td>
+                                                      <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-error)' }}>{formatMoneda(r.tiendaComision)}</td>
+                                                      <td style={{ padding: '0.4rem', textAlign: 'right', color: 'var(--color-primary)', fontWeight: '600' }}>{formatMoneda(r.liquidar)}</td>
+                                                    </tr>
+                                                  );
+                                                })}
+                                              </tbody>
+                                              <tfoot>
+                                                <tr className="historial-table-footer">
+                                                  <td style={{ padding: '0.4rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>TOTAL</td>
+                                                  <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>{formatMoneda(totalPrecio)}</td>
+                                                  <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-warning)' }}>{formatMoneda(td)}</td>
+                                                  <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-success)' }}>{formatMoneda(tpcd)}</td>
+                                                  <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-error)' }}>{formatMoneda(tcom)}</td>
+                                                  <td style={{ padding: '0.4rem', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-primary)' }}>{formatMoneda(tliq)}</td>
+                                                </tr>
+                                              </tfoot>
+                                            </table>
+                                            {precioTiendaPorcentaje > 0 && (
+                                              <div className="historial-comision">
+                                                * Comisión tienda: {precioTiendaPorcentaje}%
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                              <h4 className="historial-section-title">
+                                ✅ Transacciones Consolidadas ({consolidados.length})
+                              </h4>
+                              {consolidados.length === 0 ? (
+                                <p className="historial-empty-text">No hay transacciones consolidadas en este período.</p>
+                              ) : (
+                                <div className="consolidados-lista">
+                                  {consolidados.map(({ ticket, productos }) => {
+                                    const isConsExpanded = expandedConsolidados.has(ticket.id_transaccion);
+                                    const gananciaTienda = productos.reduce((s, p) => s + (p.costo_tienda || 0), 0);
+                                    return (
+                                      <div key={ticket.id_transaccion} className="consolidado-item">
+                                        <div
+                                          className={`consolidado-header ${isConsExpanded ? 'expanded' : ''}`}
+                                          onClick={() => toggleConsolidado(ticket.id_transaccion)}
+                                        >
+                                          <div className="consolidado-info">
+                                            <button className="expand-button">{isConsExpanded ? '▼' : '▶'}</button>
+                                            <div className="consolidado-datos">
+                                              <h4>Ticket #{ticket.id_transaccion}</h4>
+                                              <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
+                                              <p className="consolidado-ganancia">Ganancia tienda: {formatMoneda(gananciaTienda)}</p>
+                                              <p className="consolidado-fecha">{ticket.hora_transaccion ? formatFecha(ticket.hora_transaccion) : '-'}</p>
+                                              <p className="consolidado-productos">
+                                                {productos.length} producto{productos.length !== 1 ? 's' : ''} agrupado{productos.length !== 1 ? 's' : ''}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <div className="consolidado-badge">
+                                            <span className="badge estado-consolidado">CONSOLIDADO</span>
+                                          </div>
+                                        </div>
+                                        {ticket.info_pago && (
+                                          <div className="info-pago-section">
+                                            <h6>Información del Pago</h6>
+                                            <p><strong>Cobrado por:</strong> {ticket.info_pago.nombre_usuario_pago} (ID: {ticket.info_pago.id_usuario_pago})</p>
+                                            {ticket.info_pago.nota_opcional_pago && (
+                                              <p><strong>Nota:</strong> {ticket.info_pago.nota_opcional_pago}</p>
+                                            )}
+                                          </div>
+                                        )}
+                                        {isConsExpanded && (
+                                          <div className="consolidado-detalle">
+                                            <h5>Productos incluidos en este ticket:</h5>
+                                            <div className="tabla-container">
+                                              <table className="productos-table">
+                                                <thead>
+                                                  <tr>
+                                                    <th>ID Transacción</th>
+                                                    <th>ID Empaque</th>
+                                                    <th>Monto</th>
+                                                    <th>Costo Tienda</th>
+                                                    <th>Fecha</th>
+                                                    <th>Nota</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  {productos.map(prod => (
+                                                    <tr key={prod.id_transaccion} className="fila-pagada">
+                                                      <td className="id-cell">{prod.id_transaccion}</td>
+                                                      <td>{prod.id_empaque || '-'}</td>
+                                                      <td className="monto-cell">{formatMoneda(prod.monto)}</td>
+                                                      <td className="monto-cell">{formatMoneda(prod.costo_tienda ?? 0)}</td>
+                                                      <td>{prod.hora_transaccion ? formatFecha(prod.hora_transaccion) : '-'}</td>
+                                                      <td className="nota-cell"><span className="nota-text">{prod.nota_opcional}</span></td>
+                                                    </tr>
+                                                  ))}
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+
+                            {pendientes.length > 0 && (
+                              <div style={{ marginBottom: '1.5rem' }}>
+                                <h4 className="historial-section-title">⏳ Transacciones Pendientes ({pendientes.length})</h4>
+                                <div className="tabla-container">
+                                  <table className="transacciones-table">
+                                    <thead>
+                                      <tr>
+                                        <th>ID</th>
+                                        <th>ID Empaque</th>
+                                        <th>Monto</th>
+                                        <th>Costo Tienda</th>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Estado</th>
+                                        <th>Nota</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {pendientes.map(t => (
+                                        <tr key={t.id_transaccion} className="fila-pendiente">
+                                          <td className="id-cell">{t.id_transaccion}</td>
+                                          <td>{t.id_empaque ? t.id_empaque : <span className="badge estado-pendiente">Saldo</span>}</td>
+                                          <td className="monto-cell">{formatMoneda(t.monto)}</td>
+                                          <td className="monto-cell">{formatMoneda(t.costo_tienda ?? 0)}</td>
+                                          <td>{t.hora_transaccion ? formatFecha(t.hora_transaccion) : '-'}</td>
+                                          <td><span className="badge tipo-venta">{t.nombre_tipo_transaccion}</span></td>
+                                          <td><span className="badge estado-pendiente">PENDIENTE</span></td>
+                                          <td className="nota-cell"><span className="nota-text">{t.nota_opcional}</span></td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="historial-resumen-nevera">
+                              <h4 className="historial-section-title">📋 Resumen Nevera #{neveraData.nevera.id_nevera}</h4>
+                              <div className="historial-resumen-grid">
+                                <div className="historial-resumen-item">
+                                  <span className="historial-resumen-label">📦 Empaques Pendientes</span>
+                                  <div className="historial-resumen-value">{neveraData.empaques?.length || 0} ({formatMoneda(totalEmpaques)})</div>
+                                </div>
+                                <div className="historial-resumen-item">
+                                  <span className="historial-resumen-label">✅ Consolidados</span>
+                                  <div className="historial-resumen-value">{consolidados.length} ({formatMoneda(totalConsolidados)})</div>
+                                </div>
+                                <div className="historial-resumen-item">
+                                  <span className="historial-resumen-label">⏳ Pendientes</span>
+                                  <div className="historial-resumen-value">{pendientes.length} ({formatMoneda(totalPendientesTransacciones)})</div>
+                                </div>
+                                <div className="historial-resumen-item">
+                                  <span className="historial-resumen-label">💰 Total</span>
+                                  <div className="historial-resumen-value" style={{ color: 'var(--color-primary)' }}>
+                                    {formatMoneda(totalEmpaques + totalConsolidados + totalPendientesTransacciones)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       )}

@@ -17,7 +17,7 @@
   border-radius: var(--border-radius-lg);
   padding: calc(var(--spacing-unit) * 3);
   box-shadow: var(--shadow-card);
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
@@ -196,4 +196,99 @@
   margin: 0;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
+}
+
+.usuario-tienda-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-card-bg);
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.usuario-tienda-card h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-text-primary);
+  font-size: 1.15rem;
+}
+
+.usuario-tienda-contacto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.usuario-tienda-contacto p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.usuario-tienda-contacto strong {
+  color: var(--color-text-primary);
+}
+
+.usuario-tienda-resumen {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.usuario-tienda-resumen-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.usuario-tienda-resumen-label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.usuario-tienda-resumen-value {
+  font-size: 1.3rem;
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary);
+}
+
+.usuario-tienda-tiendas-list h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}
+
+.usuario-tienda-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  background-color: var(--color-hover-bg);
+  border: 1px solid var(--color-border);
+}
+
+.usuario-tienda-item + .usuario-tienda-item {
+  margin-top: 0.5rem;
+}
+
+.usuario-tienda-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.usuario-tienda-item-name {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.usuario-tienda-item-meta {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
 }

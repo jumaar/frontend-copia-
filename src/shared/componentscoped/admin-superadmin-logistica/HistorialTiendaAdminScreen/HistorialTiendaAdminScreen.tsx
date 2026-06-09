@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useHistorialTienda } from '../../admin-superadmin-logistica-tienda/useHistorialTienda';
 import HistorialTiendaView from '../../admin-superadmin-logistica-tienda/HistorialTiendaView/HistorialTiendaView';
 import TiendaSelector from '../../admin-superadmin-logistica-tienda/TiendaSelector/TiendaSelector';
@@ -8,6 +8,7 @@ const HistorialTiendaAdminPage: React.FC = () => {
     usuariosTienda,
     ciudades,
     ciudadSeleccionada,
+    usuarioSeleccionado,
     busquedaNevera,
     showTiendaMenu,
     showCiudadMenu,
@@ -41,8 +42,6 @@ const HistorialTiendaAdminPage: React.FC = () => {
     resumenGlobal,
   } = useHistorialTienda({ mode: 'admin' });
 
-  const [tiendaSeleccionada, setTiendaSeleccionada] = useState<number | null>(null);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!(event.target as Element).closest('.dropdown')) {
@@ -54,16 +53,9 @@ const HistorialTiendaAdminPage: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [setShowCiudadMenu, setShowTiendaMenu]);
 
-  const handleTiendaSelect = (idTienda: number) => {
-    setTiendaSeleccionada(idTienda);
-    for (const u of usuariosTienda) {
-      const t = u.tiendas?.find(ti => ti.id_tienda === idTienda);
-      if (t) {
-        setUsuarioSeleccionado(u.id_usuario);
-        cargarHistorial(u.id_usuario, mesSeleccionado?.mes, mesSeleccionado?.año);
-        break;
-      }
-    }
+  const handleUsuarioTiendaSelect = (idUsuario: number) => {
+    setUsuarioSeleccionado(idUsuario);
+    cargarHistorial(idUsuario, mesSeleccionado?.mes, mesSeleccionado?.año);
   };
 
   if (loadingUsuarios) {
@@ -93,18 +85,20 @@ const HistorialTiendaAdminPage: React.FC = () => {
           searchLoading={loading}
           ciudades={ciudades}
           ciudadSeleccionada={ciudadSeleccionada}
-          onCiudadSelect={(c) => { setCiudadSeleccionada(c); setUsuarioSeleccionado(null); setTiendaSeleccionada(null); setShowCiudadMenu(false); }}
+          onCiudadSelect={(c) => { setCiudadSeleccionada(c); setUsuarioSeleccionado(null); setShowCiudadMenu(false); }}
           showCiudadMenu={showCiudadMenu}
           onToggleCiudadMenu={() => { setShowCiudadMenu(!showCiudadMenu); setShowTiendaMenu(false); }}
           loading={loadingUsuarios}
           mode="historial"
           usuariosTienda={usuariosTienda}
-          tiendaSeleccionada={tiendaSeleccionada}
+          tiendaSeleccionada={null}
           neveraSeleccionada={null}
           showTiendaMenu={showTiendaMenu}
           showUserInfo
           onToggleTiendaMenu={() => setShowTiendaMenu(!showTiendaMenu)}
-          onTiendaSelect={handleTiendaSelect}
+          onTiendaSelect={() => {}}
+          usuarioTiendaSeleccionado={usuarioSeleccionado}
+          onUsuarioTiendaSelect={handleUsuarioTiendaSelect}
         />
       </div>
 
