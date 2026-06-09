@@ -113,7 +113,7 @@ export const useHistorialTienda = ({ mode }: UseHistorialTiendaOptions) => {
 
   const [expandedNeveras, setExpandedNeveras] = useState<Set<number>>(new Set());
   const [expandedConsolidados, setExpandedConsolidados] = useState<Set<number>>(new Set());
-  const [expandedProductos, setExpandedProductos] = useState<Set<string>>(new Set());
+  const [expandedProductos, setExpandedProductos] = useState<Map<number, Set<number>>>(new Map());
 
   const cargarUsuariosTienda = useCallback(async () => {
     try {
@@ -199,11 +199,20 @@ export const useHistorialTienda = ({ mode }: UseHistorialTiendaOptions) => {
     });
   }, []);
 
-  const toggleProducto = useCallback((key: string) => {
+  const toggleProducto = useCallback((neveraId: number, idProducto: number) => {
     setExpandedProductos(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
+      const next = new Map(prev);
+      const set = next.get(neveraId) ?? new Set<number>();
+      if (set.has(idProducto)) {
+        set.delete(idProducto);
+      } else {
+        set.add(idProducto);
+      }
+      if (set.size > 0) {
+        next.set(neveraId, set);
+      } else {
+        next.delete(neveraId);
+      }
       return next;
     });
   }, []);
