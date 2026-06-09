@@ -128,7 +128,7 @@ const UserManagementPage: React.FC = () => {
           <p>Administrar todos los usuarios del sistema.</p>
         </div>
 
-        <div className="active-tokens-section" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
+        <div className="card active-tokens-section" style={{ marginTop: 'calc(var(--spacing-unit) * -4)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
             <h2>Tokens Activos</h2>
             <button className="button button-primary" onClick={handleOpenCreateModal}>
