@@ -4,7 +4,7 @@
 
 .consolidated-tickets .seccion-titulo {
   margin: 0 0 0.75rem 0;
-  color: var(--color-text-primary);
+  color: var(--color-text-inverse);
   font-size: 1.1rem;
 }
 

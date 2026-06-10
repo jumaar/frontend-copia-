@@ -23,6 +23,15 @@
   font-size: 2rem;
   font-weight: var(--font-weight-bold);
   margin-bottom: var(--spacing-unit);
+  background: var(--color-background);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .auth-title {
+  background: none;
+  -webkit-text-fill-color: var(--color-text-inverse);
   color: var(--color-text-inverse);
 }
 
@@ -99,10 +108,19 @@
 }
 
 .auth-footer a {
-  color: var(--color-text-inverse);
+  background: var(--color-background);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-decoration: none;
   font-weight: var(--font-weight-medium);
   transition: all 0.3s ease;
+}
+
+.dark .auth-footer a {
+  background: none;
+  -webkit-text-fill-color: var(--color-text-inverse);
+  color: var(--color-text-inverse);
 }
 
 .auth-footer a:hover {
