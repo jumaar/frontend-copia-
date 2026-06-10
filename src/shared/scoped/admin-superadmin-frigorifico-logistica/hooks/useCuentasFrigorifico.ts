@@ -278,7 +278,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     if ((esFrigorifico || esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && transacciones?.fecha_creacion_usuario) {
       const meses = generarMesesHistoricos(transacciones.fecha_creacion_usuario);
       setMesesHistoricos(meses);
-      if (meses.length > 0) {
+      if (meses.length > 0 && mesSeleccionado === null) {
         setMesSeleccionado({ mes: meses[0].mes, año: meses[0].año });
       }
     }

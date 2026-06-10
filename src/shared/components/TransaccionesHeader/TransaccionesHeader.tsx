@@ -1,6 +1,5 @@
 import React from 'react';
-import Dropdown from '../Dropdown/Dropdown';
-import type { DropdownOption } from '../Dropdown/Dropdown';
+import BuscadorMeses from '../BuscadorMeses/BuscadorMeses';
 import './TransaccionesHeader.css';
 
 interface TransaccionesHeaderProps {
@@ -53,19 +52,12 @@ const TransaccionesHeader: React.FC<TransaccionesHeaderProps> = ({
         {fechaCreacion && (
           <p className="th-fecha-creacion">{fechaCreacion}</p>
         )}
-        {mesesHistoricos.length > 0 && (
-          <Dropdown
-            options={mesesHistoricos.map(m => ({ id: `${m.mes}-${m.año}`, label: m.fecha }))}
-            selectedId={mesSeleccionado ? `${mesSeleccionado.mes}-${mesSeleccionado.año}` : null}
-            onSelect={(id) => {
-              const [mes, año] = String(id).split('-').map(Number);
-              onConsultarMes(mes, año);
-            }}
-            loading={loading}
-            placeholder="Consultar Meses Anteriores"
-            actionLabel="Consultar"
-          />
-        )}
+        <BuscadorMeses
+          mesesHistoricos={mesesHistoricos}
+          mesSeleccionado={mesSeleccionado}
+          onConsultarMes={onConsultarMes}
+          loading={loading}
+        />
       </div>
       {summary && (
         <div className="summary-info">
