@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getTransaccionesTienda, getTiendasSobrinas, procesarPago } from '../../../services/api';
+import { useMesSelector } from '../../../shared/hooks/useMesSelector';
 import { formatMoneda as fm } from '../../config/format';
 import type {
   UsuarioTienda,
@@ -9,41 +10,9 @@ import type {
   EmpaquePendiente,
   ProductoPendiente,
   Promocion,
-  MesItem,
 } from '../../../shared/types/cuentas-tienda.types';
 
 export const formatMoneda = fm;
-
-export const generarMesesHistoricos = (fechaCreacion: string): MesItem[] => {
-  const fechaInicio = new Date(fechaCreacion);
-  const fechaActual = new Date();
-
-  const meses: MesItem[] = [];
-  const fechaTemp = new Date(fechaInicio);
-
-  while (fechaTemp <= fechaActual) {
-    meses.push({
-      mes: fechaTemp.getMonth() + 1,
-      año: fechaTemp.getFullYear(),
-      fecha: fechaTemp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
-    });
-    fechaTemp.setMonth(fechaTemp.getMonth() + 1);
-  }
-
-  const mesActual = fechaActual.getMonth() + 1;
-  const añoActual = fechaActual.getFullYear();
-  const existeMesActual = meses.some(m => m.mes === mesActual && m.año === añoActual);
-
-  if (!existeMesActual) {
-    meses.push({
-      mes: mesActual,
-      año: añoActual,
-      fecha: fechaActual.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
-    });
-  }
-
-  return meses.reverse();
-};
 
 export const filtrarUsuariosPorNevera = (usuarios: UsuarioTienda[], idNevera: string): UsuarioTienda[] => {
   if (!idNevera.trim()) return usuarios;
@@ -74,8 +43,7 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [mesesHistoricos, setMesesHistoricos] = useState<MesItem[]>([]);
-  const [mesSeleccionado, setMesSeleccionado] = useState<{ mes: number; año: number } | null>(null);
+  const { mesesHistoricos, mesSeleccionado, setMesSeleccionado, setMesesHistoricos, consultarMesEspecifico: setMes } = useMesSelector(transacciones?.fecha_creacion_usuario);
   const [tipoPago, setTipoPago] = useState<'pago' | 'abono' | ''>('');
   const [montoPago, setMontoPago] = useState<number>(0);
   const [notaPago, setNotaPago] = useState<string>('');
@@ -151,8 +119,8 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
     }
   }, []);
 
-  const consultarMesEspecifico = useCallback((mes: number, año: number) => {
-    setMesSeleccionado({ mes, año });
+  const handleConsultarMes = useCallback((mes: number, año: number) => {
+    setMes(mes, año);
 
     if (mode === 'self' && user?.id) {
       cargarTransacciones(parseInt(user.id), neveraSeleccionada || undefined, mes, año);
@@ -169,7 +137,7 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
         cargarTransacciones(userId, neveraSeleccionada, mes, año);
       }
     }
-  }, [mode, user?.id, tiendaSeleccionada, neveraSeleccionada, usuariosTienda, cargarTransacciones]);
+  }, [setMes, mode, user?.id, tiendaSeleccionada, neveraSeleccionada, usuariosTienda, cargarTransacciones]);
 
   const buscarNevera = useCallback(() => {
     if (!busquedaNevera.trim()) return;
@@ -321,16 +289,6 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
   }, [user?.id, cargarUsuariosTienda]);
 
   useEffect(() => {
-    if (transacciones?.fecha_creacion_usuario) {
-      const meses = generarMesesHistoricos(transacciones.fecha_creacion_usuario);
-      setMesesHistoricos(meses);
-      if (meses.length > 0) {
-        setMesSeleccionado({ mes: meses[0].mes, año: meses[0].año });
-      }
-    }
-  }, [transacciones?.fecha_creacion_usuario]);
-
-  useEffect(() => {
     if (tipoPago === 'pago') {
       setMontoPago(saldoTotalLiquidar);
     } else if (tipoPago === 'abono') {
@@ -395,7 +353,9 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
     setSuccessMessage,
     handleSeleccionarTienda,
     buscarNevera,
-    consultarMesEspecifico,
+    consultarMesEspecifico: handleConsultarMes,
+    setMesSeleccionado,
+    setMesesHistoricos,
     manejarPago,
     cargarTransacciones,
   };

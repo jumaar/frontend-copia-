@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getTransaccionesFrigorifico, getHermanos, procesarPago } from '../../../../services/api';
+import { useMesSelector } from '../../../../shared/hooks/useMesSelector';
 import type { UsuarioHermano, TransaccionesData } from '../../../../shared/types/cuentas-frigorifico.types';
 
 interface UseCuentasFrigorificoOptions {
@@ -17,8 +18,6 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [mesesHistoricos, setMesesHistoricos] = useState<Array<{mes: number, año: number, fecha: string}>>([]);
-  const [mesSeleccionado, setMesSeleccionado] = useState<{mes: number, año: number} | null>(null);
   const [showMesesMenu, setShowMesesMenu] = useState(false);
   const [tipoPago, setTipoPago] = useState<'pago' | 'abono' | ''>('');
   const [montoPago, setMontoPago] = useState<number>(0);
@@ -38,37 +37,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     }).format(monto);
   };
 
-  const generarMesesHistoricos = (fechaCreacion: string) => {
-    const fechaInicio = new Date(fechaCreacion);
-    const fechaActual = new Date();
-
-    const meses = [];
-    const fechaTemp = new Date(fechaInicio);
-
-    while (fechaTemp <= fechaActual) {
-      meses.push({
-        mes: fechaTemp.getMonth() + 1,
-        año: fechaTemp.getFullYear(),
-        fecha: fechaTemp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
-      });
-
-      fechaTemp.setMonth(fechaTemp.getMonth() + 1);
-    }
-
-    const mesActual = fechaActual.getMonth() + 1;
-    const añoActual = fechaActual.getFullYear();
-    const existeMesActual = meses.some(m => m.mes === mesActual && m.año === añoActual);
-
-    if (!existeMesActual) {
-      meses.push({
-        mes: mesActual,
-        año: añoActual,
-        fecha: fechaActual.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
-      });
-    }
-
-    return meses.reverse();
-  };
+  const { mesesHistoricos, mesSeleccionado, setMesSeleccionado, setMesesHistoricos, consultarMesEspecifico: setMes } = useMesSelector(transacciones?.fecha_creacion_usuario);
 
   const cargarTransacciones = async (idUsuario: number, mes?: number, año?: number) => {
     try {
@@ -90,9 +59,9 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     }
   };
 
-  const consultarMesEspecifico = (mes: number, año: number) => {
+  const handleConsultarMes = (mes: number, año: number) => {
+    setMes(mes, año);
     if ((esFrigorifico && user?.id) || ((esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && usuarioSeleccionado)) {
-      setMesSeleccionado({ mes, año });
       const userId = mode === 'self' ? (user ? parseInt(user.id) : null) : usuarioSeleccionado;
       if (userId) {
         cargarTransacciones(userId, mes, año);
@@ -275,16 +244,6 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
   }, [mode, esFrigorifico, esLogistica, user?.id, user?.role]);
 
   useEffect(() => {
-    if ((esFrigorifico || esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && transacciones?.fecha_creacion_usuario) {
-      const meses = generarMesesHistoricos(transacciones.fecha_creacion_usuario);
-      setMesesHistoricos(meses);
-      if (meses.length > 0 && mesSeleccionado === null) {
-        setMesSeleccionado({ mes: meses[0].mes, año: meses[0].año });
-      }
-    }
-  }, [esFrigorifico, esLogistica, user?.role, transacciones?.fecha_creacion_usuario]);
-
-  useEffect(() => {
     if (transacciones && tipoPago === 'pago') {
       const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
       setMontoPago(saldoTotalPendientes);
@@ -320,9 +279,10 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     setShowTipoMenu,
     esFrigorifico,
     cargarTransacciones,
-    consultarMesEspecifico,
+    consultarMesEspecifico: handleConsultarMes,
     manejarPago,
     formatMoneda,
-    generarMesesHistoricos,
+    setMesSeleccionado,
+    setMesesHistoricos,
   };
 };
