@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { useCuentasTienda } from '../../admin-superadmin-logistica-tienda/hooks/useCuentasTienda';
-import CuentasTiendaView from '../../admin-superadmin-logistica-tienda/components/CuentasTiendaView/CuentasTiendaView';
-import GestionCobro from '../components/GestionCobro/GestionCobro';
-import TiendaSelector from '../../admin-superadmin-logistica-tienda/components/TiendaSelector/TiendaSelector';
+import { useCuentasTienda } from '../hooks/useCuentasTienda';
+import CuentasTiendaView from '../components/CuentasTiendaView/CuentasTiendaView';
+import GestionCobro from '../../admin-superadmin-logistica/components/GestionCobro/GestionCobro';
+import TiendaSelector from '../components/TiendaSelector/TiendaSelector';
 import Alert from '../../../components/Alert/Alert';
 
 const CuentasTiendaAdminPage: React.FC = () => {
@@ -80,6 +80,11 @@ const CuentasTiendaAdminPage: React.FC = () => {
     setNeveraSeleccionada(null);
   };
 
+  const ahora = new Date();
+  const mesActual = ahora.getMonth() + 1;
+  const añoActual = ahora.getFullYear();
+  const esMesActual = mesSeleccionado?.mes === mesActual && mesSeleccionado?.año === añoActual;
+
   if (loadingUsuarios) {
     return (
       <div className="cuentas-page">
@@ -100,7 +105,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
         </p>
 
         <TiendaSelector
-          title="SELECCIONAR TIENDA:"
+          title="SELECCIONAR NEVERA:"
           busquedaNevera={busquedaNevera}
           onBusquedaChange={setBusquedaNevera}
           onBuscar={buscarNevera}
@@ -146,7 +151,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
         />
       )}
 
-      {tiendaSeleccionada && neveraSeleccionada && transacciones && (
+      {tiendaSeleccionada && neveraSeleccionada && transacciones && esMesActual && (
         <GestionCobro
           tipoPago={tipoPago}
           setTipoPago={setTipoPago}

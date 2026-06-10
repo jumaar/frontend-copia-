@@ -81,7 +81,7 @@ const TiendaCuentasPage: React.FC = () => {
 
         {usuariosTienda.length > 0 && (
           <TiendaSelector
-            title="SELECCIONAR TIENDA:"
+            title="SELECCIONAR NEVERA:"
             busquedaNevera={busquedaNevera}
             onBusquedaChange={setBusquedaNevera}
             onBuscar={buscarNevera}

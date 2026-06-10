@@ -11,12 +11,12 @@ export const getCuentasNevera = async (id_nevera: number) => {
 };
 
 export const getNeverasSurtir = async () => {
-  const response = await apiClient.get('/logistica/surtir');
+  const response = await apiClient.get('/tiendas/');
   return response.data;
 };
 
 export const getLogisticaSurtir = async () => {
-  const response = await apiClient.get('/logistica/surtir');
+  const response = await apiClient.get('/tiendas/');
   return response.data;
 };
 

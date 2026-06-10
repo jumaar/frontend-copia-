@@ -97,6 +97,7 @@ export interface Nevera {
   nombre_tienda: string;
   direccion: string;
   ciudad?: string;
+  id_ciudad?: number;
 }
 
 export interface NeverasSurtirResponse {

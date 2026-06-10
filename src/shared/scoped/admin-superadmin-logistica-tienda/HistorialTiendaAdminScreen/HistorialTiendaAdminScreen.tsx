@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { useHistorialTienda } from '../../admin-superadmin-logistica-tienda/hooks/useHistorialTienda';
-import HistorialTiendaView from '../../admin-superadmin-logistica-tienda/components/HistorialTiendaView/HistorialTiendaView';
-import TiendaSelector from '../../admin-superadmin-logistica-tienda/components/TiendaSelector/TiendaSelector';
+import { useHistorialTienda } from '../hooks/useHistorialTienda';
+import HistorialTiendaView from '../components/HistorialTiendaView/HistorialTiendaView';
+import TiendaSelector from '../components/TiendaSelector/TiendaSelector';
 
 const HistorialTiendaAdminPage: React.FC = () => {
   const {

@@ -14,6 +14,9 @@ interface GestionCobroProps {
   onProcesarPago: () => void;
   userName: string;
   saldoTotalLiquidar?: number;
+  pendientesCount?: number;
+  onConsolidarCero?: () => void;
+  consolidandoCero?: boolean;
 }
 
 const LABELS: Record<string, { titulo: string; saldo: string; tipoTotal: string; btnTotal: string; placeholderNota: string }> = {
@@ -45,15 +48,41 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
   onProcesarPago,
   userName,
   saldoTotalLiquidar,
+  pendientesCount,
+  onConsolidarCero,
+  consolidandoCero,
 }) => {
   const L = LABELS[mode];
 
   const formatMoneda = (v: number) =>
     new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
 
+  const puedeConsolidarCero = saldoTotalLiquidar === 0 && (pendientesCount ?? 0) > 0;
+
   return (
     <div className="gestion-cobro-section">
-      <h3 className="gestion-cobro-title">{L.titulo}</h3>
+      <div className="gestion-cobro-header">
+        <h3 className="gestion-cobro-title">{L.titulo}</h3>
+        {onConsolidarCero && (
+          <button
+            className={`gestion-cobro-consolidar-cero ${puedeConsolidarCero ? 'gestion-cobro-consolidar-cero--activo' : ''}`}
+            onClick={onConsolidarCero}
+            disabled={!puedeConsolidarCero || consolidandoCero}
+            title={puedeConsolidarCero
+              ? 'Consolida todas las transacciones pendientes con un valor de $0 cuando no hay saldo por cobrar.'
+              : 'Este botón se activa cuando el saldo pendiente es $0 y existen transacciones en estado PENDIENTE.'}
+          >
+            <span className="gestion-cobro-consolidar-cero-text">
+              {consolidandoCero ? 'Consolidando...' : 'Consolidar con valor 0'}
+            </span>
+            <span className="gestion-cobro-consolidar-cero-tooltip">
+              {puedeConsolidarCero
+                ? 'Consolida todas las transacciones pendientes con un valor de $0 cuando no hay saldo por cobrar.'
+                : 'Este botón se activa cuando el saldo pendiente es $0 y existen transacciones en estado PENDIENTE.'}
+            </span>
+          </button>
+        )}
+      </div>
 
       {saldoTotalLiquidar != null && (
         <div className="gestion-cobro-saldo">
@@ -104,8 +133,8 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
                 <input
                   type="number"
                   className="gestion-cobro-input"
-                  value={montoPago || ''}
-                  onChange={e => setMontoPago(parseFloat(e.target.value) || 0)}
+                  value={montoPago ?? ''}
+                  onChange={e => setMontoPago(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                   min="0"
                 />
               </div>

@@ -72,7 +72,7 @@ const ConsolidatedTickets: React.FC<ConsolidatedTicketsProps> = ({
                     {isExpanded ? '▼' : '▶'}
                   </button>
                   <div className="consolidado-datos">
-                    <h4>Ticket #{ticket.id_transaccion}</h4>
+                    <h4>Consolidado #{ticket.id_transaccion}</h4>
                     <p className="consolidado-monto">{formatMoneda(ticket.monto)}</p>
                     {!isAdmin && (
                       <p className="consolidado-ganancia">{gananciaLabel}: {formatMoneda(gananciaTienda)}</p>

@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasFrigorifico } from '../hooks/useCuentasFrigorifico';
+import { procesarPago } from '../../../../services/api';
 import Resumen from '../../../components/Resumen/Resumen';
 import TablaTransacciones from '../../../components/TablaTransacciones/TablaTransacciones';
 import GestionCobro from '../../admin-superadmin-logistica/components/GestionCobro/GestionCobro';
@@ -44,6 +45,35 @@ const CuentasFrigorificoPage: React.FC = () => {
       .filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE')
       .reduce((sum: number, t: any) => sum + t.monto, 0);
   }, [transacciones]);
+
+  const pendientesCount = useMemo(() => {
+    if (!transacciones?.transacciones) return 0;
+    return transacciones.transacciones.filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE').length;
+  }, [transacciones]);
+
+  const [consolidandoCero, setConsolidandoCero] = useState(false);
+
+  const ahora = new Date();
+  const mesActual = ahora.getMonth() + 1;
+  const añoActual = ahora.getFullYear();
+  const esMesActual = mesSeleccionado?.mes === mesActual && mesSeleccionado?.año === añoActual;
+
+  const consolidarCero = async () => {
+    if (!usuarioSeleccionado) return;
+    try {
+      setConsolidandoCero(true);
+      setError(null);
+      const respuesta = await procesarPago(usuarioSeleccionado, 0, undefined, 'consolidación con valor 0');
+      setSuccessMessage(respuesta.message || 'Consolidación con valor 0 realizada exitosamente.');
+      await cargarTransacciones(usuarioSeleccionado);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError('Error al consolidar: ' + (err.response?.data?.message || err.message));
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setConsolidandoCero(false);
+    }
+  };
 
   const resumenItems = useMemo(() => {
     if (!transacciones) return [];
@@ -155,7 +185,7 @@ const CuentasFrigorificoPage: React.FC = () => {
         </>
       )}
 
-      {isAdmin && usuarioSeleccionado && (
+      {isAdmin && usuarioSeleccionado && esMesActual && (
         <GestionCobro
           mode="entregar"
           tipoPago={tipoPago}
@@ -168,6 +198,9 @@ const CuentasFrigorificoPage: React.FC = () => {
           onProcesarPago={manejarPago}
           userName={user?.name || ''}
           saldoTotalLiquidar={saldoPendientes}
+          pendientesCount={pendientesCount}
+          onConsolidarCero={consolidarCero}
+          consolidandoCero={consolidandoCero}
         />
       )}
     </div>
