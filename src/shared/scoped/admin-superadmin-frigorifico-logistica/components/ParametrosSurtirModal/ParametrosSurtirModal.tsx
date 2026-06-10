@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getLogisticaSurtir } from '../../../../services/api';
+import { getLogisticaSurtir } from '../../../../../services/api';
 import './ParametrosSurtirModal.css';
 
 interface Nevera {

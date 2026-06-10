@@ -1,6 +1,6 @@
 import React from 'react';
 import SummaryCard from '../../../../components/SummaryCard/SummaryCard';
-import TableEstacion from '../../../../components/TableEstacion/TableEstacion';
+import TableEstacion from '../TableEstacion/TableEstacion';
 import './FrigorificoCard.css';
 
 interface FrigorificoCardProps {

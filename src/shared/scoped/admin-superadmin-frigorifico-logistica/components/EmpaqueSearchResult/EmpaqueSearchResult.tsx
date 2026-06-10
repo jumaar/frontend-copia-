@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Empaque, SearchResult } from '../../types/logistica.types';
+import type { Empaque, SearchResult } from '../../types/shared-types';
 
 interface EmpaqueSearchResultProps {
   result: SearchResult;

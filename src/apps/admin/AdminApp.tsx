@@ -5,19 +5,20 @@ import { adminNavItems } from '../../shared/layouts/Sidebar/navigation/admin.nav
 
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
-const FridgeManagementPage = lazy(() => import('./pages/FridgeManagementPage'));
 const GlobalAccountsPage = lazy(() => import('./pages/GlobalAccountsPage'));
-const LogisticaInventarioPage = lazy(() => import('./pages/InventarioAdminPage'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
 const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
 const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
 const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
 const LogisticaFinanzasPage = lazy(() => import('./pages/FinanzasAdminPage'));
 
+const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
+const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen'));
+
 const adminRouteTitles: Record<string, string> = {
   '/admin/dashboard': 'Dashboard',
   '/admin/users': 'Gestión de Usuarios',
-  '/admin/logistica': 'Gestión Frigoríficos',
+  '/admin/logistica': 'Gestión Logística',
   '/admin/productos': 'Gestión de Productos',
   '/admin/neveras': 'Gestión de Neveras',
   '/admin/accounts': 'Cuentas Globales',
@@ -37,9 +38,9 @@ const AdminApp: React.FC = () => {
       <Routes>
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="users" element={<UserManagementPage />} />
-        <Route path="logistica" element={<LogisticaInventarioPage />} />
+        <Route path="logistica" element={<LogisticaInventarioScreen mode="admin" />} />
         <Route path="productos" element={<FrigorificoProductosPage />} />
-        <Route path="neveras" element={<FridgeManagementPage />} />
+        <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
         <Route path="accounts" element={<GlobalAccountsPage />} />
         <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
         <Route path="historial-tienda" element={<HistorialTiendaPage />} />

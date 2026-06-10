@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import NeverasSurtirPanel from '../NeverasSurtirPanel/NeverasSurtirPanel';
 import SurtirNeveraModal from '../SurtirNeveraModal/SurtirNeveraModal';
 import './InventarioView.css';
@@ -90,6 +91,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
   esValidacionDelDia,
   setSearchId,
 }) => {
+  const navigate = useNavigate();
   if (loading) {
     return <div className="management-page">Cargando inventario...</div>;
   }
@@ -1006,8 +1008,23 @@ const InventarioView: React.FC<InventarioViewProps> = ({
         </section>
       )}
 
-      {/* Nueva sección para neveras surtir — solo logística */}
-      {!esAdmin && (
+      {/* Sección neveras: botón de navegación o panel completo */}
+      {!esAdmin && !showNeverasSection && (
+        <section className="card" style={{ marginTop: '2rem', textAlign: 'center', padding: '2rem' }}>
+          <h3 style={{ marginBottom: '1rem' }}>🧊 Gestión de Neveras</h3>
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+            Administra el surtido de neveras desde la sección dedicada.
+          </p>
+          <button
+            className="button button-primary"
+            onClick={() => navigate('/logistica/neveras')}
+            style={{ fontSize: '1rem', padding: '0.75rem 2rem' }}
+          >
+            Ir a Gestión de Neveras
+          </button>
+        </section>
+      )}
+      {!esAdmin && showNeverasSection && (
         <NeverasSurtirPanel
           showSurtir
           showConsultar

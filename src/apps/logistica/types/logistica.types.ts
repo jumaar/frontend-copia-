@@ -1,3 +1,6 @@
+// Re-export de tipos compartidos entre logistica y frigorifico
+export type { Empaque, Producto, SearchResult } from '../../../shared/scoped/admin-superadmin-frigorifico-logistica/types/shared-types';
+
 export interface Hermano {
   id_usuario: number;
   nombre_usuario: string;
@@ -17,30 +20,13 @@ export interface GestionLogisticaResponse {
   hermanos: Hermano[];
 }
 
-export interface Empaque {
-  epc: string;
-  peso_g: string;
-  precio_venta_total: number;
-  fecha_empaque: string;
-  id?: number;
-}
-
-export interface Producto {
-  id_producto: number;
-  nombre_producto: string;
-  peso_nominal_g: number;
-  cantidad_total: number;
-  peso_total_g: number;
-  empaques: Empaque[];
-}
-
 export interface Estacion {
   id_estacion: string;
   clave_vinculacion: string;
   activa: boolean;
   total_empaques: number;
   peso_total_g: number;
-  productos: Producto[];
+  productos: import('../../../shared/scoped/admin-superadmin-frigorifico-logistica/types/shared-types').Producto[];
 }
 
 export interface FrigorificoBasico {
@@ -90,9 +76,4 @@ export interface GestionData {
     activo: boolean;
   };
   frigorificos: Frigorifico[];
-}
-
-export interface SearchResult {
-  producto: Producto;
-  estacion: string;
 }
