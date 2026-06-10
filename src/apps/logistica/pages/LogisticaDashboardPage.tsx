@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CreateTokenModal from '../../../shared/scoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal';
-import TokenDisplay, { type TokenData } from '../../../shared/scoped/admin-superadmin-logistica/TokenDisplay/TokenDisplay';
+import CreateTokenModal from '../../../shared/scoped/admin-superadmin-logistica/components/CreateTokenModal/CreateTokenModal';
+import TokenDisplay, { type TokenData } from '../../../shared/scoped/admin-superadmin-logistica/components/TokenDisplay/TokenDisplay';
 import EditLogisticaModal from '../components/EditLogisticaModal/EditLogisticaModal';
 import EditUserModal from '../../../shared/components/EditUserModal/EditUserModal';
 import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';
-import UserHierarchy from '../../../shared/scoped/admin-superadmin-logistica/UserHierarchy/UserHierarchy';
+import UserHierarchy from '../../../shared/scoped/admin-superadmin-logistica/components/UserHierarchy/UserHierarchy';
 import Alert from '../../../shared/components/Alert/Alert';
-import { useUserManagement, type User } from '../../../shared/scoped/admin-superadmin-logistica/useUserManagement';
+import { useUserManagement, type User } from '../../../shared/scoped/admin-superadmin-logistica/hooks/useUserManagement';
 import { getManagementData, getUserDetails } from '../../../services/api';
 import { useAuth } from '../../../contexts/AuthContext';
 

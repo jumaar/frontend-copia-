@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './UserManagementScreen.css';
-import CreateTokenModal from '../../admin-superadmin-logistica/CreateTokenModal/CreateTokenModal';
-import TokenDisplay, { type TokenData } from '../../admin-superadmin-logistica/TokenDisplay/TokenDisplay';
+import CreateTokenModal from '../../admin-superadmin-logistica/components/CreateTokenModal/CreateTokenModal';
+import TokenDisplay, { type TokenData } from '../../admin-superadmin-logistica/components/TokenDisplay/TokenDisplay';
 import EditUserModal from '../../../components/EditUserModal/EditUserModal';
 import UserProfileCard from '../../../components/UserProfileCard/UserProfileCard';
-import UserHierarchy from '../../admin-superadmin-logistica/UserHierarchy/UserHierarchy';
-import { useUserManagement, type User } from '../../admin-superadmin-logistica/useUserManagement';
+import UserHierarchy from '../../admin-superadmin-logistica/components/UserHierarchy/UserHierarchy';
+import { useUserManagement, type User } from '../../admin-superadmin-logistica/hooks/useUserManagement';
 import { getManagementData, getUserDetails } from '../../../../services/api';
 import { useAuth } from '../../../../contexts/AuthContext';
 

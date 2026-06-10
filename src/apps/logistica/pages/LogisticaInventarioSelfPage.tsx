@@ -1,7 +1,7 @@
 import React from 'react';
-import { useLogisticaInventario } from '../../../shared/scoped/admin-superadmin-logistica/useLogisticaInventario';
+import { useLogisticaInventario } from '../../../shared/scoped/admin-superadmin-logistica/hooks/useLogisticaInventario';
 import { useSurtido } from '../contexts/SurtidoContext';
-import InventarioView from '../../../shared/scoped/admin-superadmin-logistica/InventarioView/InventarioView';
+import InventarioView from '../../../shared/scoped/admin-superadmin-logistica/components/InventarioView/InventarioView';
 import ParametrosSurtirModal from '../components/ParametrosSurtirModal/ParametrosSurtirModal';
 
 const LogisticaInventarioSelfPage: React.FC = () => {

@@ -4,19 +4,19 @@ import type {
   HistorialNeveraData,
   MesItem,
   ResumenGlobal,
-} from '../../../types/historial-tienda.types';
+} from '../../../../types/historial-tienda.types';
 import {
   formatMoneda,
   agruparConsolidados,
   filtrarPendientes,
-} from '../useHistorialTienda';
-import TransaccionesHeader from '../../../components/TransaccionesHeader/TransaccionesHeader';
-import Resumen from '../../../components/Resumen/Resumen';
-import EmpaquesPendientes from '../../../components/EmpaquesPendientes/EmpaquesPendientes';
-import ConsolidatedTickets from '../../../components/ConsolidatedTickets/ConsolidatedTickets';
-import type { ConsolidatedTicket } from '../../../components/ConsolidatedTickets/ConsolidatedTickets';
-import TablaPendientes from '../../../components/TablaPendientes/TablaPendientes';
-import Alert from '../../../components/Alert/Alert';
+} from '../../hooks/useHistorialTienda';
+import TransaccionesHeader from '../../../../components/TransaccionesHeader/TransaccionesHeader';
+import Resumen from '../../../../components/Resumen/Resumen';
+import EmpaquesPendientes from '../../../../components/EmpaquesPendientes/EmpaquesPendientes';
+import ConsolidatedTickets from '../../../../components/ConsolidatedTickets/ConsolidatedTickets';
+import type { ConsolidatedTicket } from '../../../../components/ConsolidatedTickets/ConsolidatedTickets';
+import TablaPendientes from '../../../../components/TablaPendientes/TablaPendientes';
+import Alert from '../../../../components/Alert/Alert';
 import './HistorialTiendaView.css';
 
 interface HistorialTiendaViewProps {

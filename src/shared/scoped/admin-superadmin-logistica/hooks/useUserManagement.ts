@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { toggleUserStatus, deleteUser } from '../../../services/api';
+import { toggleUserStatus, deleteUser } from '../../../../services/api';
 
 export interface User {
   id: number;

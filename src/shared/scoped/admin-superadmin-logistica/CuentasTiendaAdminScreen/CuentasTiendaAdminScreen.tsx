@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { useCuentasTienda } from '../../admin-superadmin-logistica-tienda/useCuentasTienda';
-import CuentasTiendaView from '../../admin-superadmin-logistica-tienda/CuentasTiendaView/CuentasTiendaView';
-import GestionCobro from '../GestionCobro/GestionCobro';
-import TiendaSelector from '../../admin-superadmin-logistica-tienda/TiendaSelector/TiendaSelector';
+import { useCuentasTienda } from '../../admin-superadmin-logistica-tienda/hooks/useCuentasTienda';
+import CuentasTiendaView from '../../admin-superadmin-logistica-tienda/components/CuentasTiendaView/CuentasTiendaView';
+import GestionCobro from '../components/GestionCobro/GestionCobro';
+import TiendaSelector from '../../admin-superadmin-logistica-tienda/components/TiendaSelector/TiendaSelector';
 import Alert from '../../../components/Alert/Alert';
 
 const CuentasTiendaAdminPage: React.FC = () => {

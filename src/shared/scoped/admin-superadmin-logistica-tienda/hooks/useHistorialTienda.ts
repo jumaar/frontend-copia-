@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getHistorialTienda, getTiendasSobrinas } from '../../../services/api';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { getHistorialTienda, getTiendasSobrinas } from '../../../../services/api';
 import type {
   UsuarioTienda,
   Ciudad,
@@ -12,7 +12,7 @@ import type {
   MesItem,
   ResumenGlobal,
   LiquidacionResult,
-} from '../../../shared/types/historial-tienda.types';
+} from '../../../types/historial-tienda.types';
 
 export const formatMoneda = (monto: number): string => {
   return new Intl.NumberFormat('es-CO', {

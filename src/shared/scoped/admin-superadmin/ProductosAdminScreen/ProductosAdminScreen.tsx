@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getProductos, createProducto, updateProducto, deleteProducto } from '../../../../services/api';
-import ProductosTable from '../../admin-superadmin-frigorifico/ProductosTable/ProductosTable';
-import type { Producto } from '../../admin-superadmin-frigorifico/ProductosTable/ProductosTable';
+import ProductosTable from '../../admin-superadmin-frigorifico/components/ProductosTable/ProductosTable';
+import type { Producto } from '../../admin-superadmin-frigorifico/components/ProductosTable/ProductosTable';
 
 const CreateProductModal: React.FC<{
   isOpen: boolean;

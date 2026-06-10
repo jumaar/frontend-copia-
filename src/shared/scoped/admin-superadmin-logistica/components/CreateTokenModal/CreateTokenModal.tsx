@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useAuth } from '../../../../contexts/AuthContext';
-import { createRegistrationToken } from '../../../../services/api';
+import { useAuth } from '../../../../../contexts/AuthContext';
+import { createRegistrationToken } from '../../../../../services/api';
 import './CreateTokenModal.css';
 
 import { type TokenData } from '../TokenDisplay/TokenDisplay';

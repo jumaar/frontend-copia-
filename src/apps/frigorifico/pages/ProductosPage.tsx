@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getProductos } from '../../../services/api';
-import ProductosTable from '../../../shared/scoped/admin-superadmin-frigorifico/ProductosTable/ProductosTable';
-import type { Producto } from '../../../shared/scoped/admin-superadmin-frigorifico/ProductosTable/ProductosTable';
+import ProductosTable from '../../../shared/scoped/admin-superadmin-frigorifico/components/ProductosTable/ProductosTable';
+import type { Producto } from '../../../shared/scoped/admin-superadmin-frigorifico/components/ProductosTable/ProductosTable';
 
 const ProductosPage: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);

@@ -3,7 +3,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasFrigorifico } from '../hooks/useCuentasFrigorifico';
 import Resumen from '../../../components/Resumen/Resumen';
 import TablaTransacciones from '../../../components/TablaTransacciones/TablaTransacciones';
-import GestionCobro from '../../admin-superadmin-logistica/GestionCobro/GestionCobro';
+import GestionCobro from '../../admin-superadmin-logistica/components/GestionCobro/GestionCobro';
 import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
 import Alert from '../../../components/Alert/Alert';
 
@@ -54,17 +54,12 @@ const CuentasFrigorificoPage: React.FC = () => {
     const montoTotalMes = t.transacciones.filter((tx: any) =>
       tx.nombre_estado_transaccion === 'PENDIENTE' || tx.nombre_estado_transaccion === 'PAGADO'
     ).filter((tx: any) => tx.id_empaque !== null).reduce((sum: number, tx: any) => sum + tx.monto, 0);
-    const montoTiendaMes = t.transacciones.filter((tx: any) =>
-      tx.nombre_estado_transaccion === 'PENDIENTE' || tx.nombre_estado_transaccion === 'PAGADO'
-    ).filter((tx: any) => tx.id_empaque !== null).reduce((sum: number, tx: any) => sum + (tx.costo_tienda || 0), 0);
-
     return [
       { label: 'Total Transacciones', value: String(t.total_transacciones), icon: '📊' },
       { label: 'Pendientes', value: String(pendientes), icon: '⏳' },
       { label: 'Consolidados', value: String(consolidados), icon: '✅' },
       { label: 'Saldo Total (Pendientes)', value: formatMoneda(saldoTotalPendientes), icon: '💰' },
       { label: 'Monto del Mes', value: formatMoneda(montoTotalMes), icon: '📅' },
-      { label: 'Monto Tienda Mes', value: formatMoneda(montoTiendaMes), icon: '🏪' },
     ];
   }, [transacciones, formatMoneda]);
 

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getTransaccionesTienda, getTiendasSobrinas, procesarPago } from '../../../services/api';
-import { useMesSelector } from '../../../shared/hooks/useMesSelector';
-import { formatMoneda as fm } from '../../config/format';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { getTransaccionesTienda, getTiendasSobrinas, procesarPago } from '../../../../services/api';
+import { useMesSelector } from '../../../../shared/hooks/useMesSelector';
+import { formatMoneda as fm } from '../../../config/format';
 import type {
   UsuarioTienda,
   Ciudad,
@@ -10,7 +10,7 @@ import type {
   EmpaquePendiente,
   ProductoPendiente,
   Promocion,
-} from '../../../shared/types/cuentas-tienda.types';
+} from '../../../types/cuentas-tienda.types';
 
 export const formatMoneda = fm;
 

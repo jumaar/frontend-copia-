@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from 'react';
-import SurtirNeveraModal from '../../admin-superadmin-logistica-tienda/SurtirNeveraModal/SurtirNeveraModal';
+import SurtirNeveraModal from '../../admin-superadmin-logistica-tienda/components/SurtirNeveraModal/SurtirNeveraModal';
 import './InventarioView.css';
 import type {
   LogisticaInventarioResponse,
@@ -8,7 +8,7 @@ import type {
   Producto,
   Empaque,
   Nevera,
-} from '../useLogisticaInventario';
+} from '../../hooks/useLogisticaInventario';
 
 interface InventarioViewProps {
   inventarioData: LogisticaInventarioResponse | null;

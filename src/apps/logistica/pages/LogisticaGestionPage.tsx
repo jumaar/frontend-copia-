@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLogisticaGestion } from '../hooks/useLogisticaGestion';
 import ProveedorSelector from '../../../shared/components/ProveedorSelector/ProveedorSelector';
-import FrigorificoCard from '../../../shared/scoped/admin-superadmin-frigorifico-logistica/FrigorificoCard/FrigorificoCard';
-import EPCSearchBar from '../../../shared/scoped/admin-superadmin-frigorifico-logistica/EPCSearchBar/EPCSearchBar';
+import FrigorificoCard from '../../../shared/scoped/admin-superadmin-frigorifico-logistica/components/FrigorificoCard/FrigorificoCard';
+import EPCSearchBar from '../../../shared/scoped/admin-superadmin-frigorifico-logistica/components/EPCSearchBar/EPCSearchBar';
 import EmpaqueSearchResult from '../components/EmpaqueSearchResult/EmpaqueSearchResult';
 import Alert from '../../../shared/components/Alert/Alert';
 

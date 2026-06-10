@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { updateUser } from '../../../services/api';
-import '../../scoped/admin-superadmin-logistica/CreateTokenModal/CreateTokenModal.css'; // Reutilizamos los estilos del otro modal
+import '../../scoped/admin-superadmin-logistica/components/CreateTokenModal/CreateTokenModal.css'; // Reutilizamos los estilos del otro modal
 
 interface UserData {
   id_usuario: number;

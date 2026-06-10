@@ -1,9 +1,9 @@
 import React from 'react';
-import TablaTransacciones from '../../../components/TablaTransacciones/TablaTransacciones';
-import Resumen from '../../../components/Resumen/Resumen';
-import EmpaquesPendientes from '../../../components/EmpaquesPendientes/EmpaquesPendientes';
-import { formatMoneda } from '../../../config/format';
-import type { TransaccionesData, MesItem } from '../../../types/cuentas-tienda.types';
+import TablaTransacciones from '../../../../components/TablaTransacciones/TablaTransacciones';
+import Resumen from '../../../../components/Resumen/Resumen';
+import EmpaquesPendientes from '../../../../components/EmpaquesPendientes/EmpaquesPendientes';
+import { formatMoneda } from '../../../../config/format';
+import type { TransaccionesData, MesItem } from '../../../../types/cuentas-tienda.types';
 import './CuentasTiendaView.css';
 
 interface CuentasTiendaViewProps {

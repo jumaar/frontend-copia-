@@ -1,5 +1,5 @@
 import React from 'react';
-import Dropdown from '../../../components/Dropdown/Dropdown';
+import Dropdown from '../../../../components/Dropdown/Dropdown';
 import './GestionCobro.css';
 
 interface GestionCobroProps {

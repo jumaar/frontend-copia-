@@ -1,6 +1,6 @@
 import React from 'react';
-import Dropdown from '../../../components/Dropdown/Dropdown';
-import type { UsuarioTienda, Tienda } from '../../../types/cuentas-tienda.types';
+import Dropdown from '../../../../components/Dropdown/Dropdown';
+import type { UsuarioTienda, Tienda } from '../../../../types/cuentas-tienda.types';
 import './TiendaSelector.css';
 
 interface TiendaSelectorProps {

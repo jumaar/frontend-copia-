@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getNeverasSurtir } from '../../../../services/api';
-import SurtirNeveraModal from '../../admin-superadmin-logistica-tienda/SurtirNeveraModal/SurtirNeveraModal';
+import SurtirNeveraModal from '../../admin-superadmin-logistica-tienda/components/SurtirNeveraModal/SurtirNeveraModal';
 import './FridgeManagementScreen.css';
 
 interface Nevera {

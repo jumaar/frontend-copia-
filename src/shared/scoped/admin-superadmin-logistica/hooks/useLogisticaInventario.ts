@@ -5,8 +5,8 @@ import {
   darDeBajaEmpaque,
   getSurtidoPorNevera,
   postValidacionEmpaques,
-} from '../../../services/api';
-import { useAuth } from '../../../contexts/AuthContext';
+} from '../../../../services/api';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 type SurtidoPhase = 'review' | 'removal' | 'scanning';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getTiendasNeveras, updateNeveraStocks } from '../../../../services/api';
+import { getTiendasNeveras, updateNeveraStocks } from '../../../../../services/api';
 import './SurtirNeveraModal.css';
 
 interface Producto {
