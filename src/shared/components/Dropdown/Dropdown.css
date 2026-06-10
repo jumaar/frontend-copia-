@@ -14,7 +14,6 @@
   min-width: unset;
 }
 
-/* Toggle button */
 .dropdown-toggle {
   display: flex;
   align-items: center;
@@ -43,7 +42,6 @@
   cursor: not-allowed;
 }
 
-/* Arrow indicator */
 .dropdown-arrow {
   transition: transform 0.3s ease;
   font-size: 0.8rem;
@@ -53,24 +51,17 @@
   transform: rotate(180deg);
 }
 
-/* Dropdown menu */
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+.dropdown-menu-portal {
   background: var(--color-card-bg);
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-lg);
   z-index: 999999;
-  margin-top: calc(var(--spacing-unit) * 0.5);
   max-height: 300px;
   overflow-y: auto;
 }
 
-/* Dropdown list items */
 .dropdown-item {
   display: flex;
   align-items: center;

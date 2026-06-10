@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import SummaryCard from '../../../shared/components/SummaryCard/SummaryCard';
-import ProductionHierarchy from '../../../shared/componentscoped/tienda-frigorifico/ProductionHierarchy/ProductionHierarchy';
-import type { ProductionItem } from '../../../shared/componentscoped/tienda-frigorifico/ProductionHierarchy/ProductionHierarchy';
-import StationModal from '../../../shared/componentscoped/tienda-frigorifico/StationModal/StationModal';
-import type { StationData } from '../../../shared/componentscoped/tienda-frigorifico/StationModal/StationModal';
+import ProductionHierarchy from '../../../shared/scoped/tienda-frigorifico/ProductionHierarchy/ProductionHierarchy';
+import type { ProductionItem } from '../../../shared/scoped/tienda-frigorifico/ProductionHierarchy/ProductionHierarchy';
+import StationModal from '../../../shared/scoped/tienda-frigorifico/StationModal/StationModal';
+import type { StationData } from '../../../shared/scoped/tienda-frigorifico/StationModal/StationModal';
 import ScaleModal from '../components/ScaleModal/ScaleModal';
 import EditUserModal from '../../../shared/components/EditUserModal/EditUserModal';
 import UserProfileCard from '../../../shared/components/UserProfileCard/UserProfileCard';

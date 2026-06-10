@@ -1,1 +1,1 @@
-export { default } from '../../../shared/componentscoped/admin-superadmin/FridgeManagementScreen/FridgeManagementScreen';
+export { default } from '../../../shared/scoped/admin-superadmin/FridgeManagementScreen/FridgeManagementScreen';

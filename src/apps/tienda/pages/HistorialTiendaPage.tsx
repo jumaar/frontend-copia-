@@ -1,6 +1,6 @@
 import React from 'react';
-import { useHistorialTienda } from '../../../shared/componentscoped/admin-superadmin-logistica-tienda/useHistorialTienda';
-import HistorialTiendaView from '../../../shared/componentscoped/admin-superadmin-logistica-tienda/HistorialTiendaView/HistorialTiendaView';
+import { useHistorialTienda } from '../../../shared/scoped/admin-superadmin-logistica-tienda/useHistorialTienda';
+import HistorialTiendaView from '../../../shared/scoped/admin-superadmin-logistica-tienda/HistorialTiendaView/HistorialTiendaView';
 
 const HistorialTiendaPage: React.FC = () => {
   const {

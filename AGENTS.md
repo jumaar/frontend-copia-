@@ -35,7 +35,7 @@ src/shared/components/
   ...
 ```
 
-## 3. `src/shared/componentscoped/{roles}/`
+## 3. `src/shared/scoped/{roles}/`
 **Cuándo**: El componente lo comparten 2, 3 o 4 roles específicos, pero NO todos. El nombre de la carpeta es la lista de roles en orden alfabético separados por guiones.
 
 **Roles existentes**: `admin`, `superadmin`, `frigorifico`, `logistica`, `tienda`
@@ -49,7 +49,7 @@ src/shared/components/
 **Qué va aquí**: Tanto **componentes** como **páginas completas** (Screens) que orquestan una vista para esos roles. También **hooks** específicos de ese scope (en subcarpeta `hooks/`).
 
 ```
-src/shared/componentscoped/admin-superadmin-frigorifico-logistica/
+src/shared/scoped/admin-superadmin-frigorifico-logistica/
   CuentasFrigorificoScreen/    ← página que orquesta la vista
   FrigorificoCard/             ← componente reutilizable
   EPCSearchBar/                ← componente reutilizable
@@ -63,14 +63,14 @@ Cada app usa `React.lazy()` para cargar sus páginas bajo demanda. La ubicación
 
 - **`apps/{app}/components/`** → el componente va en el chunk de ESA app. Solo se descarga cuando el usuario visita esa app.
 - **`shared/components/`** → va en un chunk común. Se descarga una vez y lo reusan todas las apps.
-- **`shared/componentscoped/`** → va en un chunk compartido entre los roles que lo importan. Si un rol nunca visita la página, ese código nunca se descarga.
+- **`shared/scoped/`** → va en un chunk compartido entre los roles que lo importan. Si un rol nunca visita la página, ese código nunca se descarga.
 
 **Mala práctica**: Poner un componente en `shared/components/` cuando solo lo usan 2 roles. Infla el chunk común para todos los usuarios.
-**Buena práctica**: Usar `componentscoped/` para que solo los roles que lo necesitan paguen el costo de descarga.
+**Buena práctica**: Usar `scoped/` para que solo los roles que lo necesitan paguen el costo de descarga.
 
 ## Regla práctica
 
 Si al crear una página nueva te preguntas dónde poner un componente:
 1. ¿Lo usa solo esta app? → `src/apps/{app}/components/`
 2. ¿Lo usan todas las apps? → `src/shared/components/`
-3. ¿Lo comparten algunos roles pero no todos? → `src/shared/componentscoped/{rol1}-{rol2}-.../`
+3. ¿Lo comparten algunos roles pero no todos? → `src/shared/scoped/{rol1}-{rol2}-.../`

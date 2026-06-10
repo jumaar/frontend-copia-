@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import './Dropdown.css';
 
 export interface DropdownOption {
@@ -34,9 +35,32 @@ const Dropdown: React.FC<DropdownProps> = ({
   className,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const containerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+
+  const updateMenuPosition = useCallback(() => {
+    if (toggleRef.current) {
+      const rect = toggleRef.current.getBoundingClientRect();
+      setMenuStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        left: rect.left,
+        minWidth: rect.width,
+      });
+    }
+  }, []);
+
+  const handleToggle = useCallback(() => {
+    if (!showMenu) {
+      updateMenuPosition();
+    }
+    setShowMenu(prev => !prev);
+  }, [showMenu, updateMenuPosition]);
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
-    if (!(event.target as Element).closest('.dropdown')) {
+    const target = event.target as Element;
+    if (!target.closest('.dropdown') && !target.closest('.dropdown-menu-portal')) {
       setShowMenu(false);
     }
   }, []);
@@ -46,13 +70,54 @@ const Dropdown: React.FC<DropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleClickOutside]);
 
+  useEffect(() => {
+    if (showMenu) {
+      window.addEventListener('scroll', updateMenuPosition, true);
+      window.addEventListener('resize', updateMenuPosition);
+      return () => {
+        window.removeEventListener('scroll', updateMenuPosition, true);
+        window.removeEventListener('resize', updateMenuPosition);
+      };
+    }
+  }, [showMenu, updateMenuPosition]);
+
   const selectedOption = options.find(o => o.id === selectedId);
 
+  const menuContent = showMenu && (
+    <div className="dropdown-menu-portal" style={menuStyle}>
+      {options.map(option => {
+        const isSelected = selectedId === option.id;
+        return (
+          <div key={option.id} className="dropdown-item">
+            {renderLabel
+              ? renderLabel(option, isSelected)
+              : <span className="dropdown-item-label">{option.label}</span>}
+            <button
+              className={`btn-consultar${isSelected ? ' activo' : ''}`}
+              onClick={() => {
+                onSelect(option.id);
+                setShowMenu(false);
+              }}
+              disabled={loading}
+              type="button"
+            >
+              {loading && isSelected ? `${actionLabel}...` : actionLabel}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <div className={`dropdown${variant === 'block' ? ' dropdown--block' : ''}${className ? ` ${className}` : ''}`}>
+    <div
+      ref={containerRef}
+      className={`dropdown${variant === 'block' ? ' dropdown--block' : ''}${className ? ` ${className}` : ''}`}
+    >
       <button
+        ref={toggleRef}
         className="dropdown-toggle"
-        onClick={() => setShowMenu(!showMenu)}
+        onClick={handleToggle}
         disabled={disabled || loading}
         type="button"
       >
@@ -64,31 +129,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <span className={`dropdown-arrow${showMenu ? ' open' : ''}`}>▼</span>
       </button>
 
-      {showMenu && (
-        <div className="dropdown-menu">
-          {options.map(option => {
-            const isSelected = selectedId === option.id;
-            return (
-              <div key={option.id} className="dropdown-item">
-                {renderLabel
-                  ? renderLabel(option, isSelected)
-                  : <span className="dropdown-item-label">{option.label}</span>}
-                <button
-                  className={`btn-consultar${isSelected ? ' activo' : ''}`}
-                  onClick={() => {
-                    onSelect(option.id);
-                    setShowMenu(false);
-                  }}
-                  disabled={loading}
-                  type="button"
-                >
-                  {loading && isSelected ? `${actionLabel}...` : actionLabel}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {showMenu && createPortal(menuContent, document.body)}
     </div>
   );
 };

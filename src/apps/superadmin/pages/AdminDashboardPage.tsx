@@ -1,1 +1,1 @@
-export { default } from '../../../shared/componentscoped/admin-superadmin/AdminDashboardScreen/AdminDashboardScreen';
+export { default } from '../../../shared/scoped/admin-superadmin/AdminDashboardScreen/AdminDashboardScreen';
