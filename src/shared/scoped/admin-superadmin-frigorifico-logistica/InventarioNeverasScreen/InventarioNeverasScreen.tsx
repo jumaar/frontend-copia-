@@ -173,7 +173,7 @@ const InventarioNeverasScreen: React.FC<InventarioNeverasScreenProps> = ({
 
       <NeverasSurtirPanel
         showConsultar
-        showSurtir={esLogistica || mode === 'admin'}
+        showSurtir={esLogistica}
         neverasData={neverasData}
         loadingNeveras={loading}
         errorNeveras={error}

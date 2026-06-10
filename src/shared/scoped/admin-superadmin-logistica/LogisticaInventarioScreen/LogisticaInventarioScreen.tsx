@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useLogisticaInventario } from '../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
-import InventarioView from '../../admin-superadmin-logistica-tienda/components/InventarioView/InventarioView';
+import InventarioView from '../components/InventarioView/InventarioView';
 import Dropdown from '../../../components/Dropdown/Dropdown';
 import { VALIDACION_STORAGE_KEY } from '../../admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen';
 

@@ -1,8 +1,8 @@
 // @ts-nocheck
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import NeverasSurtirPanel from '../NeverasSurtirPanel/NeverasSurtirPanel';
-import SurtirNeveraModal from '../SurtirNeveraModal/SurtirNeveraModal';
+import NeverasSurtirPanel from '../../admin-superadmin-logistica-tienda/components/NeverasSurtirPanel/NeverasSurtirPanel';
+import SurtirNeveraModal from '../../admin-superadmin-logistica-tienda/components/SurtirNeveraModal/SurtirNeveraModal';
 import './InventarioView.css';
 import type {
   LogisticaInventarioResponse,
@@ -10,7 +10,7 @@ import type {
   Producto,
   Empaque,
   Nevera,
-} from '../../hooks/useLogisticaInventario';
+} from '../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
 
 interface InventarioViewProps {
   inventarioData: LogisticaInventarioResponse | null;
@@ -325,8 +325,8 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                                     <tr
                                       key={`prioridad-${producto.id_producto}-${empaque.id_empaque}`}
                                       style={{
-                                        borderBottom: '1px solid #f59e0b',
-                                        background: '#fffbeb',
+                                        borderBottom: '1px solid var(--color-alert-warning-border, #f59e0b)',
+                                        background: 'var(--color-alert-warning-bg, #fffbeb)',
                                       }}
                                     >
                                       <td style={{ fontWeight: 'bold', color: '#b45309' }}>
@@ -458,8 +458,8 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                             <tr
                               className="product-header-row"
                               style={{
-                                backgroundColor: '#fef2f2',
-                                borderBottom: '2px solid #fca5a5',
+                                backgroundColor: 'var(--color-alert-error-bg, #fef2f2)',
+                                borderBottom: '2px solid var(--color-alert-error-border, #fca5a5)',
                               }}
                             >
                               <td colSpan={5}>
@@ -514,7 +514,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                                     key={`vencidos-tabla-emp-${empaque.id_empaque}`}
                                     style={{
                                       borderBottom: '1px solid var(--color-border)',
-                                      backgroundColor: '#fff5f5',
+                                      backgroundColor: 'var(--color-alert-error-bg, #fff5f5)',
                                     }}
                                   >
                                     <td>{empaque.id_empaque}</td>
@@ -708,7 +708,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                                       style={{
                                         padding: '0.25rem 0.5rem',
                                         borderRadius: '999px',
-                                        backgroundColor: '#fef3c7',
+                                        backgroundColor: 'var(--color-alert-warning-bg, #fef3c7)',
                                         color: '#b45309',
                                         fontWeight: 'bold',
                                         fontSize: '0.8rem',
@@ -722,7 +722,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                                   </div>
                                 </button>
                                 {isNeveraExpanded && (
-                                  <div style={{ overflowX: 'auto', backgroundColor: 'white' }}>
+                                  <div style={{ overflowX: 'auto', backgroundColor: 'var(--color-card-bg)' }}>
                                     <table
                                       className="products-table"
                                       style={{ marginTop: '0', minWidth: '800px', width: '100%' }}
@@ -843,7 +843,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           padding: '1rem',
-                          backgroundColor: '#fef2f2',
+                          backgroundColor: 'var(--color-alert-error-bg, #fef2f2)',
                           border: 'none',
                           borderBottom: isCityExpanded ? '1px solid var(--color-border)' : 'none',
                           cursor: 'pointer',
@@ -926,7 +926,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                                   </div>
                                 </button>
                                 {isNeveraExpanded && (
-                                  <div style={{ overflowX: 'auto', backgroundColor: 'white' }}>
+                                  <div style={{ overflowX: 'auto', backgroundColor: 'var(--color-card-bg)' }}>
                                     <table
                                       className="products-table"
                                       style={{ marginTop: '0', minWidth: '800px', width: '100%' }}
@@ -955,7 +955,7 @@ const InventarioView: React.FC<InventarioViewProps> = ({
                                             key={`vencidos-emp-${empaque.id_empaque}`}
                                             style={{
                                               borderBottom: '1px solid var(--color-border)',
-                                              backgroundColor: '#fef2f2',
+                                              backgroundColor: 'var(--color-alert-error-bg, #fef2f2)',
                                             }}
                                           >
                                             <td>{empaque.id_empaque}</td>
