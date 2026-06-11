@@ -60,7 +60,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     const target = event.target as Element;
-    if (!target.closest('.dropdown') && !target.closest('.dropdown-menu-portal')) {
+    if (!containerRef.current?.contains(target) && !target.closest('.dropdown-menu-portal')) {
       setShowMenu(false);
     }
   }, []);

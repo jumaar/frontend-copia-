@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../../services/api';
 import { numberToWords } from '../../../utils/numberToWords';
+import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
+import TransaccionesHeader from '../../../components/TransaccionesHeader/TransaccionesHeader';
 import './FinanzasLogisticaScreen.css';
 
 interface AdminInfo {
@@ -38,7 +40,58 @@ interface ResumenFinancieroData {
   admin: AdminInfo;
   resumen: Resumen;
   transacciones: Transaccion[];
+  esPeriodoActual: boolean;
+  fechaCreacionUsuario?: string;
 }
+
+interface FinanzasApiResponse {
+  transacciones: Transaccion[];
+  fecha_creacion_usuario?: string;
+  nombre_usuario?: string;
+  apellido_usuario?: string;
+  periodo: { mes: number; ano: number };
+  fecha_inicio_periodo?: string;
+  fecha_fin_periodo?: string;
+  total_transacciones?: number;
+  parametros_usados?: {
+    mes_pedido: number;
+    ano_pedido: number;
+    mes_devuelto: number;
+    ano_devuelto: number;
+    es_periodo_actual: boolean;
+  };
+}
+
+const normalizeFinanzasResponse = (apiResponse: FinanzasApiResponse): ResumenFinancieroData => {
+  const transacciones = apiResponse.transacciones || [];
+  const totalIngresos = transacciones
+    .filter(t => t.monto > 0)
+    .reduce((sum, t) => sum + t.monto, 0);
+  const totalEgresos = transacciones
+    .filter(t => t.monto < 0)
+    .reduce((sum, t) => sum + Math.abs(t.monto), 0);
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  return {
+    periodo: apiResponse.periodo,
+    admin: {
+      id_usuario: 0,
+      nombre_completo: 'Admin',
+    },
+    resumen: {
+      total_ingresos: totalIngresos,
+      total_egresos: -totalEgresos,
+      balance_neto_periodo: totalIngresos - totalEgresos,
+      balance_acumulado_historico: 0,
+    },
+    transacciones,
+    esPeriodoActual: apiResponse.parametros_usados?.es_periodo_actual
+      ?? (apiResponse.periodo.mes === currentMonth && apiResponse.periodo.ano === currentYear),
+    fechaCreacionUsuario: apiResponse.fecha_creacion_usuario,
+  };
+};
 
 interface LogisticaItem {
   id_usuario: number;
@@ -53,10 +106,19 @@ interface LogisticaItem {
   }>;
 }
 
-interface LogisticaHermanosData {
-  admin: AdminInfo;
-  cantidad_logisticas: number;
+interface AdminWithLogisticas {
+  admin: {
+    id_usuario: number;
+    nombre_usuario: string;
+    apellido_usuario: string;
+    email: string;
+    celular: string;
+  };
   logisticas: LogisticaItem[];
+}
+
+interface SuperAdminResponse {
+  admins: AdminWithLogisticas[];
 }
 
 const MONTH_NAMES = [
@@ -89,8 +151,10 @@ const getEstadoBadgeClass = (estado: string): string => {
 
 const FinanzasLogisticaScreen: React.FC = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
+  const isSuperAdmin = user?.role === 'superadmin';
+  const isAdmin = user?.role === 'admin';
   const isLogistica = user?.role === 'logistica';
+  const needsSelector = isAdmin || isSuperAdmin;
 
   const [data, setData] = useState<ResumenFinancieroData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -99,7 +163,10 @@ const FinanzasLogisticaScreen: React.FC = () => {
 
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [mesSeleccionado, setMesSeleccionado] = useState<{ mes: number; año: number } | null>(null);
 
+  const [admins, setAdmins] = useState<AdminWithLogisticas[]>([]);
+  const [adminSeleccionado, setAdminSeleccionado] = useState<number | null>(null);
   const [logisticas, setLogisticas] = useState<LogisticaItem[]>([]);
   const [selectedLogistica, setSelectedLogistica] = useState<LogisticaItem | null>(null);
   const [loadingHermanos, setLoadingHermanos] = useState(false);
@@ -117,7 +184,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       setError(null);
       setSuccessMessage(null);
       const result = await getResumenFinanciero(month, year, idLogistica);
-      setData(result);
+      setData(normalizeFinanzasResponse(result));
     } catch (err: any) {
       console.error('Error fetching financial summary:', err);
       setError(
@@ -136,12 +203,18 @@ const FinanzasLogisticaScreen: React.FC = () => {
   }, [isLogistica, selectedMonth, selectedYear, fetchResumen]);
 
   useEffect(() => {
-    if (isAdmin) {
+    if (needsSelector) {
       setLoading(false);
       setLoadingHermanos(true);
+      setError(null);
       getLogisticaHermanos()
-        .then((response: LogisticaHermanosData) => {
-          setLogisticas(response.logisticas || []);
+        .then((response: any) => {
+          if (isSuperAdmin && response.admins) {
+            const adminsData = (response as SuperAdminResponse).admins || [];
+            setAdmins(adminsData);
+          } else {
+            setLogisticas(response.logisticas || []);
+          }
         })
         .catch((err: any) => {
           console.error('Error fetching logisticos:', err);
@@ -151,23 +224,44 @@ const FinanzasLogisticaScreen: React.FC = () => {
           setLoadingHermanos(false);
         });
     }
-  }, [isAdmin]);
+  }, [needsSelector, isSuperAdmin]);
 
-  const handleSelectLogistica = (logistica: LogisticaItem) => {
+  const handleSelectAdmin = (id: string | number) => {
+    const numId = Number(id);
+    setAdminSeleccionado(numId);
+    const adminData = admins.find(a => a.admin.id_usuario === numId);
+    setLogisticas(adminData?.logisticas || []);
+    setSelectedLogistica(null);
+    setData(null);
+    setError(null);
+    setSuccessMessage(null);
+  };
+
+  const handleSelectLogistica = (id: string | number) => {
+    const numId = Number(id);
+    const logistica = logisticas.find(l => l.id_usuario === numId) || null;
     setSelectedLogistica(logistica);
     setData(null);
     setError(null);
     setSuccessMessage(null);
-    fetchResumen(selectedMonth, selectedYear, logistica.id_usuario);
-  };
-
-  const handleMonthYearChange = (month: number, year: number) => {
-    setSelectedMonth(month);
-    setSelectedYear(year);
+    setMesSeleccionado(null);
+    if (logistica) {
+      fetchResumen(selectedMonth, selectedYear, logistica.id_usuario);
+    }
   };
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
+
+  const handleMonthYearChange = (month: number, year: number) => {
+    setSelectedMonth(month);
+    setSelectedYear(year);
+    const isCurrent = month === currentMonth && year === currentYear;
+    setMesSeleccionado(isCurrent ? null : { mes: month, año: year });
+    const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
+    fetchResumen(month, year, targetId);
+  };
+
   const monthOptions: Array<{ month: number; year: number; label: string }> = [];
   for (let y = currentYear; y >= currentYear - 2; y--) {
     for (let m = 12; m >= 1; m--) {
@@ -197,7 +291,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       return;
     }
 
-    if (modalType === 'consolidacion' && data && monto > data.resumen.balance_acumulado_historico) {
+    if (modalType === 'consolidacion' && data && data.resumen.balance_acumulado_historico > 0 && monto > data.resumen.balance_acumulado_historico) {
       alert('El monto a consolidar no puede superar el balance acumulado histórico.');
       return;
     }
@@ -222,7 +316,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
           : `Ingreso de ${formatCurrency(monto)} entregado exitosamente.`
       );
 
-      const targetId = isAdmin && selectedLogistica ? selectedLogistica.id_usuario : undefined;
+      const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
       fetchResumen(selectedMonth, selectedYear, targetId);
     } catch (err: any) {
       console.error('Error processing movement:', err);
@@ -300,17 +394,18 @@ const FinanzasLogisticaScreen: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  if (isAdmin && loadingHermanos) {
-    return <div className="management-page"><div className="finanzas-loading">Cargando...</div></div>;
+  if (needsSelector && loadingHermanos) {
+    return (
+      <div className="management-page">
+        <div className="finanzas-loading">
+          {isSuperAdmin ? 'Cargando administradores...' : 'Cargando...'}
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="management-page finanzas-page">
-      <div className="cuentas-header">
-        <h1>Finanzas</h1>
-        <p>Gestión financiera y libro mayor de movimientos</p>
-      </div>
-
       {successMessage && (
         <div className="finanzas-toast finanzas-toast-success">
           {successMessage}
@@ -318,41 +413,101 @@ const FinanzasLogisticaScreen: React.FC = () => {
         </div>
       )}
 
-      {isAdmin && (
+      {needsSelector && isSuperAdmin && (
+        <>
+          <ProveedorSelector
+            title="1. SELECCIONAR ADMINISTRADOR:"
+            options={admins.map(a => ({
+              id: a.admin.id_usuario,
+              label: `${a.admin.nombre_usuario} ${a.admin.apellido_usuario || ''}`,
+            }))}
+            selectedId={adminSeleccionado}
+            onSelect={handleSelectAdmin}
+            placeholder="Selecciona un administrador..."
+            disabled={loadingHermanos}
+            renderLabel={(option) => {
+              const adminData = admins.find(a => a.admin.id_usuario === option.id);
+              return (
+                <span className="dropdown-item-label">
+                  👤 {option.label}
+                  {adminData?.admin.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({adminData.admin.email})</span>}
+                  <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px', fontSize: '0.85rem' }}>
+                    | {adminData?.logisticas.length || 0} logística{adminData?.logisticas.length !== 1 ? 's' : ''}
+                  </span>
+                </span>
+              );
+            }}
+          />
+
+          {adminSeleccionado && (
+            <ProveedorSelector
+              title="2. SELECCIONAR LOGÍSTICO:"
+              options={logisticas.map(l => ({
+                id: l.id_usuario,
+                label: `${l.nombre_usuario} ${l.apellido_usuario}`,
+              }))}
+              selectedId={selectedLogistica?.id_usuario ?? null}
+              onSelect={handleSelectLogistica}
+              placeholder="Selecciona un logístico..."
+              disabled={logisticas.length === 0}
+              loading={loading}
+              actionLabel="Seleccionar"
+              renderLabel={(option, _isSelected) => {
+                const logistica = logisticas.find(l => l.id_usuario === option.id);
+                return (
+                  <span className="dropdown-item-label">
+                    🚛 {option.label}
+                    {logistica?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({logistica.email})</span>}
+                  </span>
+                );
+              }}
+            />
+          )}
+        </>
+      )}
+
+      {needsSelector && isAdmin && (
         <section className="finanzas-selector card">
           <div className="card-header">
             <h2>Seleccionar Logístico</h2>
           </div>
-          <div style={{ padding: '1rem' }}>
-            {logisticas.length === 0 ? (
-              <p>No hay usuarios logísticos disponibles.</p>
-            ) : (
-              <div className="finanzas-logisticas-grid">
-                {logisticas.map((logistica) => (
-                  <div
-                    key={logistica.id_usuario}
-                    className={`finanzas-logistica-card ${selectedLogistica?.id_usuario === logistica.id_usuario ? 'selected' : ''}`}
-                    onClick={() => handleSelectLogistica(logistica)}
-                  >
-                    <h4>{logistica.nombre_usuario} {logistica.apellido_usuario}</h4>
-                    <p>{logistica.email}</p>
-                    <p>{logistica.celular}</p>
-                    {logistica.empresas && logistica.empresas.length > 0 && (
-                      <p className="finanzas-empresa">
-                        {logistica.empresas[0].nombre_empresa} — {logistica.empresas[0].placa_vehiculo}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProveedorSelector
+            title="SELECCIONAR LOGÍSTICO:"
+            options={logisticas.map(l => ({
+              id: l.id_usuario,
+              label: `${l.nombre_usuario} ${l.apellido_usuario}`,
+            }))}
+            selectedId={selectedLogistica?.id_usuario ?? null}
+            onSelect={handleSelectLogistica}
+            placeholder="Selecciona un logístico..."
+            disabled={loadingHermanos || logisticas.length === 0}
+            loading={loading}
+            actionLabel="Seleccionar"
+            renderLabel={(option, _isSelected) => {
+              const logistica = logisticas.find(l => l.id_usuario === option.id);
+              return (
+                <span className="dropdown-item-label">
+                  🚛 {option.label}
+                  {logistica?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({logistica.email})</span>}
+                  {logistica?.empresas && logistica.empresas.length > 0 && (
+                    <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px', fontSize: '0.8rem' }}>
+                      | {logistica.empresas[0].nombre_empresa}
+                    </span>
+                  )}
+                </span>
+              );
+            }}
+          />
         </section>
       )}
 
-      {isAdmin && !selectedLogistica && !loadingHermanos && (
+      {needsSelector && !selectedLogistica && !loadingHermanos && (
         <div className="finanzas-empty-state">
-          <p>Selecciona un usuario logístico para ver sus finanzas.</p>
+          <p>
+            {isSuperAdmin && !adminSeleccionado
+              ? 'Selecciona un administrador para ver sus logísticos.'
+              : 'Selecciona un usuario logístico para ver sus finanzas.'}
+          </p>
         </div>
       )}
 
@@ -369,7 +524,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
           <button
             className="button button-primary"
             onClick={() => {
-              const targetId = isAdmin && selectedLogistica ? selectedLogistica.id_usuario : undefined;
+              const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
               fetchResumen(selectedMonth, selectedYear, targetId);
             }}
           >
@@ -386,22 +541,32 @@ const FinanzasLogisticaScreen: React.FC = () => {
 
       {!loading && !error && data && (
         <>
-          <section className="finanzas-periodo-selector">
-            <label>Período:</label>
-            <select
-              value={`${selectedMonth}-${selectedYear}`}
-              onChange={(e) => {
-                const [m, y] = e.target.value.split('-').map(Number);
-                handleMonthYearChange(m, y);
-              }}
-            >
-              {monthOptions.map((opt) => (
-                <option key={`${opt.month}-${opt.year}`} value={`${opt.month}-${opt.year}`}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </section>
+          <TransaccionesHeader
+            title={
+              isLogistica
+                ? user?.name || ''
+                : selectedLogistica
+                  ? `${selectedLogistica.nombre_usuario} ${selectedLogistica.apellido_usuario}`
+                  : 'Finanzas'
+            }
+            periodo={data.periodo}
+            esPeriodoActual={data.esPeriodoActual}
+            fechaCreacion={
+              data.fechaCreacionUsuario
+                ? new Date(data.fechaCreacionUsuario).toLocaleDateString('es-CO', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                  })
+                : undefined
+            }
+            mesesHistoricos={monthOptions.map(opt => ({
+              mes: opt.month,
+              año: opt.year,
+              fecha: opt.label,
+            }))}
+            mesSeleccionado={mesSeleccionado}
+            onConsultarMes={handleMonthYearChange}
+            loading={loading}
+          />
 
           <section className="finanzas-resumen">
             <div className="finanzas-card finanzas-card-ingresos">
@@ -427,7 +592,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
             </div>
             <div className="finanzas-dinero-out-body">
               <div className="finanzas-dinero-info">
-                {isAdmin && selectedLogistica ? (
+                {needsSelector && selectedLogistica ? (
                   <>
                     <p><strong>Logística:</strong> {selectedLogistica.nombre_usuario} {selectedLogistica.apellido_usuario}</p>
                     {data.admin && (
@@ -465,7 +630,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
                     onChange={(e) => setNotaMovimiento(e.target.value)}
                   />
                 </div>
-                {isAdmin && selectedLogistica ? (
+                {needsSelector && selectedLogistica ? (
                   <button
                     className="button button-primary"
                     onClick={() => openModal('ingreso')}

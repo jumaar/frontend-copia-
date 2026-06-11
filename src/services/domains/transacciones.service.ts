@@ -49,12 +49,12 @@ export const getHistorialTienda = async (id_usuario: number, mes?: number, año?
   return response.data;
 };
 
-export const getResumenFinanciero = async (mes?: number, ano?: number, id_logistica?: number) => {
+export const getResumenFinanciero = async (mes?: number, ano?: number, id_usuario?: number) => {
   const params = new URLSearchParams();
   if (mes) params.append('mes', String(mes));
   if (ano) params.append('ano', String(ano));
-  if (id_logistica) params.append('id_logistica', String(id_logistica));
-  const response = await apiClient.get(`/logistica/resumen-financiero?${params.toString()}`);
+  if (id_usuario) params.append('id_usuario', String(id_usuario));
+  const response = await apiClient.get(`/logistica/finanzas?${params.toString()}`);
   return response.data;
 };
 

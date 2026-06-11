@@ -18,6 +18,7 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   margin-bottom: calc(var(--spacing-unit) * 1);
+  text-align: center;
 }
 
 @media (max-width: 768px) {
