@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getTransaccionesFrigorifico, getHermanos, procesarPago } from '../../../../services/api';
 import { useMesSelector } from '../../../../shared/hooks/useMesSelector';
-import type { UsuarioHermano, TransaccionesData } from '../../../../shared/types/cuentas-frigorifico.types';
+import type { UsuarioHermano, AdminFrigorifico, TransaccionesData } from '../../../../shared/types/cuentas-frigorifico.types';
 
 interface UseCuentasFrigorificoOptions {
-  mode: 'self' | 'admin';
+  mode: 'self' | 'admin' | 'superadmin';
 }
 
 export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) => {
@@ -27,6 +27,11 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
 
   const esFrigorifico = user?.role === 'frigorifico';
   const esLogistica = user?.role === 'logistica';
+  const esSuperadmin = user?.role === 'superadmin';
+
+  const [admins, setAdmins] = useState<AdminFrigorifico[]>([]);
+  const [adminSeleccionado, setAdminSeleccionado] = useState<number | null>(null);
+  const [loadingAdmins, setLoadingAdmins] = useState(false);
 
   const formatMoneda = (monto: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -91,6 +96,38 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
       setLoadingUsuarios(false);
     }
   };
+
+  const cargarAdmins = async () => {
+    try {
+      setLoadingAdmins(true);
+      setError(null);
+      const data = await getHermanos();
+      if (data.admins && Array.isArray(data.admins)) {
+        setAdmins(data.admins);
+      } else if (Array.isArray(data)) {
+        setAdmins(data);
+      } else {
+        setAdmins([]);
+      }
+    } catch (err: any) {
+      console.error('Error al cargar admins:', err);
+      setError('Error al cargar la lista de administradores');
+    } finally {
+      setLoadingAdmins(false);
+    }
+  };
+
+  const handleSeleccionarAdmin = useCallback((idAdmin: number) => {
+    setAdminSeleccionado(idAdmin);
+    setUsuarioSeleccionado(null);
+    setTransacciones(null);
+    const adminData = admins.find(a => a.admin.id_usuario === idAdmin);
+    if (adminData) {
+      setUsuariosHermanos(adminData.frigorificos);
+    } else {
+      setUsuariosHermanos([]);
+    }
+  }, [admins]);
 
   const recargarDatosUsuario = async () => {
     if (usuarioSeleccionado) {
@@ -237,11 +274,14 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
   useEffect(() => {
     if (mode === 'self' && esFrigorifico && user?.id) {
       cargarTransacciones(parseInt(user.id));
-    } else if (mode === 'admin' && (esLogistica || user?.role === 'admin' || user?.role === 'superadmin') && user) {
+    } else if (mode === 'superadmin' && esSuperadmin && user) {
+      setLoadingAdmins(true);
+      cargarAdmins();
+    } else if (mode === 'admin' && (esLogistica || user?.role === 'admin') && user) {
       setLoadingUsuarios(true);
       cargarUsuariosHermanos();
     }
-  }, [mode, esFrigorifico, esLogistica, user?.id, user?.role]);
+  }, [mode, esFrigorifico, esLogistica, esSuperadmin, user?.id, user?.role]);
 
   useEffect(() => {
     if (transacciones && tipoPago === 'pago') {
@@ -256,6 +296,10 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     usuariosHermanos,
     usuarioSeleccionado,
     setUsuarioSeleccionado,
+    admins,
+    adminSeleccionado,
+    setAdminSeleccionado: handleSeleccionarAdmin,
+    loadingAdmins,
     transacciones,
     setTransacciones,
     loading,

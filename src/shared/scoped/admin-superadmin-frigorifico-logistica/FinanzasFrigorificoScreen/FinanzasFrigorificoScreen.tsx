@@ -13,6 +13,7 @@ const FinanzasFrigorificoScreen: React.FC = () => {
   const isFrigorifico = user?.role === 'frigorifico';
   const isAdminRole = user?.role === 'admin';
   const isLogistica = user?.role === 'logistica';
+  const isSuperadmin = user?.role === 'superadmin';
   const isAdmin = !isFrigorifico;
   const showGestionCobro = isAdminRole || isLogistica;
 
@@ -20,6 +21,10 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     usuariosHermanos,
     usuarioSeleccionado,
     setUsuarioSeleccionado,
+    admins,
+    adminSeleccionado,
+    setAdminSeleccionado,
+    loadingAdmins,
     transacciones,
     loading,
     loadingUsuarios,
@@ -40,7 +45,7 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     consultarMesEspecifico,
     manejarPago,
     formatMoneda,
-  } = useCuentasFrigorifico({ mode: isFrigorifico ? 'self' : 'admin' });
+  } = useCuentasFrigorifico({ mode: isSuperadmin ? 'superadmin' : isFrigorifico ? 'self' : 'admin' });
 
   const saldoPendientes = useMemo(() => {
     if (!transacciones?.transacciones) return 0;
@@ -96,12 +101,12 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     ];
   }, [transacciones, formatMoneda]);
 
-  if (loadingUsuarios && isAdmin) {
+  if ((loadingUsuarios && isAdmin && !isSuperadmin) || (loadingAdmins && isSuperadmin)) {
     return (
       <div className="cuentas-page">
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Cargando usuarios frigorífico...</p>
+          <p>{isSuperadmin ? 'Cargando administradores...' : 'Cargando usuarios frigorífico...'}</p>
         </div>
       </div>
     );
@@ -124,36 +129,90 @@ const FinanzasFrigorificoScreen: React.FC = () => {
               Consulta las transacciones de productos pendientes y consolidados por frigorífico
             </p>
 
-            <div style={{ marginTop: '1.5rem' }}>
-              <ProveedorSelector
-                title="SELECCIONAR PROVEEDOR:"
-                options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario}` }))}
-                selectedId={usuarioSeleccionado}
-                onSelect={(id) => {
-                  const numId = Number(id);
-                  setUsuarioSeleccionado(numId);
-                  cargarTransacciones(numId);
-                }}
-                placeholder="Selecciona un frigorífico..."
-                disabled={loadingUsuarios}
-                loading={loading}
-                actionLabel="Seleccionar"
-                renderLabel={(option, _isSelected) => {
-                  const usuario = usuariosHermanos.find(u => u.id_usuario === option.id);
-                  return (
-                    <span className="dropdown-item-label">
-                      ❄️ {option.label}
-                      {usuario?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
-                    </span>
-                  );
-                }}
-              />
-            </div>
+            {isSuperadmin ? (
+              <div style={{ marginTop: '1.5rem', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <ProveedorSelector
+                  title="1. SELECCIONAR ADMINISTRADOR:"
+                  options={admins.map(a => ({
+                    id: a.admin.id_usuario,
+                    label: `${a.admin.nombre_usuario} ${a.admin.apellido_usuario || ''}`,
+                  }))}
+                  selectedId={adminSeleccionado}
+                  onSelect={(id) => setAdminSeleccionado(Number(id))}
+                  placeholder="Selecciona un administrador..."
+                  disabled={loadingAdmins}
+                  renderLabel={(option) => {
+                    const adminData = admins.find(a => a.admin.id_usuario === option.id);
+                    return (
+                      <span className="dropdown-item-label">
+                        👤 {option.label}
+                        {adminData?.admin.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({adminData.admin.email})</span>}
+                        <span style={{ color: 'var(--color-text-secondary)', marginLeft: '8px', fontSize: '0.85rem' }}>
+                          | {adminData?.frigorificos.length || 0} frigorífico{adminData?.frigorificos.length !== 1 ? 's' : ''}
+                        </span>
+                      </span>
+                    );
+                  }}
+                />
+
+                {adminSeleccionado && (
+                  <ProveedorSelector
+                    title="2. SELECCIONAR PROVEEDOR:"
+                    options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario || ''}` }))}
+                    selectedId={usuarioSeleccionado}
+                    onSelect={(id) => {
+                      const numId = Number(id);
+                      setUsuarioSeleccionado(numId);
+                      cargarTransacciones(numId);
+                    }}
+                    placeholder="Selecciona un frigorífico..."
+                    disabled={usuariosHermanos.length === 0}
+                    loading={loading}
+                    actionLabel="Seleccionar"
+                    renderLabel={(option, _isSelected) => {
+                      const usuario = usuariosHermanos.find(u => u.id_usuario === option.id);
+                      return (
+                        <span className="dropdown-item-label">
+                          ❄️ {option.label}
+                          {usuario?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
+                        </span>
+                      );
+                    }}
+                  />
+                )}
+              </div>
+            ) : (
+              <div style={{ marginTop: '1.5rem' }}>
+                <ProveedorSelector
+                  title="SELECCIONAR PROVEEDOR:"
+                  options={usuariosHermanos.map(u => ({ id: u.id_usuario, label: `${u.nombre_usuario} ${u.apellido_usuario || ''}` }))}
+                  selectedId={usuarioSeleccionado}
+                  onSelect={(id) => {
+                    const numId = Number(id);
+                    setUsuarioSeleccionado(numId);
+                    cargarTransacciones(numId);
+                  }}
+                  placeholder="Selecciona un frigorífico..."
+                  disabled={loadingUsuarios}
+                  loading={loading}
+                  actionLabel="Seleccionar"
+                  renderLabel={(option, _isSelected) => {
+                    const usuario = usuariosHermanos.find(u => u.id_usuario === option.id);
+                    return (
+                      <span className="dropdown-item-label">
+                        ❄️ {option.label}
+                        {usuario?.email && <span style={{ color: '#666', fontSize: '0.8rem' }}> ({usuario.email})</span>}
+                      </span>
+                    );
+                  }}
+                />
+              </div>
+            )}
           </>
         )}
 
         {loading && !usuarioSeleccionado && isAdmin && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#666', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)', marginTop: '1rem', fontSize: '0.9rem' }}>
             <div className="loading-spinner" style={{ width: '16px', height: '16px' }}></div>
             <span>Consultando transacciones...</span>
           </div>

@@ -7,6 +7,11 @@ export interface UsuarioHermano {
   rol?: string;
 }
 
+export interface AdminFrigorifico {
+  admin: UsuarioHermano;
+  frigorificos: UsuarioHermano[];
+}
+
 export interface TransaccionesData {
   transacciones: any[];
   fecha_creacion_usuario: string;
