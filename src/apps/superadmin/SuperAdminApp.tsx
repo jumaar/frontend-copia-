@@ -5,7 +5,7 @@ import { superadminNavItems } from '../../shared/layouts/Sidebar/navigation/supe
 
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
-const GlobalAccountsPage = lazy(() => import('./pages/GlobalAccountsPage'));
+const FinanzasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasScreen/FinanzasScreen'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
 const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
 const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
@@ -21,7 +21,7 @@ const superadminRouteTitles: Record<string, string> = {
   '/superadmin/logistica': 'Gestión Logística',
   '/superadmin/productos': 'Gestión de Productos',
   '/superadmin/neveras': 'Gestión de Neveras',
-  '/superadmin/accounts': 'Cuentas Globales',
+  '/superadmin/accounts': 'Finanzas',
   '/superadmin/cuentas-tiendas': 'Cuentas Tiendas',
   '/superadmin/historial-tienda': 'Historial Tiendas',
   '/superadmin/finanzas-logistica': 'Finanzas Logísticas',
@@ -41,7 +41,7 @@ const SuperAdminApp: React.FC = () => {
         <Route path="logistica" element={<LogisticaInventarioScreen mode="admin" />} />
         <Route path="productos" element={<FrigorificoProductosPage />} />
         <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
-        <Route path="accounts" element={<GlobalAccountsPage />} />
+        <Route path="accounts" element={<FinanzasScreen />} />
         <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
         <Route path="historial-tienda" element={<HistorialTiendaPage />} />
         <Route path="finanzas-logistica" element={<LogisticaFinanzasPage />} />

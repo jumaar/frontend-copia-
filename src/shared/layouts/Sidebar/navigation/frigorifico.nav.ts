@@ -4,6 +4,6 @@ export const frigorificoNavItems: NavItem[] = [
   { to: '/frigorifico',           label: 'Dashboard', end: true },
   { to: '/frigorifico/logistica',  label: 'Gestión Frigoríficos' },
   { to: '/frigorifico/productos',  label: 'Gestión de Productos' },
-  { to: '/frigorifico/cuentas',    label: 'Cuentas Globales' },
+  { to: '/frigorifico/cuentas',    label: 'Finanzas' },
   { to: '/trazabilidad',           label: 'Trazabilidad' },
 ];

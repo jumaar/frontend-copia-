@@ -6,7 +6,7 @@ export const superadminNavItems: NavItem[] = [
   { to: '/superadmin/logistica',          label: 'Gestión Logística' },
   { to: '/superadmin/productos',          label: 'Gestión de Productos' },
   { to: '/superadmin/neveras',            label: 'Gestión de Neveras' },
-  { to: '/superadmin/accounts',           label: 'Cuentas Globales' },
+  { to: '/superadmin/accounts',           label: 'Finanzas' },
   { to: '/superadmin/cuentas-tiendas',    label: 'Cuentas Neveras' },
   { to: '/superadmin/historial-tienda',   label: 'Historial Tiendas' },
   { to: '/trazabilidad',                  label: 'Trazabilidad' },

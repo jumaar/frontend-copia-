@@ -8,7 +8,7 @@ import { logisticaNavItems } from '../../shared/layouts/Sidebar/navigation/logis
 const SurtidoOverlay = lazy(() => import('./components/SurtidoOverlay'));
 const LogisticaDashboardPage = lazy(() => import('./pages/LogisticaDashboardPage'));
 const LogisticaGestionPage = lazy(() => import('./pages/LogisticaGestionPage'));
-const LogisticaFinanzasPage = lazy(() => import('./pages/LogisticaFinanzasPage'));
+const FinanzasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasScreen/FinanzasScreen'));
 const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaPage'));
 const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaPage'));
 const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
@@ -45,7 +45,7 @@ const LogisticaApp: React.FC = () => {
           <Route path="gestion" element={<LogisticaGestionPage />} />
           <Route path="inventario" element={<LogisticaInventarioScreen mode="self" />} />
           <Route path="neveras" element={<InventarioNeverasWrapper />} />
-          <Route path="finanzas" element={<LogisticaFinanzasPage />} />
+          <Route path="finanzas" element={<FinanzasScreen />} />
           <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
           <Route path="historial-tienda" element={<HistorialTiendaPage />} />
           <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />

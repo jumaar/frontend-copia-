@@ -6,7 +6,7 @@ export const adminNavItems: NavItem[] = [
   { to: '/admin/logistica',          label: 'Gestión Logística' },
   { to: '/admin/productos',          label: 'Gestión de Productos' },
   { to: '/admin/neveras',            label: 'Gestión de Neveras' },
-  { to: '/admin/accounts',           label: 'Cuentas Globales' },
+  { to: '/admin/accounts',           label: 'Finanzas' },
   { to: '/admin/cuentas-tiendas',    label: 'Cuentas Neveras' },
   { to: '/admin/historial-tienda',   label: 'Historial Tiendas' },
   { to: '/trazabilidad',             label: 'Trazabilidad' },

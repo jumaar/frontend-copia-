@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../services/api';
-import { numberToWords } from '../../../shared/utils/numberToWords';
-import './LogisticaFinanzasPage.css';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../../services/api';
+import { numberToWords } from '../../../utils/numberToWords';
+import './FinanzasScreen.css';
 
 interface AdminInfo {
   id_usuario: number;
@@ -87,7 +87,7 @@ const getEstadoBadgeClass = (estado: string): string => {
   return 'badge-neutral';
 };
 
-const LogisticaFinanzasPage: React.FC = () => {
+const FinanzasScreen: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const isLogistica = user?.role === 'logistica';
@@ -318,7 +318,6 @@ const LogisticaFinanzasPage: React.FC = () => {
         </div>
       )}
 
-      {/* Admin: selector de logístico */}
       {isAdmin && (
         <section className="finanzas-selector card">
           <div className="card-header">
@@ -351,14 +350,12 @@ const LogisticaFinanzasPage: React.FC = () => {
         </section>
       )}
 
-      {/* Admin sin logístico seleccionado */}
       {isAdmin && !selectedLogistica && !loadingHermanos && (
         <div className="finanzas-empty-state">
           <p>Selecciona un usuario logístico para ver sus finanzas.</p>
         </div>
       )}
 
-      {/* Loader para data financiera */}
       {loading && (
         <div className="finanzas-loading">
           <div className="finanzas-spinner"></div>
@@ -366,7 +363,6 @@ const LogisticaFinanzasPage: React.FC = () => {
         </div>
       )}
 
-      {/* Error state */}
       {error && !loading && (
         <div className="finanzas-error">
           <p>{error}</p>
@@ -382,17 +378,14 @@ const LogisticaFinanzasPage: React.FC = () => {
         </div>
       )}
 
-      {/* Empty state */}
       {!loading && !error && data && data.transacciones.length === 0 && (
         <div className="finanzas-empty-state">
           <p>No hay movimientos registrados en este período.</p>
         </div>
       )}
 
-      {/* Data loaded */}
       {!loading && !error && data && (
         <>
-          {/* Selector mes/año */}
           <section className="finanzas-periodo-selector">
             <label>Período:</label>
             <select
@@ -410,7 +403,6 @@ const LogisticaFinanzasPage: React.FC = () => {
             </select>
           </section>
 
-          {/* Sección 1 — Resumen (3 tarjetas) */}
           <section className="finanzas-resumen">
             <div className="finanzas-card finanzas-card-ingresos">
               <h3>Ingresos Totales</h3>
@@ -429,7 +421,6 @@ const LogisticaFinanzasPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Sección 2 — Dinero OUT */}
           <section className="finanzas-dinero-out card">
             <div className="card-header">
               <h2>Dinero OUT</h2>
@@ -493,7 +484,6 @@ const LogisticaFinanzasPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Sección 3 — Libro Mayor */}
           <section className="finanzas-libro-mayor card">
             <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2>Libro Mayor</h2>
@@ -552,7 +542,6 @@ const LogisticaFinanzasPage: React.FC = () => {
         </>
       )}
 
-      {/* Modal de confirmación */}
       {showModal && (
         <div className="finanzas-modal-overlay" onClick={closeModal}>
           <div className="finanzas-modal" onClick={(e) => e.stopPropagation()}>
@@ -608,4 +597,4 @@ const LogisticaFinanzasPage: React.FC = () => {
   );
 };
 
-export default LogisticaFinanzasPage;
+export default FinanzasScreen;

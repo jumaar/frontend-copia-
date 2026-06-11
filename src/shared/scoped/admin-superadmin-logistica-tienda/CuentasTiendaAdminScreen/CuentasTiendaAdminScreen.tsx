@@ -8,6 +8,7 @@ import Alert from '../../../components/Alert/Alert';
 
 const CuentasTiendaAdminPage: React.FC = () => {
   const { user } = useAuth();
+  const isSuperadmin = user?.role === 'superadmin';
   const {
     usuariosTienda,
     ciudades,
@@ -151,7 +152,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
         />
       )}
 
-      {tiendaSeleccionada && neveraSeleccionada && transacciones && esMesActual && (
+      {!isSuperadmin && tiendaSeleccionada && neveraSeleccionada && transacciones && esMesActual && (
         <GestionCobro
           tipoPago={tipoPago}
           setTipoPago={setTipoPago}
