@@ -5,7 +5,7 @@ import { adminNavItems } from '../../shared/layouts/Sidebar/navigation/admin.nav
 
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
-const FinanzasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasScreen/FinanzasScreen'));
+const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasLogisticaScreen/FinanzasLogisticaScreen'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
 const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
 const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
@@ -21,10 +21,11 @@ const adminRouteTitles: Record<string, string> = {
   '/admin/logistica': 'Gestión Logística',
   '/admin/productos': 'Gestión de Productos',
   '/admin/neveras': 'Gestión de Neveras',
-  '/admin/accounts': 'Finanzas',
+  '/admin/accounts': 'Finanzas Logísticas',
   '/admin/cuentas-tiendas': 'Cuentas Tiendas',
   '/admin/historial-tienda': 'Historial Tiendas',
   '/admin/finanzas-logistica': 'Finanzas Logísticas',
+  '/admin/finanzas': 'Finanzas',
   '/admin/cuentas-frigorificos': 'Cuentas Frigoríficos',
 };
 
@@ -41,7 +42,8 @@ const AdminApp: React.FC = () => {
         <Route path="logistica" element={<LogisticaInventarioScreen mode="admin" />} />
         <Route path="productos" element={<FrigorificoProductosPage />} />
         <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
-        <Route path="accounts" element={<FinanzasScreen />} />
+        <Route path="accounts" element={<FinanzasLogisticaScreen />} />
+        <Route path="finanzas" element={<div className="management-page"><div className="cuentas-header"><h1>Finanzas</h1><p>En construcción</p></div></div>} />
         <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
         <Route path="historial-tienda" element={<HistorialTiendaPage />} />
         <Route path="finanzas-logistica" element={<LogisticaFinanzasPage />} />

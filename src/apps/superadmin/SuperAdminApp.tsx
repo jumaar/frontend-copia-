@@ -5,12 +5,11 @@ import { superadminNavItems } from '../../shared/layouts/Sidebar/navigation/supe
 
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
-const FinanzasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasScreen/FinanzasScreen'));
+const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasLogisticaScreen/FinanzasLogisticaScreen'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
 const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
 const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
 const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
-const LogisticaFinanzasPage = lazy(() => import('./pages/FinanzasAdminPage'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
 const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen'));
@@ -41,10 +40,10 @@ const SuperAdminApp: React.FC = () => {
         <Route path="logistica" element={<LogisticaInventarioScreen mode="admin" />} />
         <Route path="productos" element={<FrigorificoProductosPage />} />
         <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
-        <Route path="accounts" element={<FinanzasScreen />} />
+        <Route path="accounts" element={<div className="management-page"><div className="cuentas-header"><h1>Finanzas</h1><p>En construcción</p></div></div>} />
         <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
         <Route path="historial-tienda" element={<HistorialTiendaPage />} />
-        <Route path="finanzas-logistica" element={<LogisticaFinanzasPage />} />
+        <Route path="finanzas-logistica" element={<FinanzasLogisticaScreen />} />
         <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
       </Routes>
     </RoleLayout>

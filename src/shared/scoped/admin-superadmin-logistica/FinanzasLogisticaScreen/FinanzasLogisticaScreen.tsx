@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../../services/api';
 import { numberToWords } from '../../../utils/numberToWords';
-import './FinanzasScreen.css';
+import './FinanzasLogisticaScreen.css';
 
 interface AdminInfo {
   id_usuario: number;
@@ -87,7 +87,7 @@ const getEstadoBadgeClass = (estado: string): string => {
   return 'badge-neutral';
 };
 
-const FinanzasScreen: React.FC = () => {
+const FinanzasLogisticaScreen: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const isLogistica = user?.role === 'logistica';
@@ -597,4 +597,4 @@ const FinanzasScreen: React.FC = () => {
   );
 };
 
-export default FinanzasScreen;
+export default FinanzasLogisticaScreen;
