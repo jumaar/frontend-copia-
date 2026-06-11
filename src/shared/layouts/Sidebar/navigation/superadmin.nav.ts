@@ -11,4 +11,5 @@ export const superadminNavItems: NavItem[] = [
   { to: '/superadmin/finanzas-tienda',   label: 'Finanzas Tiendas' },
   { to: '/trazabilidad',                  label: 'Trazabilidad' },
   { to: '/superadmin/finanzas-logistica', label: 'Finanzas Logísticas' },
+  { to: '/superadmin/finanzas-frigorificos', label: 'Finanzas Frigoríficos' },
 ];

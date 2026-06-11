@@ -9,7 +9,7 @@ const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-sup
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
 const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
 const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
-const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
+const FinanzasFrigorificoScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/FinanzasFrigorificoScreen/FinanzasFrigorificoScreen'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
 const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
@@ -19,13 +19,12 @@ const adminRouteTitles: Record<string, string> = {
   '/admin/users': 'Gestión de Usuarios',
   '/admin/logistica': 'Gestión Logística',
   '/admin/productos': 'Gestión de Productos',
-  '/admin/neveras': 'Gestión de Neveras',
-  '/admin/accounts': 'Finanzas Logísticas',
+  '/admin/neveras': 'Inventario Neveras',
   '/admin/cuentas-tiendas': 'Cuentas Tiendas',
   '/admin/finanzas-tienda': 'Finanzas Tiendas',
   '/admin/finanzas-logistica': 'Finanzas Logísticas',
   '/admin/finanzas': 'Finanzas',
-  '/admin/cuentas-frigorificos': 'Cuentas Frigoríficos',
+  '/admin/finanzas-frigorificos': 'Finanzas Frigoríficos',
 };
 
 const AdminApp: React.FC = () => {
@@ -41,12 +40,11 @@ const AdminApp: React.FC = () => {
         <Route path="logistica" element={<LogisticaInventarioScreen mode="admin" />} />
         <Route path="productos" element={<FrigorificoProductosPage />} />
         <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
-        <Route path="accounts" element={<FinanzasLogisticaScreen />} />
         <Route path="finanzas" element={<div className="management-page"><div className="cuentas-header"><h1>Finanzas</h1><p>En construcción</p></div></div>} />
         <Route path="cuentas-tiendas" element={<CuentasNeverasScreen />} />
         <Route path="finanzas-tienda" element={<FinanzasTiendaScreen />} />
         <Route path="finanzas-logistica" element={<FinanzasLogisticaScreen />} />
-        <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
+        <Route path="finanzas-frigorificos" element={<FinanzasFrigorificoScreen />} />
       </Routes>
     </RoleLayout>
   );

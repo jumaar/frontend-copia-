@@ -11,7 +11,7 @@ const LogisticaGestionPage = lazy(() => import('./pages/LogisticaGestionPage'));
 const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasLogisticaScreen/FinanzasLogisticaScreen'));
 const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
 const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
-const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
+const FinanzasFrigorificoScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/FinanzasFrigorificoScreen/FinanzasFrigorificoScreen'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
 const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
@@ -29,7 +29,7 @@ const logisticaRouteTitles: Record<string, string> = {
   '/logistica/finanzas': 'Finanzas',
   '/logistica/cuentas-tiendas': 'Cuentas Tiendas',
   '/logistica/finanzas-tienda': 'Finanzas Tiendas',
-  '/logistica/cuentas-frigorificos': 'Cuentas Frigoríficos',
+  '/logistica/finanzas-frigorificos': 'Finanzas Frigoríficos',
 };
 
 const LogisticaApp: React.FC = () => {
@@ -48,7 +48,7 @@ const LogisticaApp: React.FC = () => {
           <Route path="finanzas" element={<FinanzasLogisticaScreen />} />
           <Route path="cuentas-tiendas" element={<CuentasNeverasScreen />} />
           <Route path="finanzas-tienda" element={<FinanzasTiendaScreen />} />
-          <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
+          <Route path="finanzas-frigorificos" element={<FinanzasFrigorificoScreen />} />
         </Routes>
       </RoleLayout>
       <SurtidoOverlay />

@@ -9,7 +9,7 @@ const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-sup
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
 const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
 const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
-const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
+const FinanzasFrigorificoScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/FinanzasFrigorificoScreen/FinanzasFrigorificoScreen'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
 const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
@@ -19,12 +19,12 @@ const superadminRouteTitles: Record<string, string> = {
   '/superadmin/users': 'Gestión de Usuarios',
   '/superadmin/logistica': 'Gestión Logística',
   '/superadmin/productos': 'Gestión de Productos',
-  '/superadmin/neveras': 'Gestión de Neveras',
+  '/superadmin/neveras': 'Inventario Neveras',
   '/superadmin/accounts': 'Finanzas',
   '/superadmin/cuentas-tiendas': 'Cuentas Tiendas',
   '/superadmin/finanzas-tienda': 'Finanzas Tiendas',
   '/superadmin/finanzas-logistica': 'Finanzas Logísticas',
-  '/superadmin/cuentas-frigorificos': 'Cuentas Frigoríficos',
+  '/superadmin/finanzas-frigorificos': 'Finanzas Frigoríficos',
 };
 
 const SuperAdminApp: React.FC = () => {
@@ -44,7 +44,7 @@ const SuperAdminApp: React.FC = () => {
         <Route path="cuentas-tiendas" element={<CuentasNeverasScreen />} />
         <Route path="finanzas-tienda" element={<FinanzasTiendaScreen />} />
         <Route path="finanzas-logistica" element={<FinanzasLogisticaScreen />} />
-        <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
+        <Route path="finanzas-frigorificos" element={<FinanzasFrigorificoScreen />} />
       </Routes>
     </RoleLayout>
   );

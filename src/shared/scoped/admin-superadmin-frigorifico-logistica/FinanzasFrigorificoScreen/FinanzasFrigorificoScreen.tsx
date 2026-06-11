@@ -8,10 +8,13 @@ import GestionCobro from '../../admin-superadmin-logistica/components/GestionCob
 import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
 import Alert from '../../../components/Alert/Alert';
 
-const CuentasFrigorificoPage: React.FC = () => {
+const FinanzasFrigorificoScreen: React.FC = () => {
   const { user } = useAuth();
   const isFrigorifico = user?.role === 'frigorifico';
+  const isAdminRole = user?.role === 'admin';
+  const isLogistica = user?.role === 'logistica';
   const isAdmin = !isFrigorifico;
+  const showGestionCobro = isAdminRole || isLogistica;
 
   const {
     usuariosHermanos,
@@ -109,14 +112,14 @@ const CuentasFrigorificoPage: React.FC = () => {
       <div className="cuentas-header">
         {isFrigorifico ? (
           <>
-            <h1>Mis Cuentas Globales</h1>
+            <h1>Mis Finanzas</h1>
             <p className="subtitle">
               Revisa tus transacciones de productos pendientes y consolidados
             </p>
           </>
         ) : (
           <>
-            <h1>Cuentas Frigoríficos</h1>
+            <h1>Finanzas Frigoríficos</h1>
             <p className="subtitle">
               Consulta las transacciones de productos pendientes y consolidados por frigorífico
             </p>
@@ -185,7 +188,7 @@ const CuentasFrigorificoPage: React.FC = () => {
         </>
       )}
 
-      {isAdmin && usuarioSeleccionado && esMesActual && (
+      {showGestionCobro && usuarioSeleccionado && esMesActual && (
         <GestionCobro
           mode="entregar"
           tipoPago={tipoPago}
@@ -207,4 +210,4 @@ const CuentasFrigorificoPage: React.FC = () => {
   );
 };
 
-export default CuentasFrigorificoPage;
+export default FinanzasFrigorificoScreen;

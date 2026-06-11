@@ -6,13 +6,13 @@ import { frigorificoNavItems } from '../../shared/layouts/Sidebar/navigation/fri
 const FrigorificoPage = lazy(() => import('./pages/FrigorificoPage'));
 const FrigorificoLogisticaPage = lazy(() => import('./pages/LogisticaPage'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosPage'));
-const FrigorificoCuentasPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
+const FinanzasFrigorificoScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/FinanzasFrigorificoScreen/FinanzasFrigorificoScreen'));
 
 const frigorificoRouteTitles: Record<string, string> = {
   '/frigorifico': 'Dashboard',
   '/frigorifico/logistica': 'Gestión Frigoríficos',
   '/frigorifico/productos': 'Gestión de Productos',
-  '/frigorifico/cuentas': 'Cuentas Globales',
+  '/frigorifico/finanzas': 'Finanzas',
 };
 
 const FrigorificoApp: React.FC = () => {
@@ -26,7 +26,7 @@ const FrigorificoApp: React.FC = () => {
         <Route index element={<FrigorificoPage />} />
         <Route path="logistica" element={<FrigorificoLogisticaPage />} />
         <Route path="productos" element={<FrigorificoProductosPage />} />
-        <Route path="cuentas" element={<FrigorificoCuentasPage />} />
+        <Route path="finanzas" element={<FinanzasFrigorificoScreen />} />
       </Routes>
     </RoleLayout>
   );
