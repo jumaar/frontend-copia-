@@ -7,13 +7,12 @@ const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
 const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasLogisticaScreen/FinanzasLogisticaScreen'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
-const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
-const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
+const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
+const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
 const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
-const LogisticaFinanzasPage = lazy(() => import('./pages/FinanzasAdminPage'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
-const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen'));
+const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
 
 const adminRouteTitles: Record<string, string> = {
   '/admin/dashboard': 'Dashboard',
@@ -23,7 +22,7 @@ const adminRouteTitles: Record<string, string> = {
   '/admin/neveras': 'Gestión de Neveras',
   '/admin/accounts': 'Finanzas Logísticas',
   '/admin/cuentas-tiendas': 'Cuentas Tiendas',
-  '/admin/historial-tienda': 'Historial Tiendas',
+  '/admin/finanzas-tienda': 'Finanzas Tiendas',
   '/admin/finanzas-logistica': 'Finanzas Logísticas',
   '/admin/finanzas': 'Finanzas',
   '/admin/cuentas-frigorificos': 'Cuentas Frigoríficos',
@@ -44,9 +43,9 @@ const AdminApp: React.FC = () => {
         <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
         <Route path="accounts" element={<FinanzasLogisticaScreen />} />
         <Route path="finanzas" element={<div className="management-page"><div className="cuentas-header"><h1>Finanzas</h1><p>En construcción</p></div></div>} />
-        <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
-        <Route path="historial-tienda" element={<HistorialTiendaPage />} />
-        <Route path="finanzas-logistica" element={<LogisticaFinanzasPage />} />
+        <Route path="cuentas-tiendas" element={<CuentasNeverasScreen />} />
+        <Route path="finanzas-tienda" element={<FinanzasTiendaScreen />} />
+        <Route path="finanzas-logistica" element={<FinanzasLogisticaScreen />} />
         <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
       </Routes>
     </RoleLayout>

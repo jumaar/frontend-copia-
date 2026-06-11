@@ -17,18 +17,15 @@ interface NeverasSurtirResponse {
 
 interface NeverasSurtirPanelProps {
   showSurtir?: boolean;
-  showConsultar?: boolean;
   esAdmin?: boolean;
   renderModal?: boolean;
   neverasData: NeverasSurtirResponse | null;
   loadingNeveras: boolean;
   errorNeveras: string | null;
-  showNeverasSection: boolean;
   searchId: string;
   expandedCities: Set<string>;
   isSurtirModalOpen: boolean;
   selectedNeveraId: number | null;
-  handleConsultarNeveras?: () => Promise<void>;
   toggleCityExpansion: (ciudad: string) => void;
   handleSurtir: (idNevera: number) => void;
   handleSurtirFlujo?: (idNevera: number, nombreTienda: string) => void;
@@ -40,18 +37,15 @@ interface NeverasSurtirPanelProps {
 
 const NeverasSurtirPanel: React.FC<NeverasSurtirPanelProps> = ({
   showSurtir = false,
-  showConsultar = true,
   esAdmin = false,
   renderModal = true,
   neverasData,
   loadingNeveras,
   errorNeveras,
-  showNeverasSection,
   searchId,
   expandedCities,
   isSurtirModalOpen,
   selectedNeveraId,
-  handleConsultarNeveras,
   toggleCityExpansion,
   handleSurtir,
   handleSurtirFlujo,
@@ -68,31 +62,9 @@ const NeverasSurtirPanel: React.FC<NeverasSurtirPanelProps> = ({
             Neveras para Surtir
           </h2>
 
-          {showConsultar && !showNeverasSection ? (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-              <button
-                className="action-button"
-                onClick={handleConsultarNeveras}
-                disabled={loadingNeveras}
-                style={{
-                  padding: '0.75rem 2rem',
-                  backgroundColor: '#667eea',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: loadingNeveras ? 'not-allowed' : 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: 'bold',
-                }}
-              >
-                {loadingNeveras ? 'Consultando...' : 'Consultar'}
-              </button>
-            </div>
-          ) : (
-            <>
-              {loadingNeveras ? (
-                <div>Cargando neveras...</div>
-              ) : errorNeveras ? (
+          {loadingNeveras ? (
+            <div>Cargando neveras...</div>
+          ) : errorNeveras ? (
                 <div style={{ color: 'red', padding: '1rem', border: '1px solid red', borderRadius: '4px' }}>
                   {errorNeveras}
                 </div>
@@ -264,10 +236,8 @@ const NeverasSurtirPanel: React.FC<NeverasSurtirPanelProps> = ({
                   </div>
                 </>
               ) : (
-                <p>No se encontraron datos de neveras.</p>
-              )}
-            </>
-          )}
+              <p>No se encontraron datos de neveras.</p>
+            )}
         </div>
       </section>
 

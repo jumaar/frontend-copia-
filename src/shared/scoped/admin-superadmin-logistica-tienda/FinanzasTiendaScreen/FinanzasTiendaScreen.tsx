@@ -1,9 +1,14 @@
 import React, { useEffect } from 'react';
+import { useAuth } from '../../../../contexts/AuthContext';
 import { useHistorialTienda } from '../hooks/useHistorialTienda';
 import HistorialTiendaView from '../components/HistorialTiendaView/HistorialTiendaView';
 import TiendaSelector from '../components/TiendaSelector/TiendaSelector';
 
-const HistorialTiendaAdminPage: React.FC = () => {
+const FinanzasTiendaScreen: React.FC = () => {
+  const { user } = useAuth();
+  const isTienda = user?.role === 'tienda';
+  const mode = isTienda ? 'self' : 'admin';
+
   const {
     usuariosTienda,
     ciudades,
@@ -40,7 +45,7 @@ const HistorialTiendaAdminPage: React.FC = () => {
     toggleProducto,
 
     resumenGlobal,
-  } = useHistorialTienda({ mode: 'admin' });
+  } = useHistorialTienda({ mode });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,34 +77,36 @@ const HistorialTiendaAdminPage: React.FC = () => {
   return (
     <div className="cuentas-page">
       <div className="cuentas-header">
-        <h1>Historial Tienda</h1>
+        <h1>Finanzas Tiendas</h1>
         <p className="subtitle">
           Consulta el historial completo de movimientos por nevera en el mes seleccionado
         </p>
 
-        <TiendaSelector
-          title="SELECCIONAR USUARIO TIENDA:"
-          busquedaNevera={busquedaNevera}
-          onBusquedaChange={setBusquedaNevera}
-          onBuscar={buscarNevera}
-          searchLoading={loading}
-          ciudades={ciudades}
-          ciudadSeleccionada={ciudadSeleccionada}
-          onCiudadSelect={(c) => { setCiudadSeleccionada(c); setUsuarioSeleccionado(null); setShowCiudadMenu(false); }}
-          showCiudadMenu={showCiudadMenu}
-          onToggleCiudadMenu={() => { setShowCiudadMenu(!showCiudadMenu); setShowTiendaMenu(false); }}
-          loading={loadingUsuarios}
-          mode="historial"
-          usuariosTienda={usuariosTienda}
-          tiendaSeleccionada={null}
-          neveraSeleccionada={null}
-          showTiendaMenu={showTiendaMenu}
-          showUserInfo
-          onToggleTiendaMenu={() => setShowTiendaMenu(!showTiendaMenu)}
-          onTiendaSelect={() => {}}
-          usuarioTiendaSeleccionado={usuarioSeleccionado}
-          onUsuarioTiendaSelect={handleUsuarioTiendaSelect}
-        />
+        {!isTienda && (
+          <TiendaSelector
+            title="SELECCIONAR USUARIO TIENDA:"
+            busquedaNevera={busquedaNevera}
+            onBusquedaChange={setBusquedaNevera}
+            onBuscar={buscarNevera}
+            searchLoading={loading}
+            ciudades={ciudades}
+            ciudadSeleccionada={ciudadSeleccionada}
+            onCiudadSelect={(c) => { setCiudadSeleccionada(c); setUsuarioSeleccionado(null); setShowCiudadMenu(false); }}
+            showCiudadMenu={showCiudadMenu}
+            onToggleCiudadMenu={() => { setShowCiudadMenu(!showCiudadMenu); setShowTiendaMenu(false); }}
+            loading={loadingUsuarios}
+            mode="historial"
+            usuariosTienda={usuariosTienda}
+            tiendaSeleccionada={null}
+            neveraSeleccionada={null}
+            showTiendaMenu={showTiendaMenu}
+            showUserInfo
+            onToggleTiendaMenu={() => setShowTiendaMenu(!showTiendaMenu)}
+            onTiendaSelect={() => {}}
+            usuarioTiendaSeleccionado={usuarioSeleccionado}
+            onUsuarioTiendaSelect={handleUsuarioTiendaSelect}
+          />
+        )}
       </div>
 
       {historial && (
@@ -126,4 +133,4 @@ const HistorialTiendaAdminPage: React.FC = () => {
   );
 };
 
-export default HistorialTiendaAdminPage;
+export default FinanzasTiendaScreen;

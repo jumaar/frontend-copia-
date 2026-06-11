@@ -9,12 +9,12 @@ const SurtidoOverlay = lazy(() => import('./components/SurtidoOverlay'));
 const LogisticaDashboardPage = lazy(() => import('./pages/LogisticaDashboardPage'));
 const LogisticaGestionPage = lazy(() => import('./pages/LogisticaGestionPage'));
 const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasLogisticaScreen/FinanzasLogisticaScreen'));
-const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaPage'));
-const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaPage'));
+const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
+const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
 const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
-const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen'));
+const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
 
 const InventarioNeverasWrapper: React.FC = () => {
   const { iniciarSurtido } = useSurtido();
@@ -28,7 +28,7 @@ const logisticaRouteTitles: Record<string, string> = {
   '/logistica/neveras': 'Gestión de Neveras',
   '/logistica/finanzas': 'Finanzas',
   '/logistica/cuentas-tiendas': 'Cuentas Tiendas',
-  '/logistica/historial-tienda': 'Historial Tiendas',
+  '/logistica/finanzas-tienda': 'Finanzas Tiendas',
   '/logistica/cuentas-frigorificos': 'Cuentas Frigoríficos',
 };
 
@@ -46,8 +46,8 @@ const LogisticaApp: React.FC = () => {
           <Route path="inventario" element={<LogisticaInventarioScreen mode="self" />} />
           <Route path="neveras" element={<InventarioNeverasWrapper />} />
           <Route path="finanzas" element={<FinanzasLogisticaScreen />} />
-          <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
-          <Route path="historial-tienda" element={<HistorialTiendaPage />} />
+          <Route path="cuentas-tiendas" element={<CuentasNeverasScreen />} />
+          <Route path="finanzas-tienda" element={<FinanzasTiendaScreen />} />
           <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
         </Routes>
       </RoleLayout>

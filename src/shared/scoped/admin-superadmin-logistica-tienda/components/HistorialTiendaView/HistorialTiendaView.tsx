@@ -92,13 +92,6 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
 
   return (
     <div className="cuentas-page">
-      <div className="cuentas-header">
-        <h1>Historial Tienda</h1>
-        <p className="subtitle">
-          Consulta el historial completo de movimientos por nevera en el mes seleccionado
-        </p>
-      </div>
-
       {successMessage && (
         <Alert message={successMessage} onDismiss={() => setSuccessMessage(null)} type="success" />
       )}

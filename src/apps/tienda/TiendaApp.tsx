@@ -4,15 +4,15 @@ import RoleLayout from '../../shared/layouts/RoleLayout';
 import { tiendaNavItems } from '../../shared/layouts/Sidebar/navigation/tienda.nav';
 
 const TiendaDashboardPage = lazy(() => import('./pages/TiendaDashboardPage'));
-const TiendaInventarioPage = lazy(() => import('./pages/TiendaInventarioPage'));
-const CuentasTiendaPage = lazy(() => import('./pages/TiendaCuentasPage'));
-const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaPage'));
+const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
+const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
+const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
 
 const tiendaRouteTitles: Record<string, string> = {
   '/tienda': 'Dashboard',
-  '/tienda/inventario': 'Inventario Tiendas',
+  '/tienda/inventario': 'Inventario Neveras',
   '/tienda/cuentas': 'Mis Cuentas',
-  '/tienda/historial': 'Historial',
+  '/tienda/finanzas': 'Finanzas',
 };
 
 const TiendaApp: React.FC = () => {
@@ -24,9 +24,9 @@ const TiendaApp: React.FC = () => {
     >
       <Routes>
         <Route index element={<TiendaDashboardPage />} />
-        <Route path="inventario" element={<TiendaInventarioPage />} />
-        <Route path="cuentas" element={<CuentasTiendaPage />} />
-        <Route path="historial" element={<HistorialTiendaPage />} />
+        <Route path="inventario" element={<InventarioNeverasScreen mode="tienda" />} />
+        <Route path="cuentas" element={<CuentasNeverasScreen />} />
+        <Route path="finanzas" element={<FinanzasTiendaScreen />} />
       </Routes>
     </RoleLayout>
   );

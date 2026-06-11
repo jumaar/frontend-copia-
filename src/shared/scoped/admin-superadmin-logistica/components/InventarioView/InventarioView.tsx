@@ -1027,18 +1027,15 @@ const InventarioView: React.FC<InventarioViewProps> = ({
       {!esAdmin && showNeverasSection && (
         <NeverasSurtirPanel
           showSurtir
-          showConsultar
           renderModal={false}
           esAdmin={esAdmin}
           neverasData={neverasData}
           loadingNeveras={loadingNeveras}
           errorNeveras={errorNeveras}
-          showNeverasSection={showNeverasSection}
           searchId={searchId}
           expandedCities={expandedCities}
           isSurtirModalOpen={isSurtirModalOpen}
           selectedNeveraId={selectedNeveraId}
-          handleConsultarNeveras={handleConsultarNeveras}
           toggleCityExpansion={toggleCityExpansion}
           handleSurtir={handleSurtir}
           handleSurtirFlujo={handleSurtirFlujo}

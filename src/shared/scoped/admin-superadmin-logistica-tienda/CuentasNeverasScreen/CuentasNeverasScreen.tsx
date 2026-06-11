@@ -6,9 +6,13 @@ import GestionCobro from '../../admin-superadmin-logistica/components/GestionCob
 import TiendaSelector from '../components/TiendaSelector/TiendaSelector';
 import Alert from '../../../components/Alert/Alert';
 
-const CuentasTiendaAdminPage: React.FC = () => {
+const CuentasNeverasScreen: React.FC = () => {
   const { user } = useAuth();
-  const isSuperadmin = user?.role === 'superadmin';
+  const role = user?.role;
+  const isTienda = role === 'tienda';
+  const puedeCobrar = role === 'admin' || role === 'logistica';
+  const mode = isTienda ? 'self' : 'admin';
+
   const {
     usuariosTienda,
     ciudades,
@@ -49,7 +53,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
     consultarMesEspecifico,
     manejarPago,
     cargarTransacciones,
-  } = useCuentasTienda({ mode: 'admin' });
+  } = useCuentasTienda({ mode });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -121,7 +125,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
           tiendaSeleccionada={tiendaSeleccionada}
           neveraSeleccionada={neveraSeleccionada}
           showTiendaMenu={showTiendaMenu}
-          showUserInfo
+          showUserInfo={!isTienda}
           onToggleTiendaMenu={() => setShowTiendaMenu(!showTiendaMenu)}
           onTiendaSelect={handleTiendaSelect}
           onNeveraConsultar={handleSeleccionarNevera}
@@ -152,7 +156,7 @@ const CuentasTiendaAdminPage: React.FC = () => {
         />
       )}
 
-      {!isSuperadmin && tiendaSeleccionada && neveraSeleccionada && transacciones && esMesActual && (
+      {puedeCobrar && tiendaSeleccionada && neveraSeleccionada && transacciones && esMesActual && (
         <GestionCobro
           tipoPago={tipoPago}
           setTipoPago={setTipoPago}
@@ -170,4 +174,4 @@ const CuentasTiendaAdminPage: React.FC = () => {
   );
 };
 
-export default CuentasTiendaAdminPage;
+export default CuentasNeverasScreen;

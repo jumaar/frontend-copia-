@@ -7,12 +7,12 @@ const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const UserManagementPage = lazy(() => import('./pages/UserManagementPage'));
 const FinanzasLogisticaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/FinanzasLogisticaScreen/FinanzasLogisticaScreen'));
 const FrigorificoProductosPage = lazy(() => import('./pages/ProductosAdminPage'));
-const CuentasTiendaPage = lazy(() => import('./pages/CuentasTiendaAdminPage'));
-const HistorialTiendaPage = lazy(() => import('./pages/HistorialTiendaAdminPage'));
+const CuentasNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/CuentasNeverasScreen/CuentasNeverasScreen'));
+const FinanzasTiendaScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/FinanzasTiendaScreen/FinanzasTiendaScreen'));
 const CuentasFrigorificoPage = lazy(() => import('./pages/CuentasFrigorificoPage'));
 
 const LogisticaInventarioScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica/LogisticaInventarioScreen/LogisticaInventarioScreen'));
-const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen'));
+const InventarioNeverasScreen = lazy(() => import('../../shared/scoped/admin-superadmin-logistica-tienda/InventarioNeverasScreen/InventarioNeverasScreen'));
 
 const superadminRouteTitles: Record<string, string> = {
   '/superadmin/dashboard': 'Dashboard',
@@ -22,7 +22,7 @@ const superadminRouteTitles: Record<string, string> = {
   '/superadmin/neveras': 'Gestión de Neveras',
   '/superadmin/accounts': 'Finanzas',
   '/superadmin/cuentas-tiendas': 'Cuentas Tiendas',
-  '/superadmin/historial-tienda': 'Historial Tiendas',
+  '/superadmin/finanzas-tienda': 'Finanzas Tiendas',
   '/superadmin/finanzas-logistica': 'Finanzas Logísticas',
   '/superadmin/cuentas-frigorificos': 'Cuentas Frigoríficos',
 };
@@ -41,8 +41,8 @@ const SuperAdminApp: React.FC = () => {
         <Route path="productos" element={<FrigorificoProductosPage />} />
         <Route path="neveras" element={<InventarioNeverasScreen mode="admin" />} />
         <Route path="accounts" element={<div className="management-page"><div className="cuentas-header"><h1>Finanzas</h1><p>En construcción</p></div></div>} />
-        <Route path="cuentas-tiendas" element={<CuentasTiendaPage />} />
-        <Route path="historial-tienda" element={<HistorialTiendaPage />} />
+        <Route path="cuentas-tiendas" element={<CuentasNeverasScreen />} />
+        <Route path="finanzas-tienda" element={<FinanzasTiendaScreen />} />
         <Route path="finanzas-logistica" element={<FinanzasLogisticaScreen />} />
         <Route path="cuentas-frigorificos" element={<CuentasFrigorificoPage />} />
       </Routes>

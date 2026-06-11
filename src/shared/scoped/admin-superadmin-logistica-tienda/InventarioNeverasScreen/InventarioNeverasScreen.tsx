@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getNeverasSurtir, getSurtidoPorNevera } from '../../../../services/api';
-import NeverasSurtirPanel, { type NeverasSurtirResponse } from '../../admin-superadmin-logistica-tienda/components/NeverasSurtirPanel/NeverasSurtirPanel';
+import NeverasSurtirPanel, { type NeverasSurtirResponse } from '../components/NeverasSurtirPanel/NeverasSurtirPanel';
 import ParametrosSurtirModal from '../components/ParametrosSurtirModal/ParametrosSurtirModal';
-import { VALIDACION_STORAGE_KEY } from '../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
+import { VALIDACION_STORAGE_KEY } from '../hooks/useLogisticaInventario';
 
-type InventarioNeverasMode = 'admin' | 'logistica';
+type InventarioNeverasMode = 'admin' | 'logistica' | 'tienda';
 
 interface SurtirParams {
   idNevera: number;
@@ -163,27 +163,28 @@ const InventarioNeverasScreen: React.FC<InventarioNeverasScreenProps> = ({
     setExpandedCities(new Set());
   }, []);
 
+  useEffect(() => {
+    handleConsultarNeveras();
+  }, [handleConsultarNeveras]);
+
   return (
     <div className="management-page">
       <div className="cuentas-header">
-        <h1>Gestión de Neveras</h1>
+        <h1>Inventario Neveras</h1>
         <p>Neveras activas de todas las tiendas en el sistema</p>
       </div>
 
       <NeverasSurtirPanel
-        showConsultar
         showSurtir={esLogistica}
         esAdmin={false}
         esValidacionDelDia={esValidacionDelDia}
         neverasData={neverasData}
         loadingNeveras={loading}
         errorNeveras={error}
-        showNeverasSection={neverasData !== null}
         searchId={searchId}
         expandedCities={expandedCities}
         isSurtirModalOpen={esLogistica ? false : isSurtirModalOpen}
         selectedNeveraId={selectedNeveraId}
-        handleConsultarNeveras={handleConsultarNeveras}
         toggleCityExpansion={toggleCityExpansion}
         handleSurtir={handleSurtir}
         handleSurtirFlujo={handleSurtirFlujo}
