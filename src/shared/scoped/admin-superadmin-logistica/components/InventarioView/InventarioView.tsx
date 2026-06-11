@@ -1,8 +1,8 @@
 // @ts-nocheck
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import NeverasSurtirPanel from '../../admin-superadmin-logistica-tienda/components/NeverasSurtirPanel/NeverasSurtirPanel';
-import SurtirNeveraModal from '../../admin-superadmin-logistica-tienda/components/SurtirNeveraModal/SurtirNeveraModal';
+import NeverasSurtirPanel from '../../../admin-superadmin-logistica-tienda/components/NeverasSurtirPanel/NeverasSurtirPanel';
+import SurtirNeveraModal from '../../../admin-superadmin-logistica-tienda/components/SurtirNeveraModal/SurtirNeveraModal';
 import './InventarioView.css';
 import type {
   LogisticaInventarioResponse,
@@ -10,7 +10,7 @@ import type {
   Producto,
   Empaque,
   Nevera,
-} from '../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
+} from '../../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
 
 interface InventarioViewProps {
   inventarioData: LogisticaInventarioResponse | null;

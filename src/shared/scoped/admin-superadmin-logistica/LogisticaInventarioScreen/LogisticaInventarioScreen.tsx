@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useLogisticaInventario } from '../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
 import InventarioView from '../components/InventarioView/InventarioView';
 import Dropdown from '../../../components/Dropdown/Dropdown';
-import { VALIDACION_STORAGE_KEY } from '../../admin-superadmin-frigorifico-logistica/InventarioNeverasScreen/InventarioNeverasScreen';
 
 type LogisticaInventarioMode = 'admin' | 'self';
 
@@ -62,14 +61,6 @@ const LogisticaInventarioScreen: React.FC<LogisticaInventarioScreenProps> = ({ m
     esValidacionDelDia,
     setSearchId,
   } = hook;
-
-  // Persistir última validación en localStorage (solo en modo self, con key por usuario)
-  useEffect(() => {
-    if (mode === 'self' && lastDistributionTime) {
-      const key = VALIDACION_STORAGE_KEY + '_' + (user?.id || '0');
-      localStorage.setItem(key, lastDistributionTime);
-    }
-  }, [mode, lastDistributionTime, selectedLogisticaId]);
 
   if (mode === 'admin' && loadingUsuarios) {
     return <div className="management-page">Cargando usuarios logística...</div>;

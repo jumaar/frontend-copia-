@@ -1,4 +1,4 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import {
   getLogistica,
   getNeverasSurtir,
@@ -7,6 +7,24 @@ import {
   postValidacionEmpaques,
 } from '../../../../services/api';
 import { useAuth } from '../../../../contexts/AuthContext';
+
+export const VALIDACION_STORAGE_KEY = 'ultima_validacion_empaques';
+
+function getValidacionLocal(userId: string): string | null {
+  try {
+    return localStorage.getItem(VALIDACION_STORAGE_KEY + '_' + userId);
+  } catch {
+    return null;
+  }
+}
+
+function setValidacionLocal(userId: string, value: string): void {
+  try {
+    localStorage.setItem(VALIDACION_STORAGE_KEY + '_' + userId, value);
+  } catch {
+    // localStorage no disponible (modo incógnito, storage lleno, etc.)
+  }
+}
 
 type SurtidoPhase = 'review' | 'removal' | 'scanning';
 
@@ -204,15 +222,20 @@ export function useLogisticaInventario({
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
 
-  const esValidacionDelDia = (): boolean => {
-    if (!lastDistributionTime) return false;
+  const esMismaFecha = (fechaStr: string): boolean => {
     const hoy = new Date();
-    const ultima = new Date(lastDistributionTime);
+    const fecha = new Date(fechaStr);
     return (
-      ultima.getFullYear() === hoy.getFullYear() &&
-      ultima.getMonth() === hoy.getMonth() &&
-      ultima.getDate() === hoy.getDate()
+      fecha.getFullYear() === hoy.getFullYear() &&
+      fecha.getMonth() === hoy.getMonth() &&
+      fecha.getDate() === hoy.getDate()
     );
+  };
+
+  const esValidacionDelDia = (): boolean => {
+    const source = lastDistributionTime || (user?.id ? getValidacionLocal(String(user.id)) : null);
+    if (!source) return false;
+    return esMismaFecha(source);
   };
 
   const fetchLogisticaData = async () => {
@@ -225,7 +248,9 @@ export function useLogisticaInventario({
       if ('productos_por_logistica' in logisticaResponse) {
         setInventarioData(logisticaResponse as LogisticaInventarioResponse);
         setSelectedLogisticaId(logisticaResponse.id_logistica_usuario);
-        setLastDistributionTime(logisticaResponse.ultima_hora_calificacion || null);
+        const time = logisticaResponse.ultima_hora_calificacion || null;
+        setLastDistributionTime(time);
+        if (time && user?.id) setValidacionLocal(String(user.id), time);
       } else if (
         'logistica' in logisticaResponse &&
         Array.isArray(logisticaResponse.logistica) &&
@@ -277,7 +302,9 @@ export function useLogisticaInventario({
       if ('productos_por_logistica' in response) {
         setInventarioData(response as LogisticaInventarioResponse);
         setSelectedLogisticaId(response.id_logistica_usuario);
-        setLastDistributionTime(response.ultima_hora_calificacion || null);
+        const time = response.ultima_hora_calificacion || null;
+        setLastDistributionTime(time);
+        if (time && user?.id) setValidacionLocal(String(user.id), time);
       } else {
         throw new Error('No se encontraron los datos de inventario.');
       }
@@ -469,6 +496,7 @@ export function useLogisticaInventario({
       alert(mensaje);
 
       setLastDistributionTime(response.hora_calificacion);
+      if (user?.id) setValidacionLocal(String(user.id), response.hora_calificacion);
 
       if (showNeverasSection) {
         handleConsultarNeveras();

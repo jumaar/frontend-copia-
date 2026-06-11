@@ -3,6 +3,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { getNeverasSurtir, getSurtidoPorNevera } from '../../../../services/api';
 import NeverasSurtirPanel, { type NeverasSurtirResponse } from '../../admin-superadmin-logistica-tienda/components/NeverasSurtirPanel/NeverasSurtirPanel';
 import ParametrosSurtirModal from '../components/ParametrosSurtirModal/ParametrosSurtirModal';
+import { VALIDACION_STORAGE_KEY } from '../../admin-superadmin-logistica-tienda/hooks/useLogisticaInventario';
 
 type InventarioNeverasMode = 'admin' | 'logistica';
 
@@ -16,8 +17,6 @@ interface InventarioNeverasScreenProps {
   onIniciarSurtido?: (data: any) => void;
   validacionDelDia?: () => boolean;
 }
-
-const VALIDACION_STORAGE_KEY = 'ultima_validacion_empaques';
 
 function getValidacionDelDia(userId: string): boolean {
   try {
@@ -174,6 +173,8 @@ const InventarioNeverasScreen: React.FC<InventarioNeverasScreenProps> = ({
       <NeverasSurtirPanel
         showConsultar
         showSurtir={esLogistica}
+        esAdmin={false}
+        esValidacionDelDia={esValidacionDelDia}
         neverasData={neverasData}
         loadingNeveras={loading}
         errorNeveras={error}
@@ -203,5 +204,4 @@ const InventarioNeverasScreen: React.FC<InventarioNeverasScreenProps> = ({
   );
 };
 
-export { VALIDACION_STORAGE_KEY };
 export default InventarioNeverasScreen;
