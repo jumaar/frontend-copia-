@@ -43,7 +43,25 @@ const getEstadoBadgeClass = (estado: string): string => {
 };
 
 const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, selectedYear }) => {
-  const exportToCSV = () => {
+  const formatFecha = (fecha: string): React.ReactNode => {
+    const date = new Date(fecha);
+    const fechaStr = date.toLocaleDateString('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+    const horaStr = date.toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return (
+      <span className="libro-mayor-fecha">
+        {fechaStr}
+        <span className="libro-mayor-hora">{horaStr}</span>
+      </span>
+    );
+  };
     if (transactions.length === 0) return;
 
     const headers = ['Fecha', 'Tipo', 'Contraparte', 'Monto', 'Nota', 'Estado'];
@@ -138,10 +156,7 @@ const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, se
               const isPositive = t.monto > 0;
               return (
                 <tr key={t.id_transaccion}>
-                  <td>{new Date(t.hora_transaccion).toLocaleString('es-CO', {
-                    day: '2-digit', month: '2-digit', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit',
-                  })}</td>
+                  <td>{formatFecha(t.hora_transaccion)}</td>
                   <td>
                     <span className={`libro-mayor-badge ${getTipoBadgeClass(t.nombre_tipo_transaccion)}`}>
                       {t.nombre_tipo_transaccion.replace(/_/g, ' ')}
