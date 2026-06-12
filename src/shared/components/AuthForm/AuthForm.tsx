@@ -24,8 +24,16 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
     celular: '',
   });
 
+  const isDev = import.meta.env.DEV;
+
   const turnstileRef = useRef<any>(null);
   const [turnstileKey, setTurnstileKey] = useState(0);
+
+  useEffect(() => {
+    if (isDev) {
+      setFormData(prev => ({ ...prev, turnstileToken: 'dev-bypass' }));
+    }
+  }, [isDev]);
 
   const sanitizeInput = (value: string, fieldName: string): string => {
     let sanitized = value;
@@ -119,7 +127,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
     }
 
     // Validar token de Turnstile para ambos formularios
-    if (!formData.turnstileToken) {
+    if (!isDev && !formData.turnstileToken) {
       errors.push("Por favor, completa la verificación de seguridad.");
     }
 
@@ -345,13 +353,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ formType, onSubmit }) => {
               </div>
             </>
           )}
-          <Turnstile
-            key={turnstileKey}
-            ref={turnstileRef}
-            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-            onSuccess={(token) => setFormData(prev => ({ ...prev, turnstileToken: token }))}
-            options={{ theme: theme === 'dark' ? 'dark' : 'light' }}
-          />
+          {!isDev && (
+            <Turnstile
+              key={turnstileKey}
+              ref={turnstileRef}
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={(token) => setFormData(prev => ({ ...prev, turnstileToken: token }))}
+              options={{ theme: theme === 'dark' ? 'dark' : 'light' }}
+            />
+          )}
           <button type="submit" className="button button-primary auth-button">
             {isSignUp ? 'Registrarse' : 'Continuar'}
           </button>

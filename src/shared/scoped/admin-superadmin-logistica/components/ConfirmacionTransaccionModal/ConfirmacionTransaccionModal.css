@@ -1,0 +1,186 @@
+.ctm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: calc(var(--spacing-unit) * 3);
+}
+
+.ctm-modal {
+  background: var(--color-card-bg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg);
+  animation: ctm-in 0.2s ease-out;
+  backdrop-filter: blur(16px);
+}
+
+@keyframes ctm-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Header */
+.ctm-header {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 1.5);
+  padding: calc(var(--spacing-unit) * 3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ctm-header-icon {
+  font-size: 1.4rem;
+}
+
+.ctm-header h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.15rem;
+  font-weight: var(--font-weight-semibold);
+  flex: 1;
+}
+
+.ctm-close {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.ctm-close:hover {
+  color: var(--color-text-primary);
+}
+
+/* Body */
+.ctm-body {
+  padding: calc(var(--spacing-unit) * 3);
+}
+
+/* Receipt table */
+.ctm-receipt {
+  background: var(--color-hover-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.ctm-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
+}
+
+.ctm-receipt-row + .ctm-receipt-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.ctm-receipt-label {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ctm-receipt-value {
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-medium);
+  text-align: right;
+}
+
+.ctm-receipt-row--monto {
+  background: var(--color-primary);
+  background-clip: padding-box;
+}
+
+.ctm-receipt-row--monto .ctm-receipt-label {
+  color: var(--color-text-inverse);
+}
+
+.ctm-receipt-monto {
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+}
+
+/* Token input section */
+.ctm-token-section {
+  text-align: center;
+  margin-bottom: calc(var(--spacing-unit) * 3);
+}
+
+.ctm-token-label {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+}
+
+.ctm-token-input {
+  width: 100%;
+  max-width: 280px;
+  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 2);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-input-bg);
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  letter-spacing: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  margin: 0 auto;
+  display: block;
+}
+
+.ctm-token-input::placeholder {
+  color: var(--color-text-secondary);
+  font-size: 1.2rem;
+  letter-spacing: 8px;
+  font-weight: var(--font-weight-normal);
+}
+
+.ctm-token-input:focus {
+  outline: none;
+  border-color: var(--color-primary-start);
+  box-shadow: 0 0 0 3px var(--shadow-color-primary-light);
+  background: var(--color-input-bg-focus, var(--color-input-bg));
+}
+
+.ctm-token-hint {
+  display: block;
+  margin-top: calc(var(--spacing-unit) * 1);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+/* Actions */
+.ctm-actions {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.ctm-btn-cancel {
+  flex: 1;
+}
+
+.ctm-btn-confirm {
+  flex: 2;
+  padding: calc(var(--spacing-unit) * 1.5) calc(var(--spacing-unit) * 2);
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+}

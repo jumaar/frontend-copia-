@@ -59,10 +59,12 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
 
   const puedeConsolidarCero = saldoTotalLiquidar === 0 && (pendientesCount ?? 0) > 0;
 
+  const preposicion = mode === 'recibir' ? 'de' : 'a';
+
   return (
     <div className="gestion-cobro-section">
       <div className="gestion-cobro-header">
-        <h3 className="gestion-cobro-title">{L.titulo}</h3>
+        <h3 className="gestion-cobro-title">{L.titulo} {userName ? `${preposicion} ${userName}` : ''}</h3>
         {onConsolidarCero && (
           <button
             className={`gestion-cobro-consolidar-cero ${puedeConsolidarCero ? 'gestion-cobro-consolidar-cero--activo' : ''}`}
@@ -133,7 +135,7 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
                 <input
                   type="number"
                   className="gestion-cobro-input"
-                  value={montoPago ?? ''}
+                  value={montoPago === 0 ? '' : (montoPago ?? '')}
                   onChange={e => setMontoPago(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                   min="0"
                 />

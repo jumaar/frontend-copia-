@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasTienda } from '../hooks/useCuentasTienda';
 import CuentasTiendaView from '../components/CuentasTiendaView/CuentasTiendaView';
@@ -90,6 +90,19 @@ const CuentasNeverasScreen: React.FC = () => {
   const añoActual = ahora.getFullYear();
   const esMesActual = mesSeleccionado?.mes === mesActual && mesSeleccionado?.año === añoActual;
 
+  const entidadNombre = useMemo(() => {
+    if (!neveraSeleccionada || !usuariosTienda.length) return '';
+    for (const usuario of usuariosTienda) {
+      for (const tienda of usuario.tiendas) {
+        const nevera = tienda.neveras?.find(n => n.id_nevera === neveraSeleccionada);
+        if (nevera) {
+          return `${tienda.nombre_tienda} — Nevera #${nevera.id_nevera}`;
+        }
+      }
+    }
+    return '';
+  }, [neveraSeleccionada, usuariosTienda]);
+
   if (loadingUsuarios) {
     return (
       <div className="cuentas-page">
@@ -166,7 +179,7 @@ const CuentasNeverasScreen: React.FC = () => {
           setNotaPago={setNotaPago}
           procesandoPago={procesandoPago}
           onProcesarPago={manejarPago}
-          userName={user?.name || ''}
+          userName={entidadNombre}
           saldoTotalLiquidar={saldoTotalLiquidar}
         />
       )}

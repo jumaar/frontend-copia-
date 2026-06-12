@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getResumenFinanciero, registrarMovimientoAdmin, getLogisticaHermanos } from '../../../../services/api';
-import { numberToWords } from '../../../utils/numberToWords';
 import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
 import TransaccionesHeader from '../../../components/TransaccionesHeader/TransaccionesHeader';
+import GestionCobro from '../components/GestionCobro/GestionCobro';
+import ConfirmacionTransaccionModal from '../components/ConfirmacionTransaccionModal/ConfirmacionTransaccionModal';
 import './FinanzasLogisticaScreen.css';
 
 interface AdminInfo {
@@ -172,11 +173,13 @@ const FinanzasLogisticaScreen: React.FC = () => {
   const [loadingHermanos, setLoadingHermanos] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<'consolidacion' | 'ingreso'>('consolidacion');
-  const [montoMovimiento, setMontoMovimiento] = useState<number>(0);
-  const [notaMovimiento, setNotaMovimiento] = useState<string>('');
-  const [confirmText, setConfirmText] = useState<string>('');
-  const [procesando, setProcesando] = useState(false);
+  const [codigo, setCodigo] = useState<string>('');
+  const [procesandoPago, setProcesandoPago] = useState(false);
+
+  const [tipoPago, setTipoPago] = useState<'pago' | 'abono' | ''>('');
+  const [montoPago, setMontoPago] = useState<number>(0);
+  const [notaPago, setNotaPago] = useState<string>('');
+  const [consolidandoCero, setConsolidandoCero] = useState(false);
 
   const fetchResumen = useCallback(async (month: number, year: number, idLogistica?: number) => {
     try {
@@ -270,62 +273,75 @@ const FinanzasLogisticaScreen: React.FC = () => {
     }
   }
 
-  const openModal = (type: 'consolidacion' | 'ingreso') => {
-    setModalType(type);
-    setMontoMovimiento(0);
-    setNotaMovimiento('');
-    setConfirmText('');
+  const handleProcesarPago = () => {
+    if (tipoPago === 'abono' && (!montoPago || montoPago <= 0)) return;
+    setCodigo('');
     setShowModal(true);
   };
 
-  const closeModal = () => {
+  const handleCloseModal = () => {
     setShowModal(false);
-    setConfirmText('');
-    setProcesando(false);
+    setCodigo('');
+    setProcesandoPago(false);
   };
 
-  const handleSubmitMovimiento = async () => {
-    const monto = Math.floor(montoMovimiento);
+  const handleConfirmar = async () => {
+    const monto = tipoPago === 'pago'
+      ? Math.abs(data?.resumen.balance_neto_periodo || 0)
+      : Math.floor(montoPago);
+
     if (!monto || monto <= 0) {
-      alert('Debes ingresar un monto válido mayor a cero.');
+      alert('El monto debe ser mayor a cero.');
       return;
     }
 
-    if (modalType === 'consolidacion' && data && data.resumen.balance_acumulado_historico > 0 && monto > data.resumen.balance_acumulado_historico) {
-      alert('El monto a consolidar no puede superar el balance acumulado histórico.');
-      return;
-    }
-
-    const cantidadEnPalabras = numberToWords(monto);
-    if (confirmText.trim().toUpperCase() !== cantidadEnPalabras.toUpperCase()) {
-      alert(`El texto de confirmación no coincide. Debes escribir: "${cantidadEnPalabras}"`);
+    if (!codigo.trim()) {
+      alert('Debes ingresar el código de verificación.');
       return;
     }
 
     try {
-      setProcesando(true);
-      const nota = notaMovimiento.trim() || undefined;
+      setProcesandoPago(true);
+      const nota = notaPago.trim() || undefined;
       const idLogistica = selectedLogistica?.id_usuario;
 
-      await registrarMovimientoAdmin(monto, modalType, nota, idLogistica);
+      await registrarMovimientoAdmin(monto, 'ingreso', nota, idLogistica);
 
       setShowModal(false);
-      setSuccessMessage(
-        modalType === 'consolidacion'
-          ? `Consolidacion de ${formatCurrency(monto)} registrada exitosamente.`
-          : `Ingreso de ${formatCurrency(monto)} entregado exitosamente.`
-      );
+      setTipoPago('');
+      setMontoPago(0);
+      setNotaPago('');
+      setSuccessMessage(`Movimiento de ${formatCurrency(monto)} registrado exitosamente.`);
 
       const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
       fetchResumen(selectedMonth, selectedYear, targetId);
     } catch (err: any) {
-      console.error('Error processing movement:', err);
       alert(
         err.response?.data?.message ||
         'Error al procesar el movimiento. Inténtalo de nuevo.'
       );
     } finally {
-      setProcesando(false);
+      setProcesandoPago(false);
+    }
+  };
+
+  const handleConsolidarCero = async () => {
+    try {
+      setConsolidandoCero(true);
+      setError(null);
+      const idLogistica = selectedLogistica?.id_usuario;
+      await registrarMovimientoAdmin(0, 'consolidacion', 'Consolidación con valor $0', idLogistica);
+      setSuccessMessage('Transacciones pendientes consolidadas con valor $0.');
+
+      const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
+      fetchResumen(selectedMonth, selectedYear, targetId);
+    } catch (err: any) {
+      alert(
+        err.response?.data?.message ||
+        'Error al consolidar. Inténtalo de nuevo.'
+      );
+    } finally {
+      setConsolidandoCero(false);
     }
   };
 
@@ -586,68 +602,28 @@ const FinanzasLogisticaScreen: React.FC = () => {
             </div>
           </section>
 
-          <section className="finanzas-dinero-out card">
-            <div className="card-header">
-              <h2>Dinero OUT</h2>
-            </div>
-            <div className="finanzas-dinero-out-body">
-              <div className="finanzas-dinero-info">
-                {needsSelector && selectedLogistica ? (
-                  <>
-                    <p><strong>Logística:</strong> {selectedLogistica.nombre_usuario} {selectedLogistica.apellido_usuario}</p>
-                    {data.admin && (
-                      <p><strong>Admin:</strong> {data.admin.nombre_completo}</p>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {data.admin && (
-                      <p><strong>Admin:</strong> {data.admin.nombre_completo}</p>
-                    )}
-                  </>
-                )}
-                <p><strong>Balance acumulado:</strong> {formatCurrency(data.resumen.balance_acumulado_historico)}</p>
-              </div>
-
-              <div className="finanzas-dinero-form">
-                <div className="finanzas-form-group">
-                  <label>Monto</label>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="0"
-                    value={montoMovimiento || ''}
-                    onChange={(e) => setMontoMovimiento(Number(e.target.value))}
-                  />
-                </div>
-                <div className="finanzas-form-group">
-                  <label>Nota (opcional)</label>
-                  <input
-                    type="text"
-                    placeholder="Nota opcional"
-                    value={notaMovimiento}
-                    onChange={(e) => setNotaMovimiento(e.target.value)}
-                  />
-                </div>
-                {needsSelector && selectedLogistica ? (
-                  <button
-                    className="button button-primary"
-                    onClick={() => openModal('ingreso')}
-                  >
-                    Entregar Dinero
-                  </button>
-                ) : (
-                  <button
-                    className="button button-primary"
-                    onClick={() => openModal('consolidacion')}
-                  >
-                    Consolidar con Admin
-                  </button>
-                )}
-              </div>
-            </div>
-          </section>
+          {!isSuperAdmin && data.esPeriodoActual && (!isAdmin || selectedLogistica) && (
+            <GestionCobro
+              mode="entregar"
+              tipoPago={tipoPago}
+              setTipoPago={setTipoPago}
+              montoPago={montoPago}
+              setMontoPago={setMontoPago}
+              notaPago={notaPago}
+              setNotaPago={setNotaPago}
+              procesandoPago={procesandoPago}
+              onProcesarPago={handleProcesarPago}
+              userName={user?.name || data.admin?.nombre_completo || 'Administrador'}
+              saldoTotalLiquidar={data.resumen.balance_neto_periodo}
+              pendientesCount={
+                data.transacciones.filter(
+                  (t) => t.nombre_estado_transaccion.toUpperCase() === 'PENDIENTE'
+                ).length
+              }
+              onConsolidarCero={handleConsolidarCero}
+              consolidandoCero={consolidandoCero}
+            />
+          )}
 
           <section className="finanzas-libro-mayor card">
             <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -707,57 +683,27 @@ const FinanzasLogisticaScreen: React.FC = () => {
         </>
       )}
 
-      {showModal && (
-        <div className="finanzas-modal-overlay" onClick={closeModal}>
-          <div className="finanzas-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="finanzas-modal-header">
-              <h3>
-                {modalType === 'consolidacion' ? 'Confirmar Consolidación' : 'Confirmar Entrega'}
-              </h3>
-              <button className="finanzas-modal-close" onClick={closeModal}>×</button>
-            </div>
-            <div className="finanzas-modal-body">
-              <p className="finanzas-modal-warning">
-                {modalType === 'consolidacion'
-                  ? `Vas a consolidar ${formatCurrency(Math.floor(montoMovimiento) || 0)} con ${data?.admin?.nombre_completo || 'Admin'}`
-                  : `Vas a entregar ${formatCurrency(Math.floor(montoMovimiento) || 0)} a ${selectedLogistica?.nombre_usuario || ''} ${selectedLogistica?.apellido_usuario || ''}`
-                }
-              </p>
-
-              <div className="finanzas-form-group">
-                <label>
-                  Escribe el monto en letras para confirmar:
-                  <span className="finanzas-modal-hint">
-                    {montoMovimiento > 0
-                      ? `"${numberToWords(Math.floor(montoMovimiento))}"`
-                      : '(ingresa un monto primero)'}
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="Ej: CINCO MIL"
-                  autoFocus
-                />
-              </div>
-
-              <div className="finanzas-modal-actions">
-                <button className="button button-secondary" onClick={closeModal} disabled={procesando}>
-                  Cancelar
-                </button>
-                <button
-                  className="button button-primary"
-                  onClick={handleSubmitMovimiento}
-                  disabled={procesando || montoMovimiento <= 0}
-                >
-                  {procesando ? 'Procesando...' : 'Confirmar'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmacionTransaccionModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmar}
+        processing={procesandoPago}
+        title={tipoPago === 'pago' ? 'Confirmar Entrega Total' : 'Confirmar Abono'}
+        origen={
+          needsSelector && selectedLogistica
+            ? `${selectedLogistica.nombre_usuario} ${selectedLogistica.apellido_usuario}`
+            : user?.name || ''
+        }
+        destino={user?.name || data?.admin?.nombre_completo || 'Administrador'}
+        monto={
+          tipoPago === 'pago'
+            ? Math.abs(data?.resumen.balance_neto_periodo || 0)
+            : Math.floor(montoPago)
+        }
+        codigo={codigo}
+        setCodigo={setCodigo}
+        disabled={tipoPago === 'pago' ? !(data?.resumen.balance_neto_periodo) : montoPago <= 0}
+      />
     </div>
   );
 };
