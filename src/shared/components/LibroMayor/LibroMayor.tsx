@@ -47,7 +47,7 @@ const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, se
     const date = new Date(fecha);
     const fechaStr = date.toLocaleDateString('es-CO', {
       day: '2-digit',
-      month: 'short',
+      month: 'long',
       year: 'numeric',
     });
     const horaStr = date.toLocaleTimeString('es-CO', {
@@ -62,6 +62,8 @@ const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, se
       </span>
     );
   };
+
+  const exportToCSV = () => {
     if (transactions.length === 0) return;
 
     const headers = ['Fecha', 'Tipo', 'Contraparte', 'Monto', 'Nota', 'Estado'];
