@@ -319,6 +319,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     notaPago,
     setNotaPago,
     procesandoPago,
+    setProcesandoPago,
     showTipoMenu,
     setShowTipoMenu,
     esFrigorifico,

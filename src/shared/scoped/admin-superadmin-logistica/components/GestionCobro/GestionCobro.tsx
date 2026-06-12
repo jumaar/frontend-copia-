@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Dropdown from '../../../../components/Dropdown/Dropdown';
 import './GestionCobro.css';
 
@@ -61,6 +61,21 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
 
   const preposicion = mode === 'recibir' ? 'de' : 'a';
 
+  const saldoNegativo = saldoTotalLiquidar != null && saldoTotalLiquidar < 0;
+  const sinPendientes = (pendientesCount ?? 0) === 0;
+  const ocultarPagoTotal = saldoNegativo || sinPendientes;
+
+  const opcionesTipo: Array<{ id: string; label: string }> = [
+    ...(ocultarPagoTotal ? [] : [{ id: 'pago', label: L.tipoTotal }]),
+    { id: 'abono', label: 'Abono' },
+  ];
+
+  useEffect(() => {
+    if (ocultarPagoTotal && tipoPago === 'pago') {
+      setTipoPago('');
+    }
+  }, [ocultarPagoTotal, tipoPago, setTipoPago]);
+
   return (
     <div className="gestion-cobro-section">
       <div className="gestion-cobro-header">
@@ -105,14 +120,16 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
       <div className="gestion-cobro-tipo">
         <label>Tipo de Transacción:</label>
         <Dropdown
-          options={[
-            { id: 'pago', label: L.tipoTotal },
-            { id: 'abono', label: 'Abono' },
-          ]}
+          options={opcionesTipo}
           selectedId={tipoPago || null}
           onSelect={(id) => setTipoPago(id as 'pago' | 'abono')}
           placeholder="Seleccionar tipo..."
         />
+        {ocultarPagoTotal && (
+          <span className="gestion-cobro-saldo-sin-deuda" style={{ display: 'block', marginTop: '8px' }}>
+            ⚠️ {saldoNegativo ? 'Saldo negativo' : 'Sin transacciones pendientes'}: solo se permiten abonos.
+          </span>
+        )}
       </div>
 
       {tipoPago && (

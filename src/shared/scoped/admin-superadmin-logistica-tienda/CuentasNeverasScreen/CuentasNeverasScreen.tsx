@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasTienda } from '../hooks/useCuentasTienda';
+import { procesarPago } from '../../../../services/api';
 import CuentasTiendaView from '../components/CuentasTiendaView/CuentasTiendaView';
 import GestionCobro from '../../admin-superadmin-logistica/components/GestionCobro/GestionCobro';
+import ConfirmacionTransaccionModal from '../../admin-superadmin-logistica/components/ConfirmacionTransaccionModal/ConfirmacionTransaccionModal';
 import TiendaSelector from '../components/TiendaSelector/TiendaSelector';
 import Alert from '../../../components/Alert/Alert';
 
@@ -31,6 +33,7 @@ const CuentasNeverasScreen: React.FC = () => {
     montoPago,
     notaPago,
     procesandoPago,
+    setProcesandoPago,
     saldoTotalLiquidar,
     showTiendaMenu,
     showCiudadMenu,
@@ -51,9 +54,11 @@ const CuentasNeverasScreen: React.FC = () => {
     setNeveraSeleccionada,
     buscarNevera,
     consultarMesEspecifico,
-    manejarPago,
     cargarTransacciones,
   } = useCuentasTienda({ mode });
+
+  const [showModal, setShowModal] = useState(false);
+  const [codigo, setCodigo] = useState('');
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -102,6 +107,75 @@ const CuentasNeverasScreen: React.FC = () => {
     }
     return '';
   }, [neveraSeleccionada, usuariosTienda]);
+
+  const handleProcesarPago = () => {
+    if (!tiendaSeleccionada || !neveraSeleccionada) return;
+    if (tipoPago === 'abono' && (!montoPago || montoPago <= 0)) return;
+    setCodigo('');
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setCodigo('');
+  };
+
+  const handleConfirmar = async () => {
+    if (!tiendaSeleccionada || !neveraSeleccionada) return;
+
+    let montoFinal: number;
+    let notaFinal = notaPago;
+
+    if (tipoPago === 'pago') {
+      montoFinal = saldoTotalLiquidar;
+      if (!notaPago) notaFinal = `cobro total por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
+    } else {
+      montoFinal = montoPago;
+      if (!montoFinal || montoFinal <= 0) return;
+      if (!notaPago) notaFinal = `abono de ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(montoFinal)} hecho por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
+    }
+
+    let userId: number | null = null;
+    for (const u of usuariosTienda) {
+      const found = u.tiendas?.find(t => t.id_tienda === tiendaSeleccionada);
+      if (found) {
+        userId = u.id_usuario;
+        break;
+      }
+    }
+    if (!userId) {
+      alert('Error: No se pudo encontrar el usuario de la tienda.');
+      return;
+    }
+
+    const empaquesAfectados = transacciones?.empaques?.map((e: any) => e.id_empaque) || [];
+
+    try {
+      setProcesandoPago(true);
+      const montoRedondeado = Math.ceil(montoFinal);
+      await procesarPago(
+        userId,
+        montoRedondeado,
+        neveraSeleccionada,
+        notaFinal,
+        empaquesAfectados.length > 0 ? empaquesAfectados : undefined
+      );
+
+      setTipoPago('');
+      setMontoPago(0);
+      setNotaPago('');
+      setShowModal(false);
+      setCodigo('');
+      setSuccessMessage('Cobro procesado exitosamente.');
+      await cargarTransacciones(userId, neveraSeleccionada);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError('Error al procesar el cobro: ' + (err.response?.data?.message || err.message));
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setProcesandoPago(false);
+    }
+  };
 
   if (loadingUsuarios) {
     return (
@@ -178,11 +252,29 @@ const CuentasNeverasScreen: React.FC = () => {
           notaPago={notaPago}
           setNotaPago={setNotaPago}
           procesandoPago={procesandoPago}
-          onProcesarPago={manejarPago}
+          onProcesarPago={handleProcesarPago}
           userName={entidadNombre}
           saldoTotalLiquidar={saldoTotalLiquidar}
         />
       )}
+
+      <ConfirmacionTransaccionModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmar}
+        processing={procesandoPago}
+        title={tipoPago === 'pago' ? 'Confirmar Cobro Total' : 'Confirmar Abono'}
+        origen={entidadNombre}
+        destino={user?.name || ''}
+        monto={
+          tipoPago === 'pago'
+            ? saldoTotalLiquidar
+            : montoPago
+        }
+        codigo={codigo}
+        setCodigo={setCodigo}
+        disabled={tipoPago === 'pago' ? saldoTotalLiquidar <= 0 : montoPago <= 0}
+      />
     </div>
   );
 };

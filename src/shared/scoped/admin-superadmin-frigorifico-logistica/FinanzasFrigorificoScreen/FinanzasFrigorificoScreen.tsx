@@ -5,6 +5,7 @@ import { procesarPago } from '../../../../services/api';
 import Resumen from '../../../components/Resumen/Resumen';
 import TablaTransacciones from '../../../components/TablaTransacciones/TablaTransacciones';
 import GestionCobro from '../../admin-superadmin-logistica/components/GestionCobro/GestionCobro';
+import ConfirmacionTransaccionModal from '../../admin-superadmin-logistica/components/ConfirmacionTransaccionModal/ConfirmacionTransaccionModal';
 import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
 import Alert from '../../../components/Alert/Alert';
 
@@ -41,6 +42,7 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     notaPago,
     setNotaPago,
     procesandoPago,
+    setProcesandoPago,
     cargarTransacciones,
     consultarMesEspecifico,
     manejarPago,
@@ -61,6 +63,15 @@ const FinanzasFrigorificoScreen: React.FC = () => {
 
   const [consolidandoCero, setConsolidandoCero] = useState(false);
 
+  const [showModal, setShowModal] = useState(false);
+  const [codigo, setCodigo] = useState('');
+
+  const frigorificoNombre = useMemo(() => {
+    if (!usuarioSeleccionado) return '';
+    const u = usuariosHermanos.find(h => h.id_usuario === usuarioSeleccionado);
+    return u ? `${u.nombre_usuario} ${u.apellido_usuario || ''}` : '';
+  }, [usuarioSeleccionado, usuariosHermanos]);
+
   const ahora = new Date();
   const mesActual = ahora.getMonth() + 1;
   const añoActual = ahora.getFullYear();
@@ -80,6 +91,59 @@ const FinanzasFrigorificoScreen: React.FC = () => {
       setTimeout(() => setError(null), 5000);
     } finally {
       setConsolidandoCero(false);
+    }
+  };
+
+  const handleProcesarPago = () => {
+    if (!usuarioSeleccionado || !transacciones) return;
+    if (tipoPago === 'abono' && (!montoPago || montoPago <= 0)) return;
+    setCodigo('');
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setCodigo('');
+  };
+
+  const handleConfirmar = async () => {
+    if (!usuarioSeleccionado || !transacciones) return;
+
+    const saldoTotalPendientes = transacciones.transacciones
+      .filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE')
+      .reduce((sum: number, t: any) => sum + t.monto, 0);
+
+    let montoFinal: number;
+    let notaFinal = notaPago;
+
+    if (tipoPago === 'pago') {
+      montoFinal = saldoTotalPendientes;
+      if (!notaPago) notaFinal = `pago por el usuario ${user?.name || ''} (ID: ${user?.id || ''})`;
+    } else {
+      montoFinal = montoPago;
+      if (!montoFinal || montoFinal <= 0) return;
+      if (!notaPago) notaFinal = `abono de ${formatMoneda(montoFinal)} hecho por el usuario ${user?.name || ''} (ID: ${user?.id || ''})`;
+    }
+
+    try {
+      setProcesandoPago(true);
+      const montoRedondeado = Math.round(montoFinal);
+      await procesarPago(usuarioSeleccionado, montoRedondeado, undefined, notaFinal);
+
+      setTipoPago('');
+      setMontoPago(0);
+      setNotaPago('');
+      setShowModal(false);
+      setCodigo('');
+      setSuccessMessage('Pago procesado exitosamente.');
+      await cargarTransacciones(usuarioSeleccionado);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError('Error al procesar el pago: ' + (err.response?.data?.message || err.message));
+      try { await cargarTransacciones(usuarioSeleccionado); } catch (_) {}
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setProcesandoPago(false);
     }
   };
 
@@ -257,14 +321,32 @@ const FinanzasFrigorificoScreen: React.FC = () => {
           notaPago={notaPago}
           setNotaPago={setNotaPago}
           procesandoPago={procesandoPago}
-          onProcesarPago={manejarPago}
-          userName={user?.name || ''}
+          onProcesarPago={handleProcesarPago}
+          userName={frigorificoNombre}
           saldoTotalLiquidar={saldoPendientes}
           pendientesCount={pendientesCount}
           onConsolidarCero={consolidarCero}
           consolidandoCero={consolidandoCero}
         />
       )}
+
+      <ConfirmacionTransaccionModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmar}
+        processing={procesandoPago}
+        title={tipoPago === 'pago' ? 'Confirmar Pago Total' : 'Confirmar Abono'}
+        origen={user?.name || ''}
+        destino={frigorificoNombre}
+        monto={
+          tipoPago === 'pago'
+            ? saldoPendientes
+            : montoPago
+        }
+        codigo={codigo}
+        setCodigo={setCodigo}
+        disabled={tipoPago === 'pago' ? saldoPendientes <= 0 : montoPago <= 0}
+      />
     </div>
   );
 };

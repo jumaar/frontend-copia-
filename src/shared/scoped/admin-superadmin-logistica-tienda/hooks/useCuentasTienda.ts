@@ -329,6 +329,7 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
     montoPago,
     notaPago,
     procesandoPago,
+    setProcesandoPago,
     saldoTotalLiquidar,
     // UI state
     showTiendaMenu,
