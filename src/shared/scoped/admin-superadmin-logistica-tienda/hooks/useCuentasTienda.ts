@@ -82,7 +82,6 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
     try {
       setLoading(true);
       setError(null);
-      setSuccessMessage(null);
       setTransacciones(null);
 
       const data = await getTransaccionesTienda(idUsuario, idNevera, mes, año);
@@ -248,7 +247,7 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
       setTipoPago('');
       setMontoPago(0);
       setNotaPago('');
-      setSuccessMessage('Cobro procesado exitosamente.');
+      setSuccessMessage(respuesta.message || 'Cobro procesado exitosamente.');
 
       if (userId) {
         const data = await getTransaccionesTienda(userId, neveraSeleccionada);

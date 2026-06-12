@@ -12,7 +12,7 @@ export const getTransaccionesFrigorifico = async (id_usuario: number, mes?: numb
 export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: number, mes?: number, año?: number) => {
   let url: string;
   if (id_nevera) {
-    url = `/logistica/cuentas/nevera/${id_nevera}?id_usuario=${id_usuario}`;
+    url = `/logistica/cuentas/nevera/${id_nevera}`;
   } else {
     url = `/logistica/cuentas?id_usuario=${id_usuario}`;
   }
@@ -26,7 +26,7 @@ export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: num
 export const procesarPago = async (id_usuario: number, monto: number, id_nevera?: number, nota_opcional?: string, empaques?: number[]) => {
   let url: string;
   if (id_nevera) {
-    url = `/logistica/cuentas/nevera/${id_nevera}?id_usuario=${id_usuario}`;
+    url = `/logistica/cuentas/nevera/${id_nevera}`;
   } else {
     url = `/logistica/cuentas?id_usuario=${id_usuario}`;
   }

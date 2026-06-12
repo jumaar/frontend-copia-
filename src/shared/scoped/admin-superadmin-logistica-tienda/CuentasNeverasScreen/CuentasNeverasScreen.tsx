@@ -153,7 +153,7 @@ const CuentasNeverasScreen: React.FC = () => {
     try {
       setProcesandoPago(true);
       const montoRedondeado = Math.ceil(montoFinal);
-      await procesarPago(
+      const respuesta = await procesarPago(
         userId,
         montoRedondeado,
         neveraSeleccionada,
@@ -166,7 +166,7 @@ const CuentasNeverasScreen: React.FC = () => {
       setNotaPago('');
       setShowModal(false);
       setCodigo('');
-      setSuccessMessage('Cobro procesado exitosamente.');
+      setSuccessMessage(respuesta.message || 'Cobro procesado exitosamente.');
       await cargarTransacciones(userId, neveraSeleccionada);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {

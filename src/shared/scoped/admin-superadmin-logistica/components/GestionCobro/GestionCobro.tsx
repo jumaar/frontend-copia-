@@ -71,7 +71,7 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
 
   const saldoNegativo = saldoTotalLiquidar != null && saldoTotalLiquidar < 0;
   const sinPendientes = (pendientesCount ?? 0) === 0;
-  const ocultarPagoTotal = saldoNegativo || sinPendientes;
+  const ocultarPagoTotal = saldoNegativo || saldoTotalLiquidar === 0 || sinPendientes;
 
   const opcionesTipo: Array<{ id: string; label: string }> = [
     ...(ocultarPagoTotal ? [] : [{ id: 'pago', label: L.tipoTotal }]),
@@ -135,7 +135,11 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
         />
         {ocultarPagoTotal && (
           <span className="gestion-cobro-saldo-sin-deuda" style={{ display: 'block', marginTop: '8px' }}>
-            ⚠️ {saldoNegativo ? 'Saldo negativo' : 'Sin transacciones pendientes'}: solo se permiten abonos.
+            {saldoNegativo
+              ? '⚠️ Saldo negativo: solo se permiten abonos.'
+              : puedeConsolidarCero
+                ? '✅ Usa el botón «Consolidar con valor 0» para cerrar las transacciones pendientes.'
+                : '⚠️ Sin transacciones pendientes: solo se permiten abonos.'}
           </span>
         )}
       </div>

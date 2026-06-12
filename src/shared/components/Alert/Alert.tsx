@@ -10,7 +10,7 @@ interface AlertProps {
 const Alert: React.FC<AlertProps> = ({ message, onDismiss, type = 'default' }) => {
   useEffect(() => {
     // Si es un error, dejarlo más tiempo (5s) o hasta que el usuario lo cierre
-    const duration = type === 'error' ? 5000 : 2500;
+    const duration = type === 'error' ? 8000 : type === 'success' ? 5000 : 4000;
     
     const timer = setTimeout(() => {
       onDismiss();

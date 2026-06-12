@@ -184,6 +184,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
   const [loadingHermanos, setLoadingHermanos] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
+  const [showModalConsolidar, setShowModalConsolidar] = useState(false);
   const [codigo, setCodigo] = useState<string>('');
   const [procesandoPago, setProcesandoPago] = useState(false);
 
@@ -291,8 +292,10 @@ const FinanzasLogisticaScreen: React.FC = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
+    setShowModalConsolidar(false);
     setCodigo('');
     setProcesandoPago(false);
+    setConsolidandoCero(false);
   };
 
   const handleConfirmar = async () => {
@@ -338,12 +341,24 @@ const FinanzasLogisticaScreen: React.FC = () => {
     }
   };
 
-  const handleConsolidarCero = async () => {
+  const handleConsolidarCero = () => {
+    setCodigo('');
+    setShowModalConsolidar(true);
+  };
+
+  const handleConfirmarConsolidarCero = async () => {
+    if (!codigo.trim()) {
+      alert('Debes ingresar el código de verificación.');
+      return;
+    }
+
     try {
       setConsolidandoCero(true);
       setError(null);
       const idLogistica = selectedLogistica?.id_usuario;
       const result = await registrarMovimientoAdmin(0, 'consolidacion', 'Consolidación con valor $0', idLogistica);
+      setShowModalConsolidar(false);
+      setCodigo('');
       setSuccessMessage(result?.mensaje || 'Transacciones pendientes consolidadas con valor $0.');
 
       const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
@@ -623,7 +638,9 @@ const FinanzasLogisticaScreen: React.FC = () => {
               setNotaPago={setNotaPago}
               procesandoPago={procesandoPago}
               onProcesarPago={handleProcesarPago}
-              userName={data.admin.nombre_completo}
+              userName={isAdmin && selectedLogistica
+                ? `${selectedLogistica.nombre_usuario} ${selectedLogistica.apellido_usuario}`
+                : data.admin.nombre_completo}
               saldoTotalLiquidar={data.resumen.balance_neto_periodo}
               pendientesCount={
                 data.transacciones.filter(
@@ -713,6 +730,23 @@ const FinanzasLogisticaScreen: React.FC = () => {
         codigo={codigo}
         setCodigo={setCodigo}
         disabled={tipoPago === 'pago' ? !(data?.resumen.balance_neto_periodo) : montoPago <= 0}
+      />
+
+      <ConfirmacionTransaccionModal
+        isOpen={showModalConsolidar}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmarConsolidarCero}
+        processing={consolidandoCero}
+        title="Confirmar Consolidación Cero"
+        origen={
+          needsSelector && selectedLogistica
+            ? `${selectedLogistica.nombre_usuario} ${selectedLogistica.apellido_usuario}`
+            : user?.name || ''
+        }
+        destino={data?.admin?.nombre_completo || 'Administrador'}
+        monto={0}
+        codigo={codigo}
+        setCodigo={setCodigo}
       />
     </div>
   );
