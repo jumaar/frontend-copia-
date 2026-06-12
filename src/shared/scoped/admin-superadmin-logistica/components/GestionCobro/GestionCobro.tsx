@@ -57,6 +57,14 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
   const formatMoneda = (v: number) =>
     new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(v);
 
+  const formatMiles = (v: number): string =>
+    v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  const parseMiles = (raw: string): number => {
+    const cleaned = raw.replace(/\./g, '');
+    return cleaned === '' ? 0 : parseInt(cleaned, 10);
+  };
+
   const puedeConsolidarCero = saldoTotalLiquidar === 0 && (pendientesCount ?? 0) > 0;
 
   const preposicion = mode === 'recibir' ? 'de' : 'a';
@@ -150,11 +158,12 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
               <div className="gestion-cobro-field">
                 <strong>Monto del Abono:</strong>
                 <input
-                  type="number"
-                  className="gestion-cobro-input"
-                  value={montoPago === 0 ? '' : (montoPago ?? '')}
-                  onChange={e => setMontoPago(e.target.value === '' ? 0 : parseFloat(e.target.value))}
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
+                  className="gestion-cobro-input gestion-cobro-input-monto"
+                  value={montoPago === 0 ? '' : formatMiles(montoPago)}
+                  onChange={e => setMontoPago(parseMiles(e.target.value))}
+                  placeholder="$ 0"
                 />
               </div>
               <div className="gestion-cobro-field">

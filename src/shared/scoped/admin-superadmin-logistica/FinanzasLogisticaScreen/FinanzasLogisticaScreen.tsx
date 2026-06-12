@@ -5,6 +5,7 @@ import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSe
 import TransaccionesHeader from '../../../components/TransaccionesHeader/TransaccionesHeader';
 import GestionCobro from '../components/GestionCobro/GestionCobro';
 import ConfirmacionTransaccionModal from '../components/ConfirmacionTransaccionModal/ConfirmacionTransaccionModal';
+import Alert from '../../../components/Alert/Alert';
 import './FinanzasLogisticaScreen.css';
 
 interface AdminInfo {
@@ -195,7 +196,6 @@ const FinanzasLogisticaScreen: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      setSuccessMessage(null);
       const result = await getResumenFinanciero(month, year, idLogistica);
       setData(normalizeFinanzasResponse(result));
     } catch (err: any) {
@@ -315,13 +315,16 @@ const FinanzasLogisticaScreen: React.FC = () => {
       const nota = notaPago.trim() || undefined;
       const idLogistica = selectedLogistica?.id_usuario;
 
-      await registrarMovimientoAdmin(monto, 'ingreso', nota, idLogistica);
+      const tipoMov = tipoPago === 'abono' && data?.resumen.balance_neto_periodo < 0
+        ? 'egreso'
+        : 'consolidacion';
+      const result = await registrarMovimientoAdmin(monto, tipoMov, nota, idLogistica);
 
       setShowModal(false);
       setTipoPago('');
       setMontoPago(0);
       setNotaPago('');
-      setSuccessMessage(`Movimiento de ${formatCurrency(monto)} registrado exitosamente.`);
+      setSuccessMessage(`${result?.mensaje || 'Movimiento registrado exitosamente'} — ${formatCurrency(monto)}`);
 
       const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
       fetchResumen(selectedMonth, selectedYear, targetId);
@@ -340,8 +343,8 @@ const FinanzasLogisticaScreen: React.FC = () => {
       setConsolidandoCero(true);
       setError(null);
       const idLogistica = selectedLogistica?.id_usuario;
-      await registrarMovimientoAdmin(0, 'consolidacion', 'Consolidación con valor $0', idLogistica);
-      setSuccessMessage('Transacciones pendientes consolidadas con valor $0.');
+      const result = await registrarMovimientoAdmin(0, 'consolidacion', 'Consolidación con valor $0', idLogistica);
+      setSuccessMessage(result?.mensaje || 'Transacciones pendientes consolidadas con valor $0.');
 
       const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
       fetchResumen(selectedMonth, selectedYear, targetId);
@@ -433,10 +436,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
   return (
     <div className="management-page finanzas-page">
       {successMessage && (
-        <div className="finanzas-toast finanzas-toast-success">
-          {successMessage}
-          <button className="finanzas-toast-close" onClick={() => setSuccessMessage(null)}>×</button>
-        </div>
+        <Alert message={successMessage} onDismiss={() => setSuccessMessage(null)} type="success" />
       )}
 
       {needsSelector && isSuperAdmin && (

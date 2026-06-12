@@ -31,6 +31,15 @@ const ConfirmacionTransaccionModal: React.FC<ConfirmacionTransaccionModalProps> 
   setCodigo,
   disabled = false,
 }) => {
+  const puedeConfirmar = !processing && !disabled && codigo.trim().length > 0;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && puedeConfirmar) {
+      e.preventDefault();
+      onConfirm();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -65,6 +74,7 @@ const ConfirmacionTransaccionModal: React.FC<ConfirmacionTransaccionModalProps> 
               className="ctm-token-input"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="• • • • • •"
               autoFocus
               disabled={processing}
@@ -81,7 +91,7 @@ const ConfirmacionTransaccionModal: React.FC<ConfirmacionTransaccionModalProps> 
             <button
               className="button button-primary ctm-btn-confirm"
               onClick={onConfirm}
-              disabled={processing || disabled || !codigo.trim()}
+              disabled={!puedeConfirmar}
             >
               {processing ? 'Procesando...' : 'Confirmar transacción'}
             </button>

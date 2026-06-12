@@ -60,7 +60,7 @@ export const getResumenFinanciero = async (mes?: number, ano?: number, id_usuari
 
 export const registrarMovimientoAdmin = async (
   monto: number,
-  tipo_movimiento: 'ingreso' | 'consolidacion',
+  tipo_movimiento: 'ingreso' | 'egreso' | 'consolidacion',
   nota_opcional?: string,
   id_logistica?: number
 ) => {
