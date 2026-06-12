@@ -6,7 +6,8 @@ import TransaccionesHeader from '../../../components/TransaccionesHeader/Transac
 import GestionCobro from '../components/GestionCobro/GestionCobro';
 import ConfirmacionTransaccionModal from '../components/ConfirmacionTransaccionModal/ConfirmacionTransaccionModal';
 import Alert from '../../../components/Alert/Alert';
-import './FinanzasLogisticaScreen.css';
+import SummaryCard from '../../../components/SummaryCard/SummaryCard';
+import LibroMayor from '../../../components/LibroMayor/LibroMayor';
 
 interface AdminInfo {
   id_usuario: number;
@@ -147,18 +148,11 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-const getTipoBadgeClass = (tipo: string): string => {
-  const lower = tipo.toLowerCase();
-  if (lower.includes('recibido') || lower.includes('ingreso')) return 'badge-ingreso';
-  if (lower.includes('entregado') || lower.includes('consolidacion') || lower.includes('egreso')) return 'badge-egreso';
-  return 'badge-neutral';
-};
-
-const getEstadoBadgeClass = (estado: string): string => {
-  const lower = estado.toLowerCase();
-  if (lower === 'completado' || lower === 'completada') return 'badge-completado';
-  if (lower === 'pendiente') return 'badge-pendiente';
-  return 'badge-neutral';
+const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat('es-CO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
 };
 
 const FinanzasLogisticaScreen: React.FC = () => {
@@ -373,75 +367,10 @@ const FinanzasLogisticaScreen: React.FC = () => {
     }
   };
 
-  const exportToCSV = () => {
-    if (!data?.transacciones || data.transacciones.length === 0) return;
-
-    const headers = ['Fecha', 'Tipo', 'Contraparte', 'Monto', 'Nota', 'Estado'];
-    const rows = data.transacciones.map((t) => [
-      new Date(t.hora_transaccion).toLocaleString('es-CO'),
-      t.nombre_tipo_transaccion,
-      t.usuario_relacionado?.nombre_completo || '—',
-      t.monto.toString(),
-      t.nota_opcional || '—',
-      t.nombre_estado_transaccion,
-    ]);
-
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `libro-mayor-${selectedMonth}-${selectedYear}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const exportToExcel = () => {
-    if (!data?.transacciones || data.transacciones.length === 0) return;
-
-    const tableHtml = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head><meta charset="UTF-8"></head>
-      <body>
-        <table>
-          <tr>
-            <th>Fecha</th><th>Tipo</th><th>Contraparte</th><th>Monto</th><th>Nota</th><th>Estado</th>
-          </tr>
-          ${data.transacciones.map((t) => `
-            <tr>
-              <td>${new Date(t.hora_transaccion).toLocaleString('es-CO')}</td>
-              <td>${t.nombre_tipo_transaccion}</td>
-              <td>${t.usuario_relacionado?.nombre_completo || '—'}</td>
-              <td>${t.monto}</td>
-              <td>${t.nota_opcional || '—'}</td>
-              <td>${t.nombre_estado_transaccion}</td>
-            </tr>
-          `).join('')}
-        </table>
-      </body>
-      </html>
-    `;
-
-    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `libro-mayor-${selectedMonth}-${selectedYear}.xls`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   if (needsSelector && loadingHermanos) {
     return (
       <div className="management-page">
-        <div className="finanzas-loading">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 'calc(var(--spacing-unit) * 8)', color: 'var(--color-text-secondary)' }}>
           {isSuperAdmin ? 'Cargando administradores...' : 'Cargando...'}
         </div>
       </div>
@@ -449,7 +378,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
   }
 
   return (
-    <div className="management-page finanzas-page">
+    <div className="management-page" style={{ gap: 'calc(var(--spacing-unit) * 3)' }}>
       {successMessage && (
         <Alert message={successMessage} onDismiss={() => setSuccessMessage(null)} type="success" />
       )}
@@ -508,7 +437,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       )}
 
       {needsSelector && isAdmin && (
-        <section className="finanzas-selector card">
+        <section className="card" style={{ marginBottom: 0 }}>
           <div className="card-header">
             <h2>Seleccionar Logístico</h2>
           </div>
@@ -543,7 +472,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       )}
 
       {needsSelector && !selectedLogistica && !loadingHermanos && (
-        <div className="finanzas-empty-state">
+        <div style={{ textAlign: 'center', padding: 'calc(var(--spacing-unit) * 6)', background: 'var(--color-card-bg)', border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-lg)', color: 'var(--color-text-secondary)', fontSize: '1.1rem' }}>
           <p>
             {isSuperAdmin && !adminSeleccionado
               ? 'Selecciona un administrador para ver sus logísticos.'
@@ -553,15 +482,15 @@ const FinanzasLogisticaScreen: React.FC = () => {
       )}
 
       {loading && (
-        <div className="finanzas-loading">
-          <div className="finanzas-spinner"></div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 'calc(var(--spacing-unit) * 8)', color: 'var(--color-text-secondary)' }}>
+          <div className="spinner"></div>
           <p>Cargando resumen financiero...</p>
         </div>
       )}
 
       {error && !loading && (
-        <div className="finanzas-error">
-          <p>{error}</p>
+        <div style={{ textAlign: 'center', padding: 'calc(var(--spacing-unit) * 6)', background: 'var(--color-card-bg)', border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-lg)' }}>
+          <p style={{ color: 'var(--color-danger, #e53e3e)', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>{error}</p>
           <button
             className="button button-primary"
             onClick={() => {
@@ -575,7 +504,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       )}
 
       {!loading && !error && data && data.transacciones.length === 0 && (
-        <div className="finanzas-empty-state">
+        <div style={{ textAlign: 'center', padding: 'calc(var(--spacing-unit) * 6)', background: 'var(--color-card-bg)', border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-lg)', color: 'var(--color-text-secondary)', fontSize: '1.1rem' }}>
           <p>No hay movimientos registrados en este período.</p>
         </div>
       )}
@@ -609,22 +538,25 @@ const FinanzasLogisticaScreen: React.FC = () => {
             loading={loading}
           />
 
-          <section className="finanzas-resumen">
-            <div className="finanzas-card finanzas-card-ingresos">
-              <h3>Ingresos Totales</h3>
-              <div className="finanzas-card-value">{formatCurrency(data.resumen.total_ingresos)}</div>
-              <p>Período actual</p>
-            </div>
-            <div className="finanzas-card finanzas-card-egresos">
-              <h3>Egresos Totales</h3>
-              <div className="finanzas-card-value">{formatCurrency(data.resumen.total_egresos)}</div>
-              <p>Período actual</p>
-            </div>
-            <div className={`finanzas-card finanzas-card-balance ${data.resumen.balance_neto_periodo >= 0 ? 'positive' : 'negative'}`}>
-              <h3>Balance Neto</h3>
-              <div className="finanzas-card-value">{formatCurrency(data.resumen.balance_neto_periodo)}</div>
-              <p>Período actual</p>
-            </div>
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'calc(var(--spacing-unit) * 2)' }}>
+            <SummaryCard
+              title="Ingresos Totales $"
+              value={formatNumber(data.resumen.total_ingresos)}
+              description="Período actual"
+              variant="success"
+            />
+            <SummaryCard
+              title="Egresos Totales $"
+              value={formatNumber(data.resumen.total_egresos)}
+              description="Período actual"
+              variant="danger"
+            />
+            <SummaryCard
+              title="Balance Neto $"
+              value={formatNumber(data.resumen.balance_neto_periodo)}
+              description="Período actual"
+              variant={data.resumen.balance_neto_periodo >= 0 ? 'success' : 'danger'}
+            />
           </section>
 
           {!isSuperAdmin && data.esPeriodoActual && (!isAdmin || selectedLogistica) && (
@@ -652,61 +584,11 @@ const FinanzasLogisticaScreen: React.FC = () => {
             />
           )}
 
-          <section className="finanzas-libro-mayor card">
-            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2>Libro Mayor</h2>
-              <div className="finanzas-export-buttons">
-                <button className="button button-secondary" onClick={exportToCSV}>
-                  Exportar CSV
-                </button>
-                <button className="button button-secondary" onClick={exportToExcel}>
-                  Exportar Excel
-                </button>
-              </div>
-            </div>
-            <div className="finanzas-table-container">
-              <table className="finanzas-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Contraparte</th>
-                    <th>Monto</th>
-                    <th>Nota</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.transacciones.map((t) => {
-                    const isPositive = t.monto > 0;
-                    return (
-                      <tr key={t.id_transaccion}>
-                        <td>{new Date(t.hora_transaccion).toLocaleString('es-CO', {
-                          day: '2-digit', month: '2-digit', year: 'numeric',
-                          hour: '2-digit', minute: '2-digit',
-                        })}</td>
-                        <td>
-                          <span className={`finanzas-badge ${getTipoBadgeClass(t.nombre_tipo_transaccion)}`}>
-                            {t.nombre_tipo_transaccion.replace(/_/g, ' ')}
-                          </span>
-                        </td>
-                        <td>{t.usuario_relacionado?.nombre_completo || '—'}</td>
-                        <td className={isPositive ? 'finanzas-monto-positive' : 'finanzas-monto-negative'}>
-                          {isPositive ? '+' : ''}{formatCurrency(t.monto)}
-                        </td>
-                        <td>{t.nota_opcional || '—'}</td>
-                        <td>
-                          <span className={`finanzas-badge ${getEstadoBadgeClass(t.nombre_estado_transaccion)}`}>
-                            {t.nombre_estado_transaccion}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <LibroMayor
+            transactions={data.transacciones}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+          />
         </>
       )}
 

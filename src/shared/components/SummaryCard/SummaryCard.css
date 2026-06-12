@@ -27,6 +27,14 @@
   background: var(--color-primary);
 }
 
+.summary-card--success::before {
+  background: var(--color-success, #22c55e);
+}
+
+.summary-card--danger::before {
+  background: var(--color-danger, #e53e3e);
+}
+
 .summary-card:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 12px 40px var(--color-hover-bg);
@@ -42,7 +50,7 @@
 }
 
 .card-value {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: var(--font-weight-bold);
   background: var(--color-primary);
   -webkit-background-clip: text;
@@ -50,6 +58,18 @@
   background-clip: text;
   margin-bottom: calc(var(--spacing-unit) * 1.5);
   line-height: 1;
+}
+
+.card-value--success {
+  background: none;
+  -webkit-text-fill-color: var(--color-success, #22c55e);
+  color: var(--color-success, #22c55e);
+}
+
+.card-value--danger {
+  background: none;
+  -webkit-text-fill-color: var(--color-danger, #e53e3e);
+  color: var(--color-danger, #e53e3e);
 }
 
 .card-description {
