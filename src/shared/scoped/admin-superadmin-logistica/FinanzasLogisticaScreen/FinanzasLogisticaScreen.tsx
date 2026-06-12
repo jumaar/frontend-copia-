@@ -46,6 +46,11 @@ interface ResumenFinancieroData {
 }
 
 interface FinanzasApiResponse {
+  admin?: {
+    id_usuario: number;
+    nombre_usuario: string;
+    apellido_usuario: string;
+  };
   transacciones: Transaccion[];
   fecha_creacion_usuario?: string;
   nombre_usuario?: string;
@@ -77,10 +82,15 @@ const normalizeFinanzasResponse = (apiResponse: FinanzasApiResponse): ResumenFin
 
   return {
     periodo: apiResponse.periodo,
-    admin: {
-      id_usuario: 0,
-      nombre_completo: 'Admin',
-    },
+    admin: apiResponse.admin
+      ? {
+          id_usuario: apiResponse.admin.id_usuario,
+          nombre_completo: `${apiResponse.admin.nombre_usuario} ${apiResponse.admin.apellido_usuario}`,
+        }
+      : {
+          id_usuario: 0,
+          nombre_completo: 'Administrador',
+        },
     resumen: {
       total_ingresos: totalIngresos,
       total_egresos: -totalEgresos,
@@ -613,7 +623,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
               setNotaPago={setNotaPago}
               procesandoPago={procesandoPago}
               onProcesarPago={handleProcesarPago}
-              userName={user?.name || data.admin?.nombre_completo || 'Administrador'}
+              userName={data.admin.nombre_completo}
               saldoTotalLiquidar={data.resumen.balance_neto_periodo}
               pendientesCount={
                 data.transacciones.filter(
@@ -694,7 +704,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
             ? `${selectedLogistica.nombre_usuario} ${selectedLogistica.apellido_usuario}`
             : user?.name || ''
         }
-        destino={user?.name || data?.admin?.nombre_completo || 'Administrador'}
+        destino={data?.admin?.nombre_completo || 'Administrador'}
         monto={
           tipoPago === 'pago'
             ? Math.abs(data?.resumen.balance_neto_periodo || 0)
