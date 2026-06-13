@@ -82,7 +82,7 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     try {
       setConsolidandoCero(true);
       setError(null);
-      const respuesta = await procesarPago(usuarioSeleccionado, 0, undefined, 'consolidación con valor 0');
+      const respuesta = await procesarPago(usuarioSeleccionado, 0, undefined, undefined);
       setSuccessMessage(respuesta.message || 'Consolidación con valor 0 realizada exitosamente.');
       await cargarTransacciones(usuarioSeleccionado);
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -114,15 +114,13 @@ const FinanzasFrigorificoScreen: React.FC = () => {
       .reduce((sum: number, t: any) => sum + t.monto, 0);
 
     let montoFinal: number;
-    let notaFinal = notaPago;
+    const notaFinal = notaPago.trim() || undefined;
 
     if (tipoPago === 'pago') {
       montoFinal = saldoTotalPendientes;
-      if (!notaPago) notaFinal = `pago por el usuario ${user?.name || ''} (ID: ${user?.id || ''})`;
     } else {
       montoFinal = montoPago;
       if (!montoFinal || montoFinal <= 0) return;
-      if (!notaPago) notaFinal = `abono de ${formatMoneda(montoFinal)} hecho por el usuario ${user?.name || ''} (ID: ${user?.id || ''})`;
     }
 
     try {

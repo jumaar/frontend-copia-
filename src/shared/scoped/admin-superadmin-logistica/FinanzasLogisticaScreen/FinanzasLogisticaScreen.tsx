@@ -21,9 +21,16 @@ interface Resumen {
   balance_acumulado_historico: number;
 }
 
-interface UsuarioRelacionado {
-  id_usuario: number;
-  nombre_completo: string;
+interface InfoPago {
+  id_usuario_pago: number;
+  nombre_usuario_pago: string;
+  nota_opcional_pago: string;
+}
+
+interface ConsolidadoPosteriorRef {
+  id_transaccion: number;
+  fecha_consolidacion: string;
+  nota_opcional: string;
 }
 
 interface Transaccion {
@@ -35,7 +42,8 @@ interface Transaccion {
   nombre_tipo_transaccion: string;
   nombre_estado_transaccion: string;
   nota_opcional: string;
-  usuario_relacionado: UsuarioRelacionado;
+  info_pago?: InfoPago;
+  consolidado_posterior?: ConsolidadoPosteriorRef;
 }
 
 interface ResumenFinancieroData {
@@ -43,6 +51,7 @@ interface ResumenFinancieroData {
   admin: AdminInfo;
   resumen: Resumen;
   transacciones: Transaccion[];
+  consolidadosPosteriores: Transaccion[];
   esPeriodoActual: boolean;
   fechaCreacionUsuario?: string;
 }
@@ -54,6 +63,7 @@ interface FinanzasApiResponse {
     apellido_usuario: string;
   };
   transacciones: Transaccion[];
+  consolidados_posteriores?: Transaccion[];
   fecha_creacion_usuario?: string;
   nombre_usuario?: string;
   apellido_usuario?: string;
@@ -100,6 +110,7 @@ const normalizeFinanzasResponse = (apiResponse: FinanzasApiResponse): ResumenFin
       balance_acumulado_historico: 0,
     },
     transacciones,
+    consolidadosPosteriores: apiResponse.consolidados_posteriores || [],
     esPeriodoActual: apiResponse.parametros_usados?.es_periodo_actual
       ?? (apiResponse.periodo.mes === currentMonth && apiResponse.periodo.ano === currentYear),
     fechaCreacionUsuario: apiResponse.fecha_creacion_usuario,
@@ -266,14 +277,21 @@ const FinanzasLogisticaScreen: React.FC = () => {
     setSelectedYear(year);
     const isCurrent = month === currentMonth && year === currentYear;
     setMesSeleccionado(isCurrent ? null : { mes: month, año: year });
-    const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
-    fetchResumen(month, year, targetId);
+    if (!isLogistica) {
+      const targetId = needsSelector && selectedLogistica ? selectedLogistica.id_usuario : undefined;
+      fetchResumen(month, year, targetId);
+    }
   };
 
   const monthOptions: Array<{ month: number; year: number; label: string }> = [];
-  for (let y = currentYear; y >= currentYear - 2; y--) {
-    for (let m = 12; m >= 1; m--) {
-      if (y === currentYear && m > currentMonth) continue;
+  const creationDate = data?.fechaCreacionUsuario ? new Date(data.fechaCreacionUsuario) : null;
+  const minYear = creationDate ? creationDate.getFullYear() : currentYear - 2;
+  const minMonth = creationDate ? creationDate.getMonth() + 1 : 1;
+
+  for (let y = currentYear; y >= minYear; y--) {
+    const startM = (y === currentYear) ? currentMonth : 12;
+    const endM = (y === minYear) ? minMonth : 1;
+    for (let m = startM; m >= endM; m--) {
       monthOptions.push({ month: m, year: y, label: `${MONTH_NAMES[m - 1]} ${y}` });
     }
   }
@@ -349,7 +367,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       setConsolidandoCero(true);
       setError(null);
       const idLogistica = selectedLogistica?.id_usuario;
-      const result = await registrarMovimientoAdmin(0, 'consolidacion', 'Consolidación con valor $0', idLogistica);
+      const result = await registrarMovimientoAdmin(0, 'consolidacion', undefined, idLogistica);
       setShowModalConsolidar(false);
       setCodigo('');
       setSuccessMessage(result?.mensaje || 'Transacciones pendientes consolidadas con valor $0.');
@@ -587,6 +605,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
 
           <LibroMayor
             transactions={data.transacciones}
+            consolidadosPosteriores={data.consolidadosPosteriores}
             selectedMonth={selectedMonth}
             selectedYear={selectedYear}
           />

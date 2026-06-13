@@ -124,15 +124,13 @@ const CuentasNeverasScreen: React.FC = () => {
     if (!tiendaSeleccionada || !neveraSeleccionada) return;
 
     let montoFinal: number;
-    let notaFinal = notaPago;
+    const notaFinal = notaPago.trim() || undefined;
 
     if (tipoPago === 'pago') {
       montoFinal = saldoTotalLiquidar;
-      if (!notaPago) notaFinal = `cobro total por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
     } else {
       montoFinal = montoPago;
       if (!montoFinal || montoFinal <= 0) return;
-      if (!notaPago) notaFinal = `abono de ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(montoFinal)} hecho por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
     }
 
     let userId: number | null = null;

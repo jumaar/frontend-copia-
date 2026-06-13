@@ -158,7 +158,13 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
       </div>
 
       {tipoPago && (
-        <div className="gestion-cobro-form">
+        <form
+          className="gestion-cobro-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!procesandoPago) onProcesarPago();
+          }}
+        >
           {tipoPago === 'pago' ? (
             <div className="gestion-cobro-field">
               <strong>Nota:</strong>
@@ -196,13 +202,13 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
             </>
           )}
           <button
+            type="submit"
             className="btn-consultar gestion-cobro-submit"
-            onClick={onProcesarPago}
             disabled={procesandoPago}
           >
             {procesandoPago ? 'Procesando...' : tipoPago === 'pago' ? L.btnTotal : 'Realizar Abono'}
           </button>
-        </div>
+        </form>
       )}
     </div>
   );

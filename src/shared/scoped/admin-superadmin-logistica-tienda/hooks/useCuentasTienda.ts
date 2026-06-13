@@ -167,21 +167,15 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
     }
 
     let montoFinal = 0;
-    let notaFinal = notaPago;
+    const notaFinal = notaPago.trim() || undefined;
 
     if (tipoPago === 'pago') {
       montoFinal = saldoTotalLiquidar;
-      if (!notaPago) {
-        notaFinal = `cobro total por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
-      }
     } else {
       montoFinal = montoPago;
       if (isNaN(montoFinal) || montoFinal <= 0) {
         alert('Por favor ingrese un monto válido para el abono.');
         return;
-      }
-      if (!notaPago) {
-        notaFinal = `abono de ${formatMoneda(montoFinal)} hecho por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
       }
     }
 

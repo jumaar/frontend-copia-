@@ -1,20 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './LibroMayor.css';
+
+interface InfoPago {
+  id_usuario_pago: number;
+  nombre_usuario_pago: string;
+  nota_opcional_pago: string;
+}
+
+interface ConsolidadoPosteriorRef {
+  id_transaccion: number;
+  fecha_consolidacion: string;
+  nota_opcional: string;
+}
 
 interface Transaction {
   id_transaccion: number;
+  id_empaque: number | null;
+  id_transaccion_rel: number | null;
+  monto: number;
   hora_transaccion: string;
   nombre_tipo_transaccion: string;
-  usuario_relacionado: { nombre_completo: string } | null;
-  monto: number;
-  nota_opcional: string | null;
   nombre_estado_transaccion: string;
-  id_empaque?: number | null;
-  id_transaccion_rel?: number | null;
+  nota_opcional: string | null;
+  info_pago?: InfoPago;
+  consolidado_posterior?: ConsolidadoPosteriorRef;
 }
 
 interface LibroMayorProps {
   transactions: Transaction[];
+  consolidadosPosteriores?: Transaction[];
   selectedMonth: number;
   selectedYear: number;
 }
@@ -28,57 +42,213 @@ const formatCurrency = (value: number): string => {
   }).format(value);
 };
 
-const getTipoBadgeClass = (tipo: string): string => {
-  const lower = tipo.toLowerCase();
-  if (lower.includes('recibido') || lower.includes('ingreso')) return 'badge-ingreso';
-  if (lower.includes('entregado') || lower.includes('consolidacion') || lower.includes('egreso')) return 'badge-egreso';
-  return 'badge-neutral';
-};
-
-const getEstadoBadgeClass = (estado: string): string => {
-  const lower = estado.toLowerCase();
-  if (lower === 'completado' || lower === 'completada') return 'badge-completado';
-  if (lower === 'pendiente') return 'badge-pendiente';
-  return 'badge-neutral';
-};
-
 const MONTH_NAMES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
 
-const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, selectedYear }) => {
-  const formatFecha = (fecha: string): React.ReactNode => {
-    const date = new Date(fecha);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = MONTH_NAMES[date.getMonth()];
-    const year = date.getFullYear();
-    const fechaStr = `${day} ${month} ${year}`;
-    const horaStr = date.toLocaleTimeString('es-CO', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-    return (
-      <span className="libro-mayor-fecha">
-        {fechaStr}
-        <span className="libro-mayor-hora">{horaStr}</span>
-      </span>
+const MONTH_NAMES_CAP = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+];
+
+const formatFecha = (fecha: string): React.ReactNode => {
+  const date = new Date(fecha);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = MONTH_NAMES[date.getMonth()];
+  const year = date.getFullYear();
+  const horaStr = date.toLocaleTimeString('es-CO', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  return (
+    <span className="libro-mayor-fecha">
+      <span>{day} {month} {year}</span>
+      <span className="libro-mayor-hora">{horaStr}</span>
+    </span>
+  );
+};
+
+const formatFechaCorta = (fecha: string): string => {
+  const date = new Date(fecha);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = MONTH_NAMES_CAP[date.getMonth()];
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
+};
+
+function groupIntoBlocks(transactions: Transaction[]): Transaction[][] {
+  if (transactions.length === 0) return [];
+
+  const idMap = new Map<number, Transaction>();
+  transactions.forEach(t => idMap.set(t.id_transaccion, t));
+
+  const adj = new Map<number, Set<number>>();
+  for (const t of transactions) {
+    if (!adj.has(t.id_transaccion)) adj.set(t.id_transaccion, new Set());
+    if (t.id_transaccion_rel != null && idMap.has(t.id_transaccion_rel)) {
+      adj.get(t.id_transaccion)!.add(t.id_transaccion_rel);
+      if (!adj.has(t.id_transaccion_rel)) adj.set(t.id_transaccion_rel, new Set());
+      adj.get(t.id_transaccion_rel)!.add(t.id_transaccion);
+    }
+  }
+
+  const byRel = new Map<number, number[]>();
+  for (const t of transactions) {
+    if (t.id_transaccion_rel != null) {
+      if (!byRel.has(t.id_transaccion_rel)) byRel.set(t.id_transaccion_rel, []);
+      byRel.get(t.id_transaccion_rel)!.push(t.id_transaccion);
+    }
+  }
+  for (const [, ids] of byRel) {
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        if (!adj.has(ids[i])) adj.set(ids[i], new Set());
+        if (!adj.has(ids[j])) adj.set(ids[j], new Set());
+        adj.get(ids[i])!.add(ids[j]);
+        adj.get(ids[j])!.add(ids[i]);
+      }
+    }
+  }
+
+  const visited = new Set<number>();
+  const blocks: Transaction[][] = [];
+
+  for (const t of transactions) {
+    if (visited.has(t.id_transaccion)) continue;
+
+    const blockIds: number[] = [];
+    const stack = [t.id_transaccion];
+
+    while (stack.length > 0) {
+      const id = stack.pop()!;
+      if (visited.has(id)) continue;
+      visited.add(id);
+      blockIds.push(id);
+      for (const neighbor of adj.get(id) || []) {
+        if (!visited.has(neighbor)) stack.push(neighbor);
+      }
+    }
+
+    if (blockIds.length > 0) {
+      blocks.push(blockIds.map(id => idMap.get(id)!));
+    }
+  }
+
+  blocks.sort((a, b) => {
+    const maxA = Math.max(...a.map(tx => new Date(tx.hora_transaccion).getTime()));
+    const maxB = Math.max(...b.map(tx => new Date(tx.hora_transaccion).getTime()));
+    return maxB - maxA;
+  });
+
+  blocks.forEach(block => {
+    block.sort((a, b) => new Date(a.hora_transaccion).getTime() - new Date(b.hora_transaccion).getTime());
+  });
+
+  return blocks;
+}
+
+const NotaCell: React.FC<{ nota: string | null }> = ({ nota }) => {
+  const [expanded, setExpanded] = useState(false);
+  const text = nota || '—';
+
+  if (text.length <= 60) {
+    return <span className="libro-mayor-nota">{text}</span>;
+  }
+
+  return (
+    <span className="libro-mayor-nota">
+      {expanded ? text : text.slice(0, 60) + '...'}
+      <button
+        className="libro-mayor-vermas"
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? 'Ver menos' : 'Ver más'}
+      </button>
+    </span>
+  );
+};
+
+const ContraparteCell: React.FC<{ info_pago?: InfoPago }> = ({ info_pago }) => {
+  if (!info_pago) return <span>—</span>;
+
+  return (
+    <span className="libro-mayor-contraparte" title={info_pago.nota_opcional_pago || ''}>
+      {info_pago.nombre_usuario_pago}
+      {info_pago.nota_opcional_pago && (
+        <span className="libro-mayor-tooltip-icon" title={info_pago.nota_opcional_pago}> ⓘ</span>
+      )}
+    </span>
+  );
+};
+
+const LibroMayor: React.FC<LibroMayorProps> = ({
+  transactions,
+  consolidadosPosteriores = [],
+  selectedMonth,
+  selectedYear,
+}) => {
+  const pendientes = transactions.filter(
+    t => t.nombre_estado_transaccion.toUpperCase() === 'PENDIENTE'
+  );
+  const consolidadas = transactions.filter(
+    t => t.nombre_estado_transaccion.toUpperCase() !== 'PENDIENTE'
+  );
+  const blocks = groupIntoBlocks(consolidadas);
+
+  const hasPendientes = pendientes.length > 0;
+  const hasPosteriores = consolidadosPosteriores.length > 0;
+
+  let blockIdx = 0;
+  let rowNumber = 0;
+
+  const getPosteriorLabel = (blk: number) => {
+    const consolidations = Array.from(
+      new Map(
+        consolidadosPosteriores
+          .filter(t => t.consolidado_posterior)
+          .map(t => [
+            t.consolidado_posterior!.id_transaccion,
+            { id: t.consolidado_posterior!.id_transaccion, fecha: t.consolidado_posterior!.fecha_consolidacion, nota: t.consolidado_posterior!.nota_opcional },
+          ])
+      ).values()
     );
+
+    if (consolidations.length === 0) {
+      return `Bloque ${blk} — Consolidados en períodos posteriores (${consolidadosPosteriores.length} transacción${consolidadosPosteriores.length !== 1 ? 'es' : ''})`;
+    }
+    const parts = consolidations.map(c => {
+      const d = new Date(c.fecha);
+      const mes = MONTH_NAMES_CAP[d.getMonth()];
+      const anio = d.getFullYear();
+      return `${d.getDate()} ${mes} ${anio} (ID: ${c.id})`;
+    });
+    return `Bloque ${blk} — Consolidado${consolidations.length > 1 ? 's' : ''}: ${parts.join(' | ')}`;
   };
 
   const exportToCSV = () => {
-    if (transactions.length === 0) return;
+    const allTransactions = [...pendientes, ...consolidadosPosteriores, ...consolidadas];
+    if (allTransactions.length === 0) return;
 
-    const headers = ['Fecha', 'Tipo', 'Contraparte', 'Monto', 'Nota', 'Estado'];
-    const rows = transactions.map((t) => [
-      new Date(t.hora_transaccion).toLocaleString('es-CO'),
-      t.nombre_tipo_transaccion,
-      t.usuario_relacionado?.nombre_completo || '—',
-      t.monto.toString(),
-      t.nota_opcional || '—',
-      t.nombre_estado_transaccion,
-    ]);
+    const headers = ['#', 'Fecha', 'Contraparte', 'Ingreso', 'Egreso', 'Saldo', 'Nota', 'ID', 'Estado'];
+    const rows: string[][] = [];
+    let num = 0;
+
+    allTransactions.forEach((t) => {
+      num++;
+      rows.push([
+        String(num),
+        new Date(t.hora_transaccion).toLocaleString('es-CO'),
+        t.info_pago?.nombre_usuario_pago || '—',
+        t.monto > 0 ? t.monto.toString() : '',
+        t.monto < 0 ? Math.abs(t.monto).toString() : '',
+        '',
+        t.nota_opcional || '—',
+        String(t.id_transaccion),
+        t.nombre_estado_transaccion,
+      ]);
+    });
 
     const csvContent = [headers, ...rows]
       .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
@@ -96,32 +266,41 @@ const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, se
   };
 
   const exportToExcel = () => {
-    if (transactions.length === 0) return;
+    const allTransactions = [...pendientes, ...consolidadosPosteriores, ...consolidadas];
+    if (allTransactions.length === 0) return;
 
-    const tableHtml = `
+    let html = `
       <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head><meta charset="UTF-8"></head>
       <body>
         <table>
           <tr>
-            <th>Fecha</th><th>Tipo</th><th>Contraparte</th><th>Monto</th><th>Nota</th><th>Estado</th>
-          </tr>
-          ${transactions.map((t) => `
+            <th>#</th><th>Fecha</th><th>Contraparte</th><th>Ingreso</th><th>Egreso</th><th>Saldo</th><th>Nota</th><th>ID</th><th>Estado</th>
+          </tr>`;
+    let num = 0;
+
+    allTransactions.forEach((t) => {
+      num++;
+      html += `
             <tr>
+              <td>${num}</td>
               <td>${new Date(t.hora_transaccion).toLocaleString('es-CO')}</td>
-              <td>${t.nombre_tipo_transaccion}</td>
-              <td>${t.usuario_relacionado?.nombre_completo || '—'}</td>
-              <td>${t.monto}</td>
+              <td>${t.info_pago?.nombre_usuario_pago || '—'}</td>
+              <td>${t.monto > 0 ? t.monto : ''}</td>
+              <td>${t.monto < 0 ? Math.abs(t.monto) : ''}</td>
+              <td></td>
               <td>${t.nota_opcional || '—'}</td>
+              <td>${t.id_transaccion}</td>
               <td>${t.nombre_estado_transaccion}</td>
-            </tr>
-          `).join('')}
+            </tr>`;
+    });
+
+    html += `
         </table>
       </body>
-      </html>
-    `;
+      </html>`;
 
-    const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -130,6 +309,52 @@ const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, se
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const formatSaldo = (value: number) => (
+    <span className={`col-saldo ${value >= 0 ? 'saldo-positive' : 'saldo-negative'}`}>
+      {formatCurrency(value)}
+    </span>
+  );
+
+  const renderTransactionRow = (
+    t: Transaction,
+    rowClass: string,
+    saldoValue: number,
+    showSaldo: boolean,
+    idColumn: React.ReactNode
+  ) => {
+    rowNumber++;
+    const isIngreso = t.monto > 0;
+    const isEgreso = t.monto < 0;
+
+    return (
+      <tr key={t.id_transaccion || `row-${rowNumber}`} className={rowClass}>
+        <td className="col-num">{rowNumber}</td>
+        <td className="col-fecha">{formatFecha(t.hora_transaccion)}</td>
+        <td className="col-contraparte">
+          <ContraparteCell info_pago={t.info_pago} />
+        </td>
+        <td className="col-monto col-ingreso">
+          {isIngreso ? formatCurrency(t.monto) : ''}
+        </td>
+        <td className="col-monto col-egreso">
+          {isEgreso ? formatCurrency(Math.abs(t.monto)) : ''}
+        </td>
+        <td className="col-monto">
+          {showSaldo ? formatSaldo(saldoValue) : <span className="col-saldo">—</span>}
+        </td>
+        <td className="col-nota">
+          <NotaCell nota={t.nota_opcional} />
+        </td>
+        <td className="col-id">{idColumn}</td>
+        <td className="col-estado">
+          <span className={`libro-mayor-badge ${t.nombre_estado_transaccion.toUpperCase() === 'PENDIENTE' ? 'badge-pendiente' : 'badge-completado'}`}>
+            {t.nombre_estado_transaccion}
+          </span>
+        </td>
+      </tr>
+    );
   };
 
   return (
@@ -145,42 +370,101 @@ const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, se
           </button>
         </div>
       </div>
+
       <div className="libro-mayor-table-container">
         <table className="libro-mayor-table">
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Contraparte</th>
-              <th>Monto</th>
-              <th>Nota</th>
-              <th>Estado</th>
+              <th className="col-num">#</th>
+              <th className="col-fecha">Fecha</th>
+              <th className="col-contraparte">Contraparte</th>
+              <th className="col-monto">Ingreso</th>
+              <th className="col-monto">Egreso</th>
+              <th className="col-monto">Saldo</th>
+              <th className="col-nota">Nota</th>
+              <th className="col-id">ID</th>
+              <th className="col-estado">Estado</th>
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t) => {
-              const isPositive = t.monto > 0;
+            {hasPendientes && (() => {
+              blockIdx++;
+              let saldo = 0;
               return (
-                <tr key={t.id_transaccion}>
-                  <td>{formatFecha(t.hora_transaccion)}</td>
-                  <td>
-                    <span className={`libro-mayor-badge ${getTipoBadgeClass(t.nombre_tipo_transaccion)}`}>
-                      {t.nombre_tipo_transaccion.replace(/_/g, ' ')}
-                    </span>
-                  </td>
-                  <td>{t.usuario_relacionado?.nombre_completo || '—'}</td>
-                  <td className={isPositive ? 'libro-mayor-monto-positive' : 'libro-mayor-monto-negative'}>
-                    {isPositive ? '+' : ''}{formatCurrency(t.monto)}
-                  </td>
-                  <td>{t.nota_opcional || '—'}</td>
-                  <td>
-                    <span className={`libro-mayor-badge ${getEstadoBadgeClass(t.nombre_estado_transaccion)}`}>
-                      {t.nombre_estado_transaccion}
-                    </span>
-                  </td>
-                </tr>
+                <React.Fragment>
+                  {pendientes.map((t) => {
+                    if (t.monto > 0) saldo += t.monto;
+                    if (t.monto < 0) saldo += t.monto;
+                    return renderTransactionRow(t, 'block-pending', saldo, true, t.id_transaccion);
+                  })}
+
+                  <tr className="block-summary-row block-summary-pending">
+                    <td colSpan={4} className="block-summary-label">
+                      Bloque {blockIdx} — Pendientes — Suma: {formatCurrency(saldo)}
+                    </td>
+                    <td className="block-summary-rule">
+                      <span className="zero-rule zero-rule-pending" title="Bloque pendiente de consolidación">⏳</span>
+                    </td>
+                    <td colSpan={4}></td>
+                  </tr>
+                </React.Fragment>
+              );
+            })()}
+
+            {hasPosteriores && (() => {
+              blockIdx++;
+              return (
+                <React.Fragment>
+                  {consolidadosPosteriores.map((t) =>
+                    renderTransactionRow(t, 'block-posterior', 0, false, t.id_transaccion)
+                  )}
+
+                  <tr className="block-summary-row block-summary-posterior">
+                    <td colSpan={9} className="block-summary-label block-summary-centered">
+                      {getPosteriorLabel(blockIdx)}
+                    </td>
+                  </tr>
+                </React.Fragment>
+              );
+            })()}
+
+            {blocks.map((block) => {
+              let saldo = 0;
+              blockIdx++;
+
+              return (
+                <React.Fragment key={`block-${blockIdx}`}>
+                  {block.map((t) => {
+                    if (t.monto > 0) saldo += t.monto;
+                    if (t.monto < 0) saldo += t.monto;
+                    const rowClass = `block-consolidado ${t.nombre_tipo_transaccion === 'ticket_consolidado' ? 'row-ticket-consolidado' : ''}`;
+                    return renderTransactionRow(t, rowClass, saldo, true, t.id_transaccion);
+                  })}
+
+                  <tr className="block-summary-row">
+                    <td colSpan={4} className="block-summary-label">
+                      Bloque {blockIdx} — Suma: {formatCurrency(saldo)}
+                    </td>
+                    <td className="block-summary-rule">
+                      {saldo === 0 ? (
+                        <span className="zero-rule zero-rule-ok" title="El bloque cumple la regla de suma cero">✓</span>
+                      ) : (
+                        <span className="zero-rule zero-rule-fail" title={`El bloque no cumple la regla de suma cero (diferencia: ${formatCurrency(Math.abs(saldo))})`}>✗</span>
+                      )}
+                    </td>
+                    <td colSpan={4}></td>
+                  </tr>
+                </React.Fragment>
               );
             })}
+
+            {!hasPendientes && !hasPosteriores && blocks.length === 0 && (
+              <tr>
+                <td colSpan={9} className="libro-mayor-empty">
+                  No hay movimientos registrados en este período.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

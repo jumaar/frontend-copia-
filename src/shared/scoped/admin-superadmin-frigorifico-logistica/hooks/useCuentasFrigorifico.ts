@@ -152,21 +152,15 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     const saldoTotalPendientes = transacciones.transacciones.filter(t => t.nombre_estado_transaccion === 'PENDIENTE').reduce((sum, t) => sum + t.monto, 0);
 
     let montoFinal = 0;
-    let notaFinal = notaPago;
+    const notaFinal = notaPago.trim() || undefined;
 
     if (tipoPago === 'pago') {
       montoFinal = saldoTotalPendientes;
-      if (!notaPago) {
-        notaFinal = `pago por el usuario ${user?.name || ''} (ID: ${user?.id || ''})`;
-      }
     } else {
       montoFinal = montoPago;
       if (isNaN(montoFinal) || montoFinal <= 0) {
         alert('Por favor ingrese un monto válido para el abono.');
         return;
-      }
-      if (!notaPago) {
-        notaFinal = `abono de ${formatMoneda(montoFinal)} hecho por el usuario logistica ${user?.name || ''} (ID: ${user?.id || ''})`;
       }
     }
 
