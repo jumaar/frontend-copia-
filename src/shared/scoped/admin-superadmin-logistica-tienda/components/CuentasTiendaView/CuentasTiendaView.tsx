@@ -58,7 +58,7 @@ const CuentasTiendaView: React.FC<CuentasTiendaViewProps> = ({
           <SummaryCard title="Pendientes" value={String(summaryCards.pendientesCount)} description="Transacciones" variant="warning" />
           <SummaryCard title="Saldo Pend." value={formatMoneda(summaryCards.saldoTotalPendientes + summaryCards.saldoALiquidar)} description="Total" variant="danger" />
           <SummaryCard title="Monto del Mes" value={formatMoneda(summaryCards.montoTotalMes)} description="Total mes" variant="neutral" />
-          <SummaryCard title="Monto Tienda" value={formatMoneda(summaryCards.montoTiendaMes)} description="Costo tienda" variant="neutral" />
+          <SummaryCard title="Ganancias Tienda" value={formatMoneda(summaryCards.montoTiendaMes)} description="Costo tienda" variant="neutral" />
         </section>
       )}
 

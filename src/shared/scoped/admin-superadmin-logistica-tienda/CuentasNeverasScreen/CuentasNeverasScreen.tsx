@@ -95,6 +95,11 @@ const CuentasNeverasScreen: React.FC = () => {
   const añoActual = ahora.getFullYear();
   const esMesActual = mesSeleccionado?.mes === mesActual && mesSeleccionado?.año === añoActual;
 
+  const pendientesCount = React.useMemo(() => {
+    if (!transacciones?.transacciones) return 0;
+    return transacciones.transacciones.filter((t: any) => t.nombre_estado_transaccion === 'PENDIENTE').length;
+  }, [transacciones]);
+
   const entidadNombre = useMemo(() => {
     if (!neveraSeleccionada || !usuariosTienda.length) return '';
     for (const usuario of usuariosTienda) {
@@ -252,6 +257,7 @@ const CuentasNeverasScreen: React.FC = () => {
                 onProcesarPago={handleProcesarPago}
                 userName={entidadNombre}
                 saldoTotalLiquidar={saldoTotalLiquidar}
+                pendientesCount={pendientesCount}
               />
             ) : undefined
           }

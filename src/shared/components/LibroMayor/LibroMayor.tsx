@@ -24,6 +24,7 @@ interface Transaction {
   nota_opcional: string | null;
   info_pago?: InfoPago;
   consolidado_posterior?: ConsolidadoPosteriorRef;
+  costo_tienda?: number | null;
 }
 
 interface LibroMayorProps {
@@ -31,6 +32,7 @@ interface LibroMayorProps {
   consolidadosPosteriores?: Transaction[];
   selectedMonth: number;
   selectedYear: number;
+  variant?: 'proveedor' | 'cliente';
 }
 
 const formatCurrency = (value: number): string => {
@@ -188,10 +190,16 @@ const LibroMayor: React.FC<LibroMayorProps> = ({
   consolidadosPosteriores = [],
   selectedMonth,
   selectedYear,
+  variant = 'proveedor',
 }) => {
-  const pendientes = transactions.filter(
-    t => t.nombre_estado_transaccion.toUpperCase() === 'PENDIENTE'
-  );
+  const isCliente = variant === 'cliente';
+
+  const isIngreso = (monto: number) => isCliente ? monto < 0 : monto > 0;
+  const isEgreso = (monto: number) => isCliente ? monto > 0 : monto < 0;
+
+  const pendientes = transactions
+    .filter(t => t.nombre_estado_transaccion.toUpperCase() === 'PENDIENTE')
+    .sort((a, b) => new Date(a.hora_transaccion).getTime() - new Date(b.hora_transaccion).getTime());
   const consolidadas = transactions.filter(
     t => t.nombre_estado_transaccion.toUpperCase() !== 'PENDIENTE'
   );
@@ -325,21 +333,27 @@ const LibroMayor: React.FC<LibroMayorProps> = ({
     idColumn: React.ReactNode
   ) => {
     rowNumber++;
-    const isIngreso = t.monto > 0;
-    const isEgreso = t.monto < 0;
+    const ing = isIngreso(t.monto);
+    const egr = isEgreso(t.monto);
 
     return (
       <tr key={t.id_transaccion || `row-${rowNumber}`} className={rowClass}>
         <td className="col-num">{rowNumber}</td>
         <td className="col-fecha">{formatFecha(t.hora_transaccion)}</td>
         <td className="col-contraparte">
-          <ContraparteCell info_pago={t.info_pago} />
+          {t.nombre_tipo_transaccion === 'venta' && t.costo_tienda != null ? (
+            <span className="libro-mayor-contraparte">
+              Venta {formatCurrency(t.monto + t.costo_tienda)} — {formatCurrency(t.costo_tienda)}
+            </span>
+          ) : (
+            <ContraparteCell info_pago={t.info_pago} />
+          )}
         </td>
         <td className="col-monto col-ingreso">
-          {isIngreso ? formatCurrency(t.monto) : ''}
+          {ing ? formatCurrency(t.monto) : ''}
         </td>
         <td className="col-monto col-egreso">
-          {isEgreso ? formatCurrency(Math.abs(t.monto)) : ''}
+          {egr ? formatCurrency(Math.abs(t.monto)) : ''}
         </td>
         <td className="col-monto">
           {showSaldo ? formatSaldo(saldoValue) : <span className="col-saldo">—</span>}
@@ -393,8 +407,7 @@ const LibroMayor: React.FC<LibroMayorProps> = ({
               return (
                 <React.Fragment>
                   {pendientes.map((t) => {
-                    if (t.monto > 0) saldo += t.monto;
-                    if (t.monto < 0) saldo += t.monto;
+                    saldo += t.monto;
                     return renderTransactionRow(t, 'block-pending', saldo, true, t.id_transaccion);
                   })}
 
@@ -436,8 +449,7 @@ const LibroMayor: React.FC<LibroMayorProps> = ({
               return (
                 <React.Fragment key={`block-${blockIdx}`}>
                   {block.map((t) => {
-                    if (t.monto > 0) saldo += t.monto;
-                    if (t.monto < 0) saldo += t.monto;
+                    saldo += t.monto;
                     const rowClass = `block-consolidado ${t.nombre_tipo_transaccion === 'ticket_consolidado' ? 'row-ticket-consolidado' : ''}`;
                     return renderTransactionRow(t, rowClass, saldo, true, t.id_transaccion);
                   })}
