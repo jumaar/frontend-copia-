@@ -128,14 +128,14 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     try {
       setProcesandoPago(true);
       const montoRedondeado = Math.round(montoFinal);
-      await procesarPago(usuarioSeleccionado, montoRedondeado, undefined, notaFinal);
+      const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, undefined, notaFinal);
 
       setTipoPago('');
       setMontoPago(0);
       setNotaPago('');
       setShowModal(false);
       setCodigo('');
-      setSuccessMessage('Pago procesado exitosamente.');
+      setSuccessMessage(`${respuesta.message} | Monto abonado: $${(respuesta.resumen?.monto_abonado ?? 0).toLocaleString()}`);
       await cargarTransacciones(usuarioSeleccionado);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {

@@ -48,7 +48,6 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
     try {
       setLoading(true);
       setError(null);
-      setSuccessMessage(null);
       setTransacciones(null);
 
       const data = await getTransaccionesFrigorifico(idUsuario, mes, año);
@@ -200,7 +199,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
             nuevasTransacciones.forEach(t => {
               if (t.nombre_estado_transaccion === 'PENDIENTE') {
                 t.nombre_estado_transaccion = 'PAGADO';
-                t.id_transaccion_rel = respuesta.id_transaccion;
+                t.id_transaccion_rel = respuesta.id_transaccion ?? respuesta.resumen?.id_transaccion;
               }
             });
           } else {
@@ -208,7 +207,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
               ...respuesta,
               nombre_tipo_transaccion: 'abono_adelantado',
               nombre_estado_transaccion: 'ADELANTADO',
-              id_transaccion_rel: respuesta.id_transaccion
+              id_transaccion_rel: respuesta.id_transaccion ?? respuesta.resumen?.id_transaccion
             });
           }
 

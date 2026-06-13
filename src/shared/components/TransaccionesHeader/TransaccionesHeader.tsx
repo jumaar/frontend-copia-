@@ -45,19 +45,21 @@ const TransaccionesHeader: React.FC<TransaccionesHeaderProps> = ({
         {title && titleSize === 'normal' && (
           <h2>{title}</h2>
         )}
-        <p className="periodo-info">
-          Período: {periodo.mes}/{periodo.año}
-          {esPeriodoActual && <span className="badge-actual">ACTUAL</span>}
-        </p>
+        <div className="th-period-row">
+          <p className="periodo-info">
+            Período: {periodo.mes}/{periodo.año}
+            {esPeriodoActual && <span className="badge-actual">ACTUAL</span>}
+          </p>
+          <BuscadorMeses
+            mesesHistoricos={mesesHistoricos}
+            mesSeleccionado={mesSeleccionado}
+            onConsultarMes={onConsultarMes}
+            loading={loading}
+          />
+        </div>
         {fechaCreacion && (
-          <p className="th-fecha-creacion">{fechaCreacion}</p>
+          <p className="th-fecha-creacion">Usuario desde: {fechaCreacion}</p>
         )}
-        <BuscadorMeses
-          mesesHistoricos={mesesHistoricos}
-          mesSeleccionado={mesSeleccionado}
-          onConsultarMes={onConsultarMes}
-          loading={loading}
-        />
       </div>
       {summary && (
         <div className="summary-info">

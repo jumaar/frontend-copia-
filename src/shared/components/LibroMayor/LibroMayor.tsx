@@ -42,14 +42,18 @@ const getEstadoBadgeClass = (estado: string): string => {
   return 'badge-neutral';
 };
 
+const MONTH_NAMES = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+];
+
 const LibroMayor: React.FC<LibroMayorProps> = ({ transactions, selectedMonth, selectedYear }) => {
   const formatFecha = (fecha: string): React.ReactNode => {
     const date = new Date(fecha);
-    const fechaStr = date.toLocaleDateString('es-CO', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = MONTH_NAMES[date.getMonth()];
+    const year = date.getFullYear();
+    const fechaStr = `${day} ${month} ${year}`;
     const horaStr = date.toLocaleTimeString('es-CO', {
       hour: '2-digit',
       minute: '2-digit',

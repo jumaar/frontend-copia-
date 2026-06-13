@@ -312,9 +312,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
       const nota = notaPago.trim() || undefined;
       const idLogistica = selectedLogistica?.id_usuario;
 
-      const tipoMov = tipoPago === 'abono' && data?.resumen.balance_neto_periodo < 0
-        ? 'egreso'
-        : 'consolidacion';
+      const tipoMov = tipoPago === 'abono' ? 'egreso' : 'consolidacion';
       const result = await registrarMovimientoAdmin(monto, tipoMov, nota, idLogistica);
 
       setShowModal(false);
@@ -523,9 +521,10 @@ const FinanzasLogisticaScreen: React.FC = () => {
             esPeriodoActual={data.esPeriodoActual}
             fechaCreacion={
               data.fechaCreacionUsuario
-                ? new Date(data.fechaCreacionUsuario).toLocaleDateString('es-CO', {
-                    year: 'numeric', month: 'long', day: 'numeric',
-                  })
+                ? (() => {
+                    const d = new Date(data.fechaCreacionUsuario);
+                    return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+                  })()
                 : undefined
             }
             mesesHistoricos={monthOptions.map(opt => ({
