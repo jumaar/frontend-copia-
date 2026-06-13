@@ -84,7 +84,8 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
       setError(null);
       setTransacciones(null);
 
-      const data = await getTransaccionesTienda(idUsuario, idNevera, mes, año);
+      const ahora = new Date();
+      const data = await getTransaccionesTienda(idUsuario, idNevera, mes ?? ahora.getMonth() + 1, año ?? ahora.getFullYear());
       setTransacciones(data);
 
       if (idNevera) {

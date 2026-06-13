@@ -556,7 +556,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
             loading={loading}
           />
 
-          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'calc(var(--spacing-unit) * 2)' }}>
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'calc(var(--spacing-unit) * 2)', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
             <SummaryCard
               title="Ingresos Totales $"
               value={formatNumber(data.resumen.total_ingresos)}

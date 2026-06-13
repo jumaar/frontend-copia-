@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useCuentasFrigorifico } from '../hooks/useCuentasFrigorifico';
 import { procesarPago } from '../../../../services/api';
-import Resumen from '../../../components/Resumen/Resumen';
-import TablaTransacciones from '../../../components/TablaTransacciones/TablaTransacciones';
+import TransaccionesHeader from '../../../components/TransaccionesHeader/TransaccionesHeader';
+import SummaryCard from '../../../components/SummaryCard/SummaryCard';
+import LibroMayor from '../../../components/LibroMayor/LibroMayor';
 import GestionCobro from '../../admin-superadmin-logistica/components/GestionCobro/GestionCobro';
 import ConfirmacionTransaccionModal from '../../admin-superadmin-logistica/components/ConfirmacionTransaccionModal/ConfirmacionTransaccionModal';
 import ProveedorSelector from '../../../components/ProveedorSelector/ProveedorSelector';
@@ -65,6 +66,22 @@ const FinanzasFrigorificoScreen: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [codigo, setCodigo] = useState('');
+
+  const formatNumber = (value: number): string => {
+    return new Intl.NumberFormat('es-CO', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const summaryMetrics = useMemo(() => {
+    if (!transacciones?.transacciones) return null;
+    const txs = transacciones.transacciones;
+    const totalIngresos = txs.filter((t: any) => t.monto > 0).reduce((s: number, t: any) => s + t.monto, 0);
+    const totalEgresos = txs.filter((t: any) => t.monto < 0).reduce((s: number, t: any) => s + Math.abs(t.monto), 0);
+    const balanceNeto = totalIngresos - totalEgresos;
+    return { totalIngresos, totalEgresos, balanceNeto };
+  }, [transacciones]);
 
   const frigorificoNombre = useMemo(() => {
     if (!usuarioSeleccionado) return '';
@@ -145,8 +162,8 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     }
   };
 
-  const resumenItems = useMemo(() => {
-    if (!transacciones) return [];
+  const resumenCards = useMemo(() => {
+    if (!transacciones) return null;
     const t = transacciones as any;
     const pendientes = t.transacciones.filter((tx: any) => tx.nombre_estado_transaccion === 'PENDIENTE').length;
     const consolidados = t.transacciones.filter((tx: any) => tx.nombre_tipo_transaccion === 'ticket_consolidado').length;
@@ -154,14 +171,8 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     const montoTotalMes = t.transacciones.filter((tx: any) =>
       tx.nombre_estado_transaccion === 'PENDIENTE' || tx.nombre_estado_transaccion === 'PAGADO'
     ).filter((tx: any) => tx.id_empaque !== null).reduce((sum: number, tx: any) => sum + tx.monto, 0);
-    return [
-      { label: 'Total Transacciones', value: String(t.total_transacciones), icon: '📊' },
-      { label: 'Pendientes', value: String(pendientes), icon: '⏳' },
-      { label: 'Consolidados', value: String(consolidados), icon: '✅' },
-      { label: 'Saldo Total (Pendientes)', value: formatMoneda(saldoTotalPendientes), icon: '💰' },
-      { label: 'Monto del Mes', value: formatMoneda(montoTotalMes), icon: '📅' },
-    ];
-  }, [transacciones, formatMoneda]);
+    return { totalTransacciones: t.total_transacciones, pendientes, consolidados, saldoTotalPendientes, montoTotalMes };
+  }, [transacciones]);
 
   if ((loadingUsuarios && isAdmin && !isSuperadmin) || (loadingAdmins && isSuperadmin)) {
     return (
@@ -291,41 +302,81 @@ const FinanzasFrigorificoScreen: React.FC = () => {
 
       {(isFrigorifico || usuarioSeleccionado) && (
         <>
-          <Resumen items={resumenItems} />
+          {resumenCards && (
+            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'calc(var(--spacing-unit) * 2)', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
+              <SummaryCard title="Total Transacc." value={String(resumenCards.totalTransacciones)} description="Período" variant="neutral" />
+              <SummaryCard title="Pendientes" value={String(resumenCards.pendientes)} description="Transacciones" variant="warning" />
+              <SummaryCard title="Monto del Mes" value={formatMoneda(resumenCards.montoTotalMes)} description="Empaques" variant="neutral" />
+            </section>
+          )}
 
           {transacciones && (
-            <div className="transacciones-container">
-              <TablaTransacciones
-                data={transacciones}
-                loading={loading}
-                error={error}
+            <>
+              <TransaccionesHeader
+                title={frigorificoNombre || user?.name || ''}
+                periodo={transacciones.periodo}
+                esPeriodoActual={transacciones.parametros_usados.es_periodo_actual}
+                fechaCreacion={(() => {
+                  const d = new Date(transacciones.fecha_creacion_usuario);
+                  const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+                })()}
                 mesesHistoricos={mesesHistoricos}
                 mesSeleccionado={mesSeleccionado}
                 onConsultarMes={consultarMesEspecifico}
-                variant="proveedor"
+                loading={loading}
               />
-            </div>
+
+              {summaryMetrics && (
+                <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'calc(var(--spacing-unit) * 2)', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
+                  <SummaryCard
+                    title="Ingresos Totales $"
+                    value={formatNumber(summaryMetrics.totalIngresos)}
+                    description="Período actual"
+                    variant="success"
+                  />
+                  <SummaryCard
+                    title="Egresos Totales $"
+                    value={formatNumber(summaryMetrics.totalEgresos)}
+                    description="Período actual"
+                    variant="danger"
+                  />
+                  <SummaryCard
+                    title="Balance Neto $"
+                    value={formatNumber(summaryMetrics.balanceNeto)}
+                    description="Período actual"
+                    variant={summaryMetrics.balanceNeto >= 0 ? 'success' : 'danger'}
+                  />
+                </section>
+              )}
+
+              {showGestionCobro && usuarioSeleccionado && esMesActual && (
+                <GestionCobro
+                  mode="entregar"
+                  tipoPago={tipoPago}
+                  setTipoPago={setTipoPago}
+                  montoPago={montoPago}
+                  setMontoPago={setMontoPago}
+                  notaPago={notaPago}
+                  setNotaPago={setNotaPago}
+                  procesandoPago={procesandoPago}
+                  onProcesarPago={handleProcesarPago}
+                  userName={frigorificoNombre}
+                  saldoTotalLiquidar={saldoPendientes}
+                  pendientesCount={pendientesCount}
+                  onConsolidarCero={consolidarCero}
+                  consolidandoCero={consolidandoCero}
+                />
+              )}
+
+              <LibroMayor
+                transactions={transacciones.transacciones}
+                selectedMonth={transacciones.periodo.mes}
+                selectedYear={transacciones.periodo.año}
+              />
+            </>
           )}
         </>
-      )}
-
-      {showGestionCobro && usuarioSeleccionado && esMesActual && (
-        <GestionCobro
-          mode="entregar"
-          tipoPago={tipoPago}
-          setTipoPago={setTipoPago}
-          montoPago={montoPago}
-          setMontoPago={setMontoPago}
-          notaPago={notaPago}
-          setNotaPago={setNotaPago}
-          procesandoPago={procesandoPago}
-          onProcesarPago={handleProcesarPago}
-          userName={frigorificoNombre}
-          saldoTotalLiquidar={saldoPendientes}
-          pendientesCount={pendientesCount}
-          onConsolidarCero={consolidarCero}
-          consolidandoCero={consolidandoCero}
-        />
       )}
 
       <ConfirmacionTransaccionModal

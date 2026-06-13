@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { getHistorialTienda, getTiendasSobrinas } from '../../../../services/api';
+import { generarMesesHistoricos } from '../../../../shared/hooks/useMesSelector';
 import type {
   UsuarioTienda,
   Ciudad,
@@ -31,22 +32,6 @@ export const formatFecha = (fecha: string): string => {
     hour: '2-digit',
     minute: '2-digit',
   });
-};
-
-export const generarMesesHistoricos = (fechaCreacion: string): MesItem[] => {
-  const fechaInicio = new Date(fechaCreacion);
-  const fechaActual = new Date();
-  const meses: MesItem[] = [];
-  const fechaTemp = new Date(fechaInicio);
-  while (fechaTemp <= fechaActual) {
-    meses.push({
-      mes: fechaTemp.getMonth() + 1,
-      año: fechaTemp.getFullYear(),
-      fecha: fechaTemp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
-    });
-    fechaTemp.setMonth(fechaTemp.getMonth() + 1);
-  }
-  return meses.reverse();
 };
 
 export const agruparConsolidados = (transacciones: Transaccion[]): TicketConsolidado[] => {
@@ -139,7 +124,8 @@ export const useHistorialTienda = ({ mode }: UseHistorialTiendaOptions) => {
       setLoading(true);
       setError(null);
       setSuccessMessage(null);
-      const data = await getHistorialTienda(idUsuario, mes, año);
+      const ahora = new Date();
+      const data = await getHistorialTienda(idUsuario, mes ?? ahora.getMonth() + 1, año ?? ahora.getFullYear());
       setHistorial(data);
       setExpandedNeveras(new Set());
     } catch (err: any) {

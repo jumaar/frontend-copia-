@@ -11,11 +11,8 @@ import {
   filtrarPendientes,
 } from '../../hooks/useHistorialTienda';
 import TransaccionesHeader from '../../../../components/TransaccionesHeader/TransaccionesHeader';
-import Resumen from '../../../../components/Resumen/Resumen';
-import EmpaquesPendientes from '../../../../components/EmpaquesPendientes/EmpaquesPendientes';
-import ConsolidatedTickets from '../../../../components/ConsolidatedTickets/ConsolidatedTickets';
-import type { ConsolidatedTicket } from '../../../../components/ConsolidatedTickets/ConsolidatedTickets';
-import TablaPendientes from '../../../../components/TablaPendientes/TablaPendientes';
+import SummaryCard from '../../../../components/SummaryCard/SummaryCard';
+import LibroMayor from '../../../../components/LibroMayor/LibroMayor';
 import Alert from '../../../../components/Alert/Alert';
 import './HistorialTiendaView.css';
 
@@ -65,11 +62,9 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
   mesesHistoricos,
   mesSeleccionado,
   expandedNeveras,
-  expandedConsolidados,
   expandedProductos,
   resumenGlobal,
   toggleNevera,
-  toggleConsolidado,
   toggleProducto,
   consultarMesEspecifico,
   setError,
@@ -78,17 +73,6 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
   const infoUsuario = historial;
   const neveras = historial?.neveras || [];
   const tiendaGroups = useMemo(() => agruparNeverasPorTienda(neveras), [neveras]);
-
-  const resumenItems = useMemo(() => {
-    if (!resumenGlobal) return [];
-    return [
-      { label: 'Tiendas hijas', value: String(tiendaGroups.length), icon: '🏪' },
-      { label: 'Total Neveras', value: String(resumenGlobal.totalNeveras), icon: '❄️' },
-      { label: 'Empaques Pendientes', value: `${resumenGlobal.totalEmpaquesPendientes} — ${formatMoneda(resumenGlobal.montoTotalEmpaques)}`, icon: '📦' },
-      { label: 'Consolidados', value: `${resumenGlobal.totalConsolidados} — ${formatMoneda(resumenGlobal.montoTotalConsolidados)}`, icon: '✅' },
-      { label: 'Monto Pendientes', value: formatMoneda(resumenGlobal.montoTotalPendientes), icon: '💰' },
-    ];
-  }, [resumenGlobal, tiendaGroups.length]);
 
   return (
     <div className="cuentas-page">
@@ -113,7 +97,13 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
             loading={loading}
           />
 
-          <Resumen items={resumenItems} />
+          {resumenGlobal && (
+            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'calc(var(--spacing-unit) * 2)', marginBottom: 'calc(var(--spacing-unit) * 3)' }}>
+              <SummaryCard title="Empaques Pend." value={String(resumenGlobal.totalEmpaquesPendientes)} description={formatMoneda(resumenGlobal.montoTotalEmpaques)} variant="warning" />
+              <SummaryCard title="Consolidados" value={String(resumenGlobal.totalConsolidados)} description={formatMoneda(resumenGlobal.montoTotalConsolidados)} variant="success" />
+              <SummaryCard title="Monto Pend." value={formatMoneda(resumenGlobal.montoTotalPendientes)} description="Saldo pendiente" variant="danger" />
+            </section>
+          )}
 
           {neveras.length === 0 && (
             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
@@ -157,27 +147,13 @@ const HistorialTiendaView: React.FC<HistorialTiendaViewProps> = ({
 
                         {isExpanded && (
                           <div className="historial-nevera-body">
-                            {neveraData.empaques && neveraData.empaques.length > 0 && (
-                              <EmpaquesPendientes
-                                empaques={neveraData.empaques}
-                                productos={neveraData.productos || []}
-                                promociones={neveraData.promociones || []}
-                                expandedProductos={expandedProductos.get(neveraData.nevera.id_nevera) ?? new Set()}
-                                onToggleProducto={(idProducto) => toggleProducto(neveraData.nevera.id_nevera, idProducto)}
+                            {neveraData.transacciones && neveraData.transacciones.length > 0 && (
+                              <LibroMayor
+                                transactions={neveraData.transacciones}
+                                selectedMonth={infoUsuario.periodo.mes}
+                                selectedYear={infoUsuario.periodo.año}
                               />
                             )}
-
-                            <ConsolidatedTickets
-                              variant="cliente"
-                              consolidados={consolidados as unknown as ConsolidatedTicket[]}
-                              expandedConsolidados={expandedConsolidados}
-                              toggleConsolidado={toggleConsolidado}
-                            />
-
-                            <TablaPendientes
-                              pendientes={pendientes}
-                              variant="cliente"
-                            />
                           </div>
                         )}
                       </div>

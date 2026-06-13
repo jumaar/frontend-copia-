@@ -7,30 +7,20 @@ export interface MesItem {
 }
 
 export function generarMesesHistoricos(fechaCreacion: string): MesItem[] {
-  const fechaInicio = new Date(fechaCreacion);
-  const fechaActual = new Date();
+  const inicio = new Date(fechaCreacion);
+  const ahora = new Date();
   const meses: MesItem[] = [];
-  const fechaTemp = new Date(fechaInicio);
 
-  while (fechaTemp <= fechaActual) {
+  const temp = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
+  const fin = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 0);
+
+  while (temp <= fin) {
     meses.push({
-      mes: fechaTemp.getMonth() + 1,
-      año: fechaTemp.getFullYear(),
-      fecha: fechaTemp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
+      mes: temp.getMonth() + 1,
+      año: temp.getFullYear(),
+      fecha: temp.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
     });
-    fechaTemp.setMonth(fechaTemp.getMonth() + 1);
-  }
-
-  const mesActual = fechaActual.getMonth() + 1;
-  const añoActual = fechaActual.getFullYear();
-  const existeMesActual = meses.some(m => m.mes === mesActual && m.año === añoActual);
-
-  if (!existeMesActual) {
-    meses.push({
-      mes: mesActual,
-      año: añoActual,
-      fecha: fechaActual.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }),
-    });
+    temp.setMonth(temp.getMonth() + 1);
   }
 
   return meses.reverse();

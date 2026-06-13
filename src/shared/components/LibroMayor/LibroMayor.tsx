@@ -404,6 +404,7 @@ const LibroMayor: React.FC<LibroMayorProps> = ({
                     </td>
                     <td className="block-summary-rule">
                       <span className="zero-rule zero-rule-pending" title="Bloque pendiente de consolidación">⏳</span>
+                      <span className="zero-rule-text">Pendiente</span>
                     </td>
                     <td colSpan={4}></td>
                   </tr>
@@ -447,9 +448,15 @@ const LibroMayor: React.FC<LibroMayorProps> = ({
                     </td>
                     <td className="block-summary-rule">
                       {saldo === 0 ? (
-                        <span className="zero-rule zero-rule-ok" title="El bloque cumple la regla de suma cero">✓</span>
+                        <>
+                          <span className="zero-rule zero-rule-ok" title="El bloque cumple la regla de suma cero">✓</span>
+                          <span className="zero-rule-text zero-rule-text-ok">Suma cero</span>
+                        </>
                       ) : (
-                        <span className="zero-rule zero-rule-fail" title={`El bloque no cumple la regla de suma cero (diferencia: ${formatCurrency(Math.abs(saldo))})`}>✗</span>
+                        <>
+                          <span className="zero-rule zero-rule-fail" title={`El bloque no cumple la regla de suma cero (diferencia: ${formatCurrency(Math.abs(saldo))})`}>✗</span>
+                          <span className="zero-rule-text zero-rule-text-fail">No cumple</span>
+                        </>
                       )}
                     </td>
                     <td colSpan={4}></td>

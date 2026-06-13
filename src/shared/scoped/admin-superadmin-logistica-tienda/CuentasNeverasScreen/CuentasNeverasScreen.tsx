@@ -238,21 +238,22 @@ const CuentasNeverasScreen: React.FC = () => {
           saldoTotalLiquidar={saldoTotalLiquidar}
           onToggleProducto={toggleProducto}
           onConsultarMes={consultarMesEspecifico}
-        />
-      )}
-
-      {puedeCobrar && tiendaSeleccionada && neveraSeleccionada && transacciones && esMesActual && (
-        <GestionCobro
-          tipoPago={tipoPago}
-          setTipoPago={setTipoPago}
-          montoPago={montoPago}
-          setMontoPago={setMontoPago}
-          notaPago={notaPago}
-          setNotaPago={setNotaPago}
-          procesandoPago={procesandoPago}
-          onProcesarPago={handleProcesarPago}
-          userName={entidadNombre}
-          saldoTotalLiquidar={saldoTotalLiquidar}
+          gestionCobroSlot={
+            puedeCobrar && tiendaSeleccionada && neveraSeleccionada && esMesActual ? (
+              <GestionCobro
+                tipoPago={tipoPago}
+                setTipoPago={setTipoPago}
+                montoPago={montoPago}
+                setMontoPago={setMontoPago}
+                notaPago={notaPago}
+                setNotaPago={setNotaPago}
+                procesandoPago={procesandoPago}
+                onProcesarPago={handleProcesarPago}
+                userName={entidadNombre}
+                saldoTotalLiquidar={saldoTotalLiquidar}
+              />
+            ) : undefined
+          }
         />
       )}
 

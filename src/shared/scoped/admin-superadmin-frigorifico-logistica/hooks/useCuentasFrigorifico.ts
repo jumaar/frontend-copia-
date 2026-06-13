@@ -50,7 +50,8 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
       setError(null);
       setTransacciones(null);
 
-      const data = await getTransaccionesFrigorifico(idUsuario, mes, año);
+      const ahora = new Date();
+      const data = await getTransaccionesFrigorifico(idUsuario, mes ?? ahora.getMonth() + 1, año ?? ahora.getFullYear());
       setTransacciones(data);
     } catch (err: any) {
       console.error('Error al cargar transacciones:', err);

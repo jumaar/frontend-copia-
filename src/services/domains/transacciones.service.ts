@@ -17,7 +17,7 @@ export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: num
     url = `/logistica/cuentas?id_usuario=${id_usuario}`;
   }
   if (mes && año) {
-    url += `&mes=${mes}&año=${año}`;
+    url += `${url.includes('?') ? '&' : '?'}mes=${mes}&año=${año}`;
   }
   const response = await apiClient.get(url);
   return response.data;
