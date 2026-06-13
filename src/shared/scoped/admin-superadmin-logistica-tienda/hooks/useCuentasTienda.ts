@@ -207,6 +207,7 @@ export const useCuentasTienda = ({ mode }: UseCuentasTiendaOptions) => {
       const respuesta = await procesarPago(
         userId,
         montoRedondeado,
+        tipoPago === 'pago' ? 'consolidacion' : 'egreso',
         neveraSeleccionada,
         notaFinal,
         empaquesAfectados.length > 0 ? empaquesAfectados : undefined

@@ -99,7 +99,7 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     try {
       setConsolidandoCero(true);
       setError(null);
-      const respuesta = await procesarPago(usuarioSeleccionado, 0, undefined, undefined);
+      const respuesta = await procesarPago(usuarioSeleccionado, 0, 'consolidacion', undefined, undefined);
       setSuccessMessage(respuesta.message || 'Consolidación con valor 0 realizada exitosamente.');
       await cargarTransacciones(usuarioSeleccionado);
       setTimeout(() => setSuccessMessage(null), 3000);
@@ -143,7 +143,7 @@ const FinanzasFrigorificoScreen: React.FC = () => {
     try {
       setProcesandoPago(true);
       const montoRedondeado = Math.round(montoFinal);
-      const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, undefined, notaFinal);
+      const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, tipoPago === 'pago' ? 'consolidacion' : 'egreso', undefined, notaFinal);
 
       setTipoPago('');
       setMontoPago(0);

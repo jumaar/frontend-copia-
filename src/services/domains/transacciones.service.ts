@@ -23,7 +23,7 @@ export const getTransaccionesTienda = async (id_usuario: number, id_nevera?: num
   return response.data;
 };
 
-export const procesarPago = async (id_usuario: number, monto: number, id_nevera?: number, nota_opcional?: string, empaques?: number[]) => {
+export const procesarPago = async (id_usuario: number, monto: number, tipo_movimiento: 'egreso' | 'consolidacion', id_nevera?: number, nota_opcional?: string, empaques?: number[]) => {
   let url: string;
   if (id_nevera) {
     url = `/logistica/cuentas/nevera/${id_nevera}`;
@@ -31,7 +31,7 @@ export const procesarPago = async (id_usuario: number, monto: number, id_nevera?
     url = `/logistica/cuentas?id_usuario=${id_usuario}`;
   }
 
-  const body: any = { monto, nota_opcional };
+  const body: any = { monto, tipo_movimiento, nota_opcional };
   if (empaques && empaques.length > 0) {
     body.empaques = empaques;
   }

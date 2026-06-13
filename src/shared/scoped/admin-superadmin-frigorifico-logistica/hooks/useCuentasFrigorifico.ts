@@ -178,7 +178,7 @@ export const useCuentasFrigorifico = ({ mode }: UseCuentasFrigorificoOptions) =>
       try {
         setProcesandoPago(true);
         const montoRedondeado = Math.round(montoFinal);
-        const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, undefined, notaFinal);
+        const respuesta = await procesarPago(usuarioSeleccionado, montoRedondeado, tipoPago === 'pago' ? 'consolidacion' : 'egreso', undefined, notaFinal);
 
         const esAdelantoSinDeuda = respuesta.resumen?.tipo_operacion === 'adelanto_sin_deuda';
 

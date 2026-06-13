@@ -154,6 +154,7 @@ const CuentasNeverasScreen: React.FC = () => {
       const respuesta = await procesarPago(
         userId,
         montoRedondeado,
+        tipoPago === 'pago' ? 'consolidacion' : 'egreso',
         neveraSeleccionada,
         notaFinal,
         empaquesAfectados.length > 0 ? empaquesAfectados : undefined
