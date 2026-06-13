@@ -334,6 +334,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
   };
 
   const handleConsolidarCero = () => {
+    if (isAdmin) return;
     setCodigo('');
     setShowModalConsolidar(true);
   };
@@ -580,6 +581,7 @@ const FinanzasLogisticaScreen: React.FC = () => {
               }
               onConsolidarCero={handleConsolidarCero}
               consolidandoCero={consolidandoCero}
+              soloAbonos={isAdmin}
             />
           )}
 

@@ -17,6 +17,7 @@ interface GestionCobroProps {
   pendientesCount?: number;
   onConsolidarCero?: () => void;
   consolidandoCero?: boolean;
+  soloAbonos?: boolean;
 }
 
 const LABELS: Record<string, { titulo: string; saldo: string; tipoTotal: string; btnTotal: string; placeholderNota: string }> = {
@@ -51,6 +52,7 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
   pendientesCount,
   onConsolidarCero,
   consolidandoCero,
+  soloAbonos = false,
 }) => {
   const L = LABELS[mode];
 
@@ -71,7 +73,7 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
 
   const saldoNegativo = saldoTotalLiquidar != null && saldoTotalLiquidar < 0;
   const sinPendientes = (pendientesCount ?? 0) === 0;
-  const ocultarPagoTotal = saldoNegativo || saldoTotalLiquidar === 0 || sinPendientes;
+  const ocultarPagoTotal = soloAbonos || saldoNegativo || saldoTotalLiquidar === 0 || sinPendientes;
 
   const opcionesTipo: Array<{ id: string; label: string }> = [
     ...(ocultarPagoTotal ? [] : [{ id: 'pago', label: L.tipoTotal }]),
@@ -90,29 +92,38 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
         <h3 className="gestion-cobro-title">{L.titulo} {userName ? `${preposicion} ${userName}` : ''}</h3>
         {onConsolidarCero && (
           <button
-            className={`gestion-cobro-consolidar-cero ${puedeConsolidarCero ? 'gestion-cobro-consolidar-cero--activo' : ''}`}
+            className={`gestion-cobro-consolidar-cero ${!soloAbonos && puedeConsolidarCero ? 'gestion-cobro-consolidar-cero--activo' : ''}`}
             onClick={onConsolidarCero}
-            disabled={!puedeConsolidarCero || consolidandoCero}
-            title={puedeConsolidarCero
-              ? 'Consolida todas las transacciones pendientes con un valor de $0 cuando no hay saldo por cobrar.'
-              : 'Este botón se activa cuando el saldo pendiente es $0 y existen transacciones en estado PENDIENTE.'}
+            disabled={soloAbonos || !puedeConsolidarCero || consolidandoCero}
+            title={soloAbonos
+              ? 'La consolidación de cuentas de un logista las debe hacer el propio logista en sus finanzas.'
+              : puedeConsolidarCero
+                ? 'Consolida todas las transacciones pendientes con un valor de $0 cuando no hay saldo por cobrar.'
+                : 'Este botón se activa cuando el saldo pendiente es $0 y existen transacciones en estado PENDIENTE.'}
           >
             <span className="gestion-cobro-consolidar-cero-text">
               {consolidandoCero ? 'Consolidando...' : 'Consolidar con valor 0'}
             </span>
             <span className="gestion-cobro-consolidar-cero-tooltip">
-              {puedeConsolidarCero
-                ? 'Consolida todas las transacciones pendientes con un valor de $0 cuando no hay saldo por cobrar.'
-                : 'Este botón se activa cuando el saldo pendiente es $0 y existen transacciones en estado PENDIENTE.'}
+              {soloAbonos
+                ? 'La consolidación de cuentas de un logista las debe hacer el propio logista en sus finanzas.'
+                : puedeConsolidarCero
+                  ? 'Consolida todas las transacciones pendientes con un valor de $0 cuando no hay saldo por cobrar.'
+                  : 'Este botón se activa cuando el saldo pendiente es $0 y existen transacciones en estado PENDIENTE.'}
             </span>
           </button>
         )}
       </div>
 
-      {saldoTotalLiquidar != null && (
+      {soloAbonos ? (
         <div className="gestion-cobro-saldo">
           <strong>{L.saldo}:</strong>{' '}
-          {saldoTotalLiquidar != null && saldoTotalLiquidar < 0 ? (
+          <span className="gestion-cobro-saldo-monto">{formatMoneda(montoPago)}</span>
+        </div>
+      ) : saldoTotalLiquidar != null && (
+        <div className="gestion-cobro-saldo">
+          <strong>{L.saldo}:</strong>{' '}
+          {saldoTotalLiquidar < 0 ? (
             <span className="gestion-cobro-saldo-monto gestion-cobro-saldo-monto--negativo">
               <span className="gestion-cobro-saldo-signo">−</span>{formatMoneda(Math.abs(saldoTotalLiquidar))}
             </span>
@@ -135,11 +146,13 @@ const GestionCobro: React.FC<GestionCobroProps> = ({
         />
         {ocultarPagoTotal && (
           <span className="gestion-cobro-saldo-sin-deuda" style={{ display: 'block', marginTop: '8px' }}>
-            {saldoNegativo
-              ? '⚠️ Saldo negativo: solo se permiten abonos.'
-              : puedeConsolidarCero
-                ? '✅ Usa el botón «Consolidar con valor 0» para cerrar las transacciones pendientes.'
-                : '⚠️ Sin transacciones pendientes: solo se permiten abonos.'}
+            {soloAbonos
+              ? '⚠️ Solo se permiten abonos. La consolidación la debe hacer el logista en sus finanzas.'
+              : saldoNegativo
+                ? '⚠️ Saldo negativo: solo se permiten abonos.'
+                : puedeConsolidarCero
+                  ? '✅ Usa el botón «Consolidar con valor 0» para cerrar las transacciones pendientes.'
+                  : '⚠️ Sin transacciones pendientes: solo se permiten abonos.'}
           </span>
         )}
       </div>
